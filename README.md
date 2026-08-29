@@ -1,10 +1,10 @@
-# Breast Cancer Decision Tree Demo
+# Breast Cancer Machine Learning Demo
 
 ## English
 
 ### Project and team
 
-Breast Cancer Decision Tree Demo is **Team 4's Lab 02 project** for the
+Breast Cancer Machine Learning Demo is **Team 4's Lab 02 project** for the
 **Introduction to Artificial Intelligence** course at the Faculty of Information
 Technology, University of Science, Vietnam National University Ho Chi Minh City.
 
