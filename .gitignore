@@ -1,0 +1,110 @@
+# Assignment brief and local source documents
+Lab 2 - Decision Tree.pdf
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.python-version
+.venv/
+venv/
+env/
+ENV/
+.direnv/
+.envrc
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+junit.xml
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Jupyter
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Frontend
+node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/coverage/
+.npm/
+.pnpm-store/
+.yarn/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+
+# Data: raw/derived files stay local; small samples may be tracked explicitly
+data/raw/**
+!data/raw/.gitkeep
+data/processed/**
+!data/processed/.gitkeep
+data/external/
+
+# Generated models and experiment output
+artifacts/
+models/
+experiments/results/**
+!experiments/results/README.md
+*.joblib
+*.pkl
+*.pickle
+mlruns/
+wandb/
+
+# Runtime, deployment and logs
+tmp/
+temp/
+logs/
+*.log
+.cache/
+*.pid
+.vercel/
+.render/
+
+# Submission binaries remain local
+submission/*.zip
+submission/*.mp4
+submission/*.pdf
+
+# IDEs and editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# Operating systems and office temp files
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.~lock.*#
+~$*.docx
+~$*.pptx
+~$*.xlsx
