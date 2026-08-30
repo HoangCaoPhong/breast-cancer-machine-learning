@@ -475,7 +475,7 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
   {
     id: 'I3',
     name: 'Tuning Min Samples Split & Leaf (Best)',
-    nameVi: '[I3] Tối ưu kết hợp: Min Samples Split/Leaf & Entropy',
+    nameVi: 'Mô hình Tối ưu kết hợp: Cắt tỉa nhánh & Entropy',
     assignedTo: 'Experiment I3',
     criterion: 'Entropy',
     maxDepth: 4,
@@ -491,7 +491,7 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
   {
     id: 'C0',
     name: 'Custom Decision Tree from Scratch',
-    nameVi: '[C0] Cây Quyết Định tự cài đặt từ đầu (Custom Tree)',
+    nameVi: 'Cây Quyết định tự xây dựng từ đầu (Custom Tree)',
     assignedTo: 'Experiment C0',
     criterion: 'Gini',
     maxDepth: 4,
@@ -507,7 +507,7 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
   {
     id: 'B0',
     name: 'Sklearn Baseline Model (Unpruned Tree)',
-    nameVi: '[B0] Mô hình Cơ sở Sklearn Baseline (Unpruned, Gini)',
+    nameVi: 'Mô hình Cơ sở Sklearn Baseline (Unpruned, Gini)',
     assignedTo: 'Baseline B0',
     criterion: 'Gini',
     maxDepth: 'None',
@@ -523,7 +523,7 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
   {
     id: 'I1',
     name: 'Tuning Max Depth (depth=3)',
-    nameVi: '[I1] Cải tiến 1: Khống chế Độ sâu max_depth=3',
+    nameVi: 'Cải tiến 1: Giới hạn Độ sâu cây (max_depth=3)',
     assignedTo: 'Experiment I1',
     criterion: 'Gini',
     maxDepth: 3,
@@ -539,7 +539,7 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
   {
     id: 'I2',
     name: 'Splitting Criterion: Entropy vs Gini',
-    nameVi: '[I2] Cải tiến 2: Tiêu chuẩn phân hoạch Gini vs Entropy',
+    nameVi: 'Cải tiến 2: Tiêu chuẩn phân hoạch Gini vs Entropy',
     assignedTo: 'Experiment I2',
     criterion: 'Entropy',
     maxDepth: 4,
@@ -557,7 +557,7 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
 export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   {
     id: 'B0',
-    name: 'Sklearn Baseline (Unpruned)',
+    name: 'Mô hình Cơ sở (Sklearn Baseline)',
     assignedTo: 'Baseline',
     criterion: 'Gini',
     maxDepth: 'None',
@@ -570,7 +570,7 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   },
   {
     id: 'C0',
-    name: 'Custom Tree from Scratch',
+    name: 'Cây Quyết Định Tự Lập Trình (From Scratch)',
     assignedTo: 'Scratch',
     criterion: 'Gini',
     maxDepth: 4,
@@ -583,7 +583,7 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   },
   {
     id: 'I1',
-    name: 'Tuning Max Depth (depth=3)',
+    name: 'Cải tiến 1: Giới hạn Chiều sâu (max_depth=3)',
     assignedTo: 'Max Depth',
     criterion: 'Gini',
     maxDepth: 3,
@@ -596,7 +596,7 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   },
   {
     id: 'I2',
-    name: 'Gini vs Entropy (Criterion=Entropy)',
+    name: 'Cải tiến 2: Tiêu chuẩn Entropy (Information Gain)',
     assignedTo: 'Criterion',
     criterion: 'Entropy',
     maxDepth: 4,
@@ -609,7 +609,7 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   },
   {
     id: 'I3',
-    name: 'Tuning Min Samples Split & Leaf (Best)',
+    name: 'Cải tiến 3: Tối ưu Cắt tỉa & Min Samples (Tốt nhất)',
     assignedTo: 'Min Samples',
     criterion: 'Entropy',
     maxDepth: 4,

@@ -145,7 +145,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
                     {meta.vietnameseLabel} <span className="text-on-surface-variant font-normal">({meta.label.replace(/\s*\((Mean|SE|Worst)\)/i, '')})</span>
                   </span>
                   <span className="text-[11px] text-outline font-normal">
-                    [{meta.unit}]
+                    ({meta.unit})
                   </span>
                 </label>
                 <input
@@ -176,7 +176,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               onClick={() => handleApplyPreset(PRESET_SAMPLES[0])}
               className="px-3 py-1.5 text-primary border border-primary rounded-lg font-sans text-xs hover:bg-surface-container-low transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">sample_tracking</span> Mẫu khối u lành tính
+              <span className="material-symbols-outlined text-sm">check_circle</span> Mẫu khối u lành tính
             </button>
             <button
               type="button"
@@ -190,7 +190,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               onClick={() => handleApplyPreset(PRESET_SAMPLES[2])}
               className="px-3 py-1.5 text-on-surface-variant border border-outline-variant rounded-lg font-sans text-xs hover:bg-surface-container-low transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">help_outline</span> Mẫu ranh giới nghi ngờ
+              <span className="material-symbols-outlined text-sm">help</span> Mẫu ranh giới nghi ngờ
             </button>
           </div>
 

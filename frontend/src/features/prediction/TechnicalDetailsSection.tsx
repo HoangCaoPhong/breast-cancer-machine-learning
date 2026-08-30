@@ -89,7 +89,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                 : 'text-on-surface-variant hover:text-primary'
             }`}
           >
-            <span className="material-symbols-outlined text-sm">dataset</span>
+            <span className="material-symbols-outlined text-sm">description</span>
             Hồ sơ Bộ dữ liệu
           </button>
         </div>
@@ -239,7 +239,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                       }`}
                     >
                       <td className="p-3 text-on-surface font-sans font-medium">
-                        [{exp.id}] {exp.name}
+                        {exp.name}
                       </td>
                       <td className="p-3 text-on-surface font-sans">{exp.criterion}</td>
                       <td className="p-3 text-on-surface">{exp.maxDepth}</td>
@@ -279,7 +279,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
           <div className="space-y-4 font-sans text-xs text-on-surface">
             <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-3">
               <h4 className="font-bold text-sm text-primary flex items-center gap-2">
-                <span className="material-symbols-outlined text-base">database</span>
+                <span className="material-symbols-outlined text-base">storage</span>
                 Bộ Dữ Liệu UCI Breast Cancer Wisconsin (Diagnostic)
               </h4>
               <p className="text-on-surface-variant leading-relaxed">
