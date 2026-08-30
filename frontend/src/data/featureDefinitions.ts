@@ -473,9 +473,10 @@ export const PRESET_SAMPLES: PresetSample[] = [
 
 export const MODEL_OPTIONS: ModelOptionInfo[] = [
   {
-    id: 'best',
-    name: 'Best Improved Model (Entropy + Depth=4 + MinSplit=4)',
-    nameVi: 'Mô hình Tối ưu nhất (I3: Entropy, Depth=4, MinSplit=4)',
+    id: 'I3',
+    name: 'Tuning Min Samples Split & Leaf (Best)',
+    nameVi: '[I3] Tối ưu kết hợp: Min Samples Split/Leaf & Entropy',
+    assignedTo: 'Experiment I3',
     criterion: 'Entropy',
     maxDepth: 4,
     minSamplesSplit: 4,
@@ -488,9 +489,10 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
     descriptionVi: 'Mô hình kết hợp Information Gain (Entropy), khống chế độ sâu và điều chỉnh min_samples.',
   },
   {
-    id: 'scratch',
-    name: 'Custom Decision Tree from Scratch (C0)',
-    nameVi: 'Cây Quyết Định tự cài đặt từ đầu (C0: Custom Tree)',
+    id: 'C0',
+    name: 'Custom Decision Tree from Scratch',
+    nameVi: '[C0] Cây Quyết Định tự cài đặt từ đầu (Custom Tree)',
+    assignedTo: 'Experiment C0',
     criterion: 'Gini',
     maxDepth: 4,
     minSamplesSplit: 2,
@@ -503,9 +505,10 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
     descriptionVi: 'Thuật toán Decision Tree tự xây dựng không sử dụng sklearn.tree.',
   },
   {
-    id: 'baseline',
-    name: 'Sklearn Baseline Model (B0: Unpruned Tree)',
-    nameVi: 'Mô hình Cơ sở Sklearn Baseline (B0: Unpruned, Gini)',
+    id: 'B0',
+    name: 'Sklearn Baseline Model (Unpruned Tree)',
+    nameVi: '[B0] Mô hình Cơ sở Sklearn Baseline (Unpruned, Gini)',
+    assignedTo: 'Baseline B0',
     criterion: 'Gini',
     maxDepth: 'None',
     minSamplesSplit: 2,
@@ -518,9 +521,10 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
     descriptionVi: 'Mô hình mặc định bằng scikit-learn không giới hạn độ sâu.',
   },
   {
-    id: 'depth_tune',
-    name: 'Tuned Max Depth Model (I1: depth=3)',
-    nameVi: 'Cải tiến 1: Khống chế Độ sâu (I1: max_depth=3)',
+    id: 'I1',
+    name: 'Tuning Max Depth (depth=3)',
+    nameVi: '[I1] Cải tiến 1: Khống chế Độ sâu max_depth=3',
+    assignedTo: 'Experiment I1',
     criterion: 'Gini',
     maxDepth: 3,
     minSamplesSplit: 2,
@@ -530,7 +534,23 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
     recallMalignant: null,
     f1Score: null,
     precision: null,
-    descriptionVi: 'Giới hạn độ sâu tối đa max_depth=3 giúp đơn giản hóa cây.',
+    descriptionVi: 'Giới hạn độ sâu tối đa max_depth=3 giúp đơn giản hóa cây và tránh overfitting.',
+  },
+  {
+    id: 'I2',
+    name: 'Splitting Criterion: Entropy vs Gini',
+    nameVi: '[I2] Cải tiến 2: Tiêu chuẩn phân hoạch Gini vs Entropy',
+    assignedTo: 'Experiment I2',
+    criterion: 'Entropy',
+    maxDepth: 4,
+    minSamplesSplit: 2,
+    minSamplesLeaf: 1,
+    accuracy: null,
+    errorRate: null,
+    recallMalignant: null,
+    f1Score: null,
+    precision: null,
+    descriptionVi: 'So sánh tiêu chuẩn Information Gain (Entropy) và Gini Impurity.',
   },
 ];
 
@@ -538,6 +558,7 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   {
     id: 'B0',
     name: 'Sklearn Baseline (Unpruned)',
+    assignedTo: 'Baseline',
     criterion: 'Gini',
     maxDepth: 'None',
     minSamplesSplit: 2,
@@ -550,6 +571,7 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   {
     id: 'C0',
     name: 'Custom Tree from Scratch',
+    assignedTo: 'Scratch',
     criterion: 'Gini',
     maxDepth: 4,
     minSamplesSplit: 2,
@@ -562,6 +584,7 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   {
     id: 'I1',
     name: 'Tuning Max Depth (depth=3)',
+    assignedTo: 'Max Depth',
     criterion: 'Gini',
     maxDepth: 3,
     minSamplesSplit: 2,
@@ -574,6 +597,7 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   {
     id: 'I2',
     name: 'Gini vs Entropy (Criterion=Entropy)',
+    assignedTo: 'Criterion',
     criterion: 'Entropy',
     maxDepth: 4,
     minSamplesSplit: 2,
@@ -586,6 +610,7 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   {
     id: 'I3',
     name: 'Tuning Min Samples Split & Leaf (Best)',
+    assignedTo: 'Min Samples',
     criterion: 'Entropy',
     maxDepth: 4,
     minSamplesSplit: 4,

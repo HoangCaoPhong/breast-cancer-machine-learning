@@ -25,18 +25,18 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
             <h1 className="font-headline-md text-sm font-bold text-on-surface">
               OncoTree Classifier
             </h1>
-            <p className="font-label-mono text-[11px] text-on-surface-variant">
-              HCMUS · AI Lab 02
+            <p className="font-sans text-xs text-on-surface-variant">
+              Hỗ trợ Dự đoán Ung thư Vú
             </p>
           </div>
         </div>
 
         <button
           onClick={onResetFeatures}
-          className="w-full bg-primary text-on-primary py-2 px-3 rounded-lg font-label-mono text-xs font-semibold hover:bg-primary-container transition-colors shadow-sm flex items-center justify-center gap-1.5"
+          className="w-full bg-primary text-on-primary py-2 px-3 rounded-lg font-sans text-xs font-semibold hover:bg-primary-container transition-colors shadow-sm flex items-center justify-center gap-1.5"
         >
           <span className="material-symbols-outlined text-sm">restart_alt</span>
-          Làm mới dữ liệu (Reset)
+          Xóa dữ liệu đã nhập
         </button>
       </div>
 
@@ -46,7 +46,7 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
           <button
             type="button"
             onClick={() => onViewChange('prediction')}
-            className={`w-full flex items-center gap-3 px-gutter py-3 font-label-mono text-xs text-left transition-colors ${
+            className={`w-full flex items-center gap-3 px-gutter py-3 font-sans text-xs text-left transition-colors ${
               activeView === 'prediction'
                 ? 'text-primary font-bold border-r-4 border-primary bg-surface-container-high'
                 : 'text-on-surface-variant hover:bg-surface-container-high'
@@ -58,7 +58,7 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
             >
               biotech
             </span>
-            <span>Dự đoán &amp; Nhập liệu</span>
+            <span>1. Chẩn đoán &amp; Dự đoán</span>
           </button>
         </li>
 
@@ -66,7 +66,7 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
           <button
             type="button"
             onClick={() => onViewChange('tree')}
-            className={`w-full flex items-center gap-3 px-gutter py-3 font-label-mono text-xs text-left transition-colors ${
+            className={`w-full flex items-center gap-3 px-gutter py-3 font-sans text-xs text-left transition-colors ${
               activeView === 'tree'
                 ? 'text-primary font-bold border-r-4 border-primary bg-surface-container-high'
                 : 'text-on-surface-variant hover:bg-surface-container-high'
@@ -78,7 +78,7 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
             >
               schema
             </span>
-            <span>Sơ đồ Cây Quyết Định</span>
+            <span>2. Cấu trúc Cây Quyết định</span>
           </button>
         </li>
 
@@ -86,7 +86,7 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
           <button
             type="button"
             onClick={() => onViewChange('experiments')}
-            className={`w-full flex items-center gap-3 px-gutter py-3 font-label-mono text-xs text-left transition-colors ${
+            className={`w-full flex items-center gap-3 px-gutter py-3 font-sans text-xs text-left transition-colors ${
               activeView === 'experiments'
                 ? 'text-primary font-bold border-r-4 border-primary bg-surface-container-high'
                 : 'text-on-surface-variant hover:bg-surface-container-high'
@@ -98,7 +98,7 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
             >
               table_chart
             </span>
-            <span>So sánh Thực nghiệm</span>
+            <span>3. Đánh giá &amp; So sánh Mô hình</span>
           </button>
         </li>
 
@@ -106,7 +106,7 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
           <button
             type="button"
             onClick={() => onViewChange('dataset')}
-            className={`w-full flex items-center gap-3 px-gutter py-3 font-label-mono text-xs text-left transition-colors ${
+            className={`w-full flex items-center gap-3 px-gutter py-3 font-sans text-xs text-left transition-colors ${
               activeView === 'dataset'
                 ? 'text-primary font-bold border-r-4 border-primary bg-surface-container-high'
                 : 'text-on-surface-variant hover:bg-surface-container-high'
@@ -118,16 +118,15 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
             >
               description
             </span>
-            <span>Dataset &amp; Provenance</span>
+            <span>4. Thông tin Bộ dữ liệu UCI</span>
           </button>
         </li>
       </ul>
 
-      {/* Team Info at Bottom */}
-      <div className="mt-auto px-gutter pt-4 border-t border-outline-variant text-[11px] font-label-mono text-on-surface-variant space-y-1">
-        <div className="font-bold text-on-surface">Nhóm 4 · Khóa 2024</div>
-        <div>ĐH Khoa học Tự nhiên TP.HCM</div>
-        <div className="text-[10px] text-outline">UCI Breast Cancer (ID: 17)</div>
+      {/* Bottom Metadata */}
+      <div className="mt-auto px-gutter pt-3 border-t border-outline-variant text-xs font-sans text-on-surface-variant space-y-0.5">
+        <div className="font-semibold text-on-surface">Đồ án: Cây Quyết Định</div>
+        <div className="text-[11px] text-outline">UCI Diagnostic Dataset #17</div>
       </div>
     </nav>
   );

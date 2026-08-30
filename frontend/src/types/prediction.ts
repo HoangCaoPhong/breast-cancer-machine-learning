@@ -85,12 +85,23 @@ export interface TreeNodeData {
   children?: TreeNodeData[];
 }
 
-export type ModelOptionId = 'best' | 'scratch' | 'baseline' | 'depth_tune';
+export type ModelOptionId =
+  | 'I3'
+  | 'C0'
+  | 'B0'
+  | 'I1'
+  | 'I2'
+  | 'best'
+  | 'scratch'
+  | 'baseline'
+  | 'depth_tune'
+  | 'entropy';
 
 export interface ModelOptionInfo {
   id: ModelOptionId;
   name: string;
   nameVi: string;
+  assignedTo: string;
   criterion: 'Entropy' | 'Gini';
   maxDepth: number | 'None';
   minSamplesSplit: number;
@@ -137,6 +148,7 @@ export interface PresetSample {
 export interface ModelExperiment {
   id: string;
   name: string;
+  assignedTo?: string;
   criterion: 'Gini' | 'Entropy';
   maxDepth: number | 'None';
   minSamplesSplit: number;
@@ -146,4 +158,11 @@ export interface ModelExperiment {
   recallMalignant: number | null;
   errorRate: number | null;
   isBest?: boolean;
+}
+
+export interface TreeStructureResponse {
+  modelId: string;
+  rootNode: TreeNodeData;
+  depth: number;
+  leafCount: number;
 }

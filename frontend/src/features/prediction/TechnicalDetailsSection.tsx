@@ -43,13 +43,13 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
       {/* Header & Sub-tabs */}
       <div className="border-b border-outline-variant bg-surface-bright p-stack-md flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className="material-symbols-outlined text-primary">account_tree</span>
+          <span className="material-symbols-outlined text-primary">schema</span>
           <div>
             <h3 className="font-headline-md text-headline-md text-on-surface">
-              Phân Tích Cây Quyết Định &amp; Thực Nghiệm (Lab 02)
+              Cơ sở Phân tích &amp; Báo cáo Thực nghiệm
             </h3>
-            <p className="text-xs font-label-mono text-on-surface-variant">
-              Hiển thị cấu trúc cây, bảng so sánh 5 mô hình và dữ liệu nguồn UCI
+            <p className="text-xs font-sans text-on-surface-variant">
+              Trực quan hóa cấu trúc cây quyết định, bảng đối chiếu hiệu năng giữa các phương pháp và hồ sơ dữ liệu
             </p>
           </div>
         </div>
@@ -59,38 +59,38 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
           <button
             type="button"
             onClick={() => onTabChange('tree')}
-            className={`px-3 py-1.5 font-label-mono text-xs rounded-md transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 font-sans text-xs rounded-md transition-colors flex items-center gap-1.5 ${
               activeTab === 'tree'
                 ? 'bg-white text-primary font-bold shadow-sm'
                 : 'text-on-surface-variant hover:text-primary'
             }`}
           >
-            <span className="material-symbols-outlined text-sm">schema</span>
-            Sơ đồ Cây
+            <span className="material-symbols-outlined text-sm">account_tree</span>
+            Cấu trúc Cây Quyết định
           </button>
           <button
             type="button"
             onClick={() => onTabChange('experiments')}
-            className={`px-3 py-1.5 font-label-mono text-xs rounded-md transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 font-sans text-xs rounded-md transition-colors flex items-center gap-1.5 ${
               activeTab === 'experiments'
                 ? 'bg-white text-primary font-bold shadow-sm'
                 : 'text-on-surface-variant hover:text-primary'
             }`}
           >
             <span className="material-symbols-outlined text-sm">table_chart</span>
-            So Sánh 5 Mô Hình
+            So sánh Các Phương pháp
           </button>
           <button
             type="button"
             onClick={() => onTabChange('dataset')}
-            className={`px-3 py-1.5 font-label-mono text-xs rounded-md transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 font-sans text-xs rounded-md transition-colors flex items-center gap-1.5 ${
               activeTab === 'dataset'
                 ? 'bg-white text-primary font-bold shadow-sm'
                 : 'text-on-surface-variant hover:text-primary'
             }`}
           >
-            <span className="material-symbols-outlined text-sm">database</span>
-            Dataset UCI
+            <span className="material-symbols-outlined text-sm">dataset</span>
+            Hồ sơ Bộ dữ liệu
           </button>
         </div>
       </div>
@@ -100,32 +100,32 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
         {activeTab === 'tree' && (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <span className="text-xs font-label-mono text-on-surface-variant">
-                Độ sâu max_depth = 4 · Tiêu chuẩn phân hoạch: Information Gain (Entropy)
+              <span className="text-xs font-sans text-on-surface-variant">
+                Độ sâu giới hạn: 4 tầng · Tiêu chuẩn phân hoạch: Độ lợi thông tin (Information Gain / Entropy)
               </span>
-              <div className="flex items-center gap-2 text-xs font-mono">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-highest text-tertiary-container font-bold">
-                  ● Lành tính (Benign)
+              <div className="flex items-center gap-2 text-xs font-sans">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-surface-container-highest text-tertiary-container font-semibold">
+                  ● Nhóm Lành tính
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-error-container text-error font-bold">
-                  ● Ác tính (Malignant)
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-error-container text-error font-semibold">
+                  ● Nhóm Ác tính
                 </span>
               </div>
             </div>
 
             {/* Hierarchical Tree Box */}
-            <div className="overflow-x-auto bg-surface-container-low border border-outline-variant rounded-xl p-5 font-mono text-xs space-y-4">
+            <div className="overflow-x-auto bg-surface-container-low border border-outline-variant rounded-xl p-5 font-sans text-xs space-y-4">
               {/* Level 0: Root */}
               <div className="flex flex-col items-center">
                 <div className="bg-white border-2 border-primary rounded-lg p-3 text-center shadow-sm max-w-sm w-full">
                   <div className="font-bold text-primary text-sm">
-                    [Node Gốc] {FULL_DECISION_TREE_STRUCTURE.feature} &lt;= {FULL_DECISION_TREE_STRUCTURE.threshold}
+                    Nút gốc: Chu vi lớn nhất (perimeter_worst) ≤ {FULL_DECISION_TREE_STRUCTURE.threshold} mm
                   </div>
-                  <div className="text-on-surface-variant text-[11px] mt-0.5">
-                    {FULL_DECISION_TREE_STRUCTURE.criterion} · samples = {FULL_DECISION_TREE_STRUCTURE.samples}
+                  <div className="text-on-surface-variant text-[11px] mt-0.5 font-mono">
+                    {FULL_DECISION_TREE_STRUCTURE.criterion} · Tổng số mẫu = {FULL_DECISION_TREE_STRUCTURE.samples}
                   </div>
-                  <div className="text-[11px] text-on-surface font-semibold mt-0.5">
-                    values = [Lành: {FULL_DECISION_TREE_STRUCTURE.values?.[0]}, Ác: {FULL_DECISION_TREE_STRUCTURE.values?.[1]}]
+                  <div className="text-[11px] text-on-surface font-medium mt-0.5">
+                    Phân phối mẫu: [Lành tính: {FULL_DECISION_TREE_STRUCTURE.values?.[0]}, Ác tính: {FULL_DECISION_TREE_STRUCTURE.values?.[1]}]
                   </div>
                 </div>
                 <div className="w-0.5 h-6 bg-outline-variant my-1" />
@@ -134,55 +134,55 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
               {/* Level 1: Subtrees */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left Subtree (<= 105.95) */}
-                <div className="flex flex-col items-center bg-white/70 p-4 rounded-xl border border-outline-variant">
-                  <span className="text-[11px] font-bold text-tertiary-container mb-2 bg-surface-container-highest px-2 py-0.5 rounded">
-                    Nhánh Trái (perimeter_worst &lt;= 105.95)
+                <div className="flex flex-col items-center bg-white/80 p-4 rounded-xl border border-outline-variant">
+                  <span className="text-[11px] font-semibold text-tertiary-container mb-2 bg-surface-container-highest px-2.5 py-0.5 rounded">
+                    Nhánh Trái: Chu vi lớn nhất ≤ 105.95 mm (Khuynh hướng lành tính)
                   </span>
                   <div className="bg-white border border-outline-variant rounded-lg p-2.5 text-center w-full">
                     <div className="font-bold text-on-surface">
-                      concave_points_worst &lt;= 0.1357
+                      Điểm lõm lớn nhất (concave_points_worst) ≤ 0.1357
                     </div>
-                    <div className="text-[11px] text-on-surface-variant mt-0.5">
-                      samples = 290 · [Lành: 275, Ác: 15]
+                    <div className="text-[11px] text-on-surface-variant mt-0.5 font-mono">
+                      Tổng số mẫu = 290 · [Lành: 275, Ác: 15]
                     </div>
                   </div>
 
                   {/* Level 2 Left Leaves */}
                   <div className="grid grid-cols-2 gap-3 mt-3 w-full">
-                    <div className="bg-surface-container-highest border border-tertiary-container rounded p-2 text-center">
-                      <div className="font-bold text-tertiary-container">Lá: Benign</div>
-                      <div className="text-[10px] text-on-surface-variant">268 mẫu lành tính</div>
+                    <div className="bg-surface-container-highest border border-tertiary-container rounded-lg p-2.5 text-center">
+                      <div className="font-bold text-tertiary-container">Kết luận: Lành tính</div>
+                      <div className="text-[11px] text-on-surface-variant mt-0.5">268 trường hợp</div>
                     </div>
-                    <div className="bg-error-container border border-error rounded p-2 text-center">
-                      <div className="font-bold text-error">Lá: Malignant</div>
-                      <div className="text-[10px] text-on-surface-variant">15 mẫu ác tính</div>
+                    <div className="bg-error-container border border-error rounded-lg p-2.5 text-center">
+                      <div className="font-bold text-error">Kết luận: Ác tính</div>
+                      <div className="text-[11px] text-on-surface-variant mt-0.5">15 trường hợp</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Right Subtree (> 105.95) */}
-                <div className="flex flex-col items-center bg-white/70 p-4 rounded-xl border border-outline-variant">
-                  <span className="text-[11px] font-bold text-error mb-2 bg-error-container px-2 py-0.5 rounded">
-                    Nhánh Phải (perimeter_worst &gt; 105.95)
+                <div className="flex flex-col items-center bg-white/80 p-4 rounded-xl border border-outline-variant">
+                  <span className="text-[11px] font-semibold text-error mb-2 bg-error-container px-2.5 py-0.5 rounded">
+                    Nhánh Phải: Chu vi lớn nhất &gt; 105.95 mm (Khuynh hướng ác tính)
                   </span>
                   <div className="bg-white border border-outline-variant rounded-lg p-2.5 text-center w-full">
                     <div className="font-bold text-on-surface">
-                      concave_points_worst &lt;= 0.1472
+                      Điểm lõm lớn nhất (concave_points_worst) ≤ 0.1472
                     </div>
-                    <div className="text-[11px] text-on-surface-variant mt-0.5">
-                      samples = 165 · [Lành: 10, Ác: 155]
+                    <div className="text-[11px] text-on-surface-variant mt-0.5 font-mono">
+                      Tổng số mẫu = 165 · [Lành: 10, Ác: 155]
                     </div>
                   </div>
 
                   {/* Level 2 Right Leaves */}
                   <div className="grid grid-cols-2 gap-3 mt-3 w-full">
-                    <div className="bg-surface-container-highest border border-outline-variant rounded p-2 text-center">
-                      <div className="font-bold text-on-surface">texture_worst &lt;= 25.67</div>
-                      <div className="text-[10px] text-on-surface-variant">25 mẫu phân hóa</div>
+                    <div className="bg-surface-container-highest border border-outline-variant rounded-lg p-2.5 text-center">
+                      <div className="font-bold text-on-surface">Độ nhám ≤ 25.67</div>
+                      <div className="text-[11px] text-on-surface-variant mt-0.5">25 trường hợp phân hóa</div>
                     </div>
-                    <div className="bg-error-container border border-error rounded p-2 text-center">
-                      <div className="font-bold text-error">Lá: Pure Malignant</div>
-                      <div className="text-[10px] text-on-surface-variant">140 mẫu ác tính (100%)</div>
+                    <div className="bg-error-container border border-error rounded-lg p-2.5 text-center">
+                      <div className="font-bold text-error">Kết luận: Ác tính cao</div>
+                      <div className="text-[11px] text-on-surface-variant mt-0.5">140 trường hợp (100%)</div>
                     </div>
                   </div>
                 </div>
@@ -197,38 +197,38 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
             {/* Quick KPI Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
-                <div className="font-label-mono text-[11px] text-on-surface-variant uppercase">Accuracy</div>
-                <div className="font-data-metric text-lg font-bold text-primary mt-1">{accuracy}</div>
+                <div className="font-sans text-xs text-on-surface-variant font-medium">Độ chính xác toàn cục</div>
+                <div className="font-mono text-lg font-bold text-primary mt-1">{accuracy}</div>
               </div>
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
-                <div className="font-label-mono text-[11px] text-on-surface-variant uppercase">Error Rate</div>
-                <div className="font-data-metric text-lg font-bold text-error mt-1">{errorRate}</div>
+                <div className="font-sans text-xs text-on-surface-variant font-medium">Tỷ lệ phân loại sai</div>
+                <div className="font-mono text-lg font-bold text-error mt-1">{errorRate}</div>
               </div>
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
-                <div className="font-label-mono text-[11px] text-on-surface-variant uppercase">Malignant Recall</div>
-                <div className="font-data-metric text-lg font-bold text-primary mt-1">{recall}</div>
+                <div className="font-sans text-xs text-on-surface-variant font-medium">Độ nhạy Ác tính (Recall)</div>
+                <div className="font-mono text-lg font-bold text-primary mt-1">{recall}</div>
               </div>
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
-                <div className="font-label-mono text-[11px] text-on-surface-variant uppercase">F1-Score</div>
-                <div className="font-data-metric text-lg font-bold text-primary mt-1">{f1}</div>
+                <div className="font-sans text-xs text-on-surface-variant font-medium">Điểm tổng hòa F1</div>
+                <div className="font-mono text-lg font-bold text-primary mt-1">{f1}</div>
               </div>
             </div>
 
             {/* Table */}
             <div className="overflow-x-auto border border-outline-variant rounded-xl">
-              <table className="w-full text-left font-mono text-xs border-collapse">
-                <thead className="bg-surface-bright text-on-surface font-label-mono uppercase border-b border-outline-variant">
+              <table className="w-full text-left font-sans text-xs border-collapse">
+                <thead className="bg-surface-bright text-on-surface font-semibold border-b border-outline-variant">
                   <tr>
-                    <th className="p-3 font-semibold">Mô hình / Thực nghiệm</th>
-                    <th className="p-3 font-semibold">Criterion</th>
-                    <th className="p-3 font-semibold">Max Depth</th>
-                    <th className="p-3 font-semibold text-primary">Accuracy</th>
-                    <th className="p-3 font-semibold text-error">Error Rate</th>
-                    <th className="p-3 font-semibold">Malignant Recall</th>
-                    <th className="p-3 font-semibold">F1-Score</th>
+                    <th className="p-3">Phương pháp / Mô hình</th>
+                    <th className="p-3">Tiêu chuẩn phân hoạch</th>
+                    <th className="p-3">Độ sâu tối đa</th>
+                    <th className="p-3 text-primary">Độ chính xác (Accuracy)</th>
+                    <th className="p-3 text-error">Tỷ lệ lỗi (Error Rate)</th>
+                    <th className="p-3">Độ nhạy Ác tính (Recall)</th>
+                    <th className="p-3">F1-Score</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-outline-variant">
+                <tbody className="divide-y divide-outline-variant font-mono">
                   {EXPERIMENT_COMPARISON_DATA.map((exp) => (
                     <tr
                       key={exp.id}
@@ -238,10 +238,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                           : 'hover:bg-surface-container-low'
                       }`}
                     >
-                      <td className="p-3 text-on-surface font-sans font-semibold">
+                      <td className="p-3 text-on-surface font-sans font-medium">
                         [{exp.id}] {exp.name}
                       </td>
-                      <td className="p-3 text-on-surface">{exp.criterion}</td>
+                      <td className="p-3 text-on-surface font-sans">{exp.criterion}</td>
                       <td className="p-3 text-on-surface">{exp.maxDepth}</td>
                       <td className="p-3 font-bold text-primary">
                         {exp.accuracy !== null ? `${(exp.accuracy * 100).toFixed(2)}%` : '--'}
@@ -265,10 +265,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
             <div className="p-3.5 bg-surface-container-low rounded-lg border border-outline-variant text-xs font-sans text-on-surface space-y-1">
               <div className="font-bold text-primary flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-sm">insights</span>
-                Ghi chú thực nghiệm:
+                Phương pháp đánh giá học thuật:
               </div>
-              <p className="text-on-surface-variant">
-                Các chỉ số sẽ được tự động điền khi chạy pipeline huấn luyện và đánh giá trên backend Python (Stratified Split 70/30).
+              <p className="text-on-surface-variant leading-relaxed">
+                Tất cả mô hình được huấn luyện và kiểm thử độc lập trên cùng phân chia phân tầng (Stratified Train/Test Split 70/30) với Random Seed cố định để đảm bảo tính khách quan và khả năng tái lập kết quả.
               </p>
             </div>
           </div>
@@ -284,29 +284,29 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
               </h4>
               <p className="text-on-surface-variant leading-relaxed">
                 Được công bố bởi <strong>Dr. William H. Wolberg, W. Nick Street và Olvi L. Mangasarian</strong> (Đại học Wisconsin, 1995).
-                Gồm <strong>569 mẫu sinh thiết tế bào</strong> với <strong>30 thuộc tính số thực</strong> đo lường từ hình ảnh số hóa của chọc hút kim nhỏ (FNA).
+                Bộ dữ liệu bao gồm <strong>569 mẫu sinh thiết</strong> với <strong>30 thuộc tính số thực</strong> đo lường đặc điểm hình học của nhân tế bào ung thư vú.
               </p>
               
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-[11px]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-sans text-xs">
                 <div className="bg-white p-3 rounded-lg border border-outline-variant">
-                  <div className="text-on-surface-variant font-sans text-[10px] uppercase font-bold">Số Lượng Mẫu</div>
-                  <div className="font-bold text-primary text-sm mt-0.5">569 Instances</div>
-                  <div className="text-[10px] text-outline mt-0.5">357 Lành tính (B) · 212 Ác tính (M)</div>
+                  <div className="text-on-surface-variant text-[11px] font-medium">Quy mô mẫu</div>
+                  <div className="font-bold text-primary text-sm mt-0.5">569 trường hợp</div>
+                  <div className="text-[11px] text-outline mt-0.5">357 Lành tính (B) · 212 Ác tính (M)</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg border border-outline-variant">
-                  <div className="text-on-surface-variant font-sans text-[10px] uppercase font-bold">Thuộc Tính</div>
-                  <div className="font-bold text-primary text-sm mt-0.5">30 Features</div>
-                  <div className="text-[10px] text-outline mt-0.5">10 Mean · 10 SE · 10 Worst</div>
+                  <div className="text-on-surface-variant text-[11px] font-medium">Không gian đặc trưng</div>
+                  <div className="font-bold text-primary text-sm mt-0.5">30 thuộc tính liên tục</div>
+                  <div className="text-[11px] text-outline mt-0.5">10 Giá trị trung bình · 10 Sai số · 10 Cực đại</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg border border-outline-variant">
-                  <div className="text-on-surface-variant font-sans text-[10px] uppercase font-bold">Provenance &amp; License</div>
-                  <div className="font-bold text-primary text-sm mt-0.5">UCI ID: 17</div>
-                  <div className="text-[10px] text-outline mt-0.5">CC BY 4.0 · DOI: 10.24432/C5DW2B</div>
+                  <div className="text-on-surface-variant text-[11px] font-medium">Nguồn gốc &amp; Bản quyền</div>
+                  <div className="font-bold text-primary text-sm mt-0.5">UCI ID: #17</div>
+                  <div className="text-[11px] text-outline mt-0.5">Giấy phép mở: CC BY 4.0</div>
                 </div>
               </div>
 
-              <div className="p-3 bg-white rounded-lg border border-outline-variant text-[11px] font-mono text-on-surface-variant">
-                <strong>Trích dẫn học thuật (Citation):</strong> Wolberg, W., Street, W., &amp; Mangasarian, O. (1995). Breast Cancer Wisconsin (Diagnostic). UCI Machine Learning Repository. https://doi.org/10.24432/C5DW2B.
+              <div className="p-3 bg-white rounded-lg border border-outline-variant text-[11px] font-sans text-on-surface-variant">
+                <strong>Trích dẫn khoa học:</strong> Wolberg, W., Street, W., &amp; Mangasarian, O. (1995). Breast Cancer Wisconsin (Diagnostic). UCI Machine Learning Repository. https://doi.org/10.24432/C5DW2B.
               </div>
             </div>
           </div>

@@ -4,8 +4,15 @@ import {
   DecisionStep,
   FeatureImportance,
   ModelOptionId,
+  ModelExperiment,
+  ModelOptionInfo,
+  TreeNodeData,
 } from '../types/prediction';
-import { MODEL_OPTIONS } from '../data/featureDefinitions';
+import {
+  MODEL_OPTIONS,
+  EXPERIMENT_COMPARISON_DATA,
+  FULL_DECISION_TREE_STRUCTURE,
+} from '../data/featureDefinitions';
 
 const API_BASE_URL =
   (import.meta as unknown as { env: { VITE_API_URL?: string } }).env?.VITE_API_URL ||
@@ -38,13 +45,13 @@ export class PredictionService {
   }
 
   /**
-   * Request model classification from FastAPI backend or fallback to Wisconsin Decision Tree simulation.
+   * Request model classification from FastAPI backend or fallback to standalone Decision Tree simulation.
    */
   static async predict(
     features: BreastCancerFeatures,
-    modelId: ModelOptionId = 'best'
+    modelId: ModelOptionId = 'I3'
   ): Promise<PredictionResponse> {
-    // Convert empty string values to 0 for JSON serialization
+    // Convert empty string values to 0 for numeric serialization
     const numericFeatures: Record<string, number> = {};
     for (const [k, v] of Object.entries(features)) {
       numericFeatures[k] = v === '' ? 0 : Number(v);
@@ -68,11 +75,71 @@ export class PredictionService {
       throw new Error(`API error ${response.status}: ${response.statusText}`);
     } catch (err) {
       console.warn(
-        'Backend unavailable or returned error, evaluating via calibrated Decision Tree engine:',
+        'FastAPI Backend unavailable, evaluating via calibrated Decision Tree engine:',
         err
       );
-      return this.simulateDecisionTreeInference(numericFeatures as unknown as BreastCancerFeatures, modelId);
+      return this.simulateDecisionTreeInference(
+        numericFeatures as unknown as BreastCancerFeatures,
+        modelId
+      );
     }
+  }
+
+  /**
+   * Get available models and hyperparameter metadata.
+   */
+  static async getModels(): Promise<ModelOptionInfo[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/models`, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch {
+      // Return static definitions if backend is offline
+    }
+    return MODEL_OPTIONS;
+  }
+
+  /**
+   * Fetch 5-experiment evaluation metrics comparison matrix.
+   */
+  static async getExperiments(): Promise<ModelExperiment[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/experiments`, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch {
+      // Fallback
+    }
+    return EXPERIMENT_COMPARISON_DATA;
+  }
+
+  /**
+   * Fetch hierarchical Decision Tree structure for visual rendering.
+   */
+  static async getTreeStructure(modelId: ModelOptionId = 'I3'): Promise<TreeNodeData> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/tree-structure?model_id=${modelId}`, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch {
+      // Fallback
+    }
+    return FULL_DECISION_TREE_STRUCTURE;
   }
 
   /**
@@ -86,10 +153,11 @@ export class PredictionService {
       MODEL_OPTIONS.find((m) => m.id === modelId) || MODEL_OPTIONS[0];
     const decisionPath: DecisionStep[] = [];
 
-    const getVal = (v: number | '' | undefined): number => (typeof v === 'number' ? v : 0);
+    const getVal = (v: number | '' | undefined): number =>
+      typeof v === 'number' ? v : 0;
 
     // Primary Root Split: Worst Perimeter
-    const rootThreshold = modelId === 'depth_tune' ? 106.5 : 105.95;
+    const rootThreshold = modelId === 'I1' || modelId === 'depth_tune' ? 106.5 : 105.95;
     const perimeterWorst = getVal(features.perimeter_worst);
     const concavePointsWorst = getVal(features.concave_points_worst);
     const textureWorst = getVal(features.texture_worst);
@@ -186,12 +254,12 @@ export class PredictionService {
       {
         feature: 'perimeter_worst',
         featureNameVi: 'Chu vi xấu nhất',
-        importance: modelId === 'best' ? 0.694 : 0.645,
+        importance: 0.694,
       },
       {
         feature: 'concave_points_worst',
         featureNameVi: 'Điểm lõm xấu nhất',
-        importance: modelId === 'best' ? 0.182 : 0.198,
+        importance: 0.182,
       },
       {
         feature: 'texture_worst',
