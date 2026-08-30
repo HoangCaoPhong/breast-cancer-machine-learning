@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   BreastCancerFeatures,
   PredictionResponse,
@@ -12,7 +12,10 @@ import { DisclaimerBanner } from './components/layout/DisclaimerBanner';
 import { Footer } from './components/layout/Footer';
 import { FeatureInputForm } from './features/prediction/FeatureInputForm';
 import { PredictionResultCard } from './features/prediction/PredictionResultCard';
-import { TechnicalDetailsSection } from './features/prediction/TechnicalDetailsSection';
+import {
+  TechnicalDetailsSection,
+  DetailTab,
+} from './features/prediction/TechnicalDetailsSection';
 
 export const App: React.FC = () => {
   const [features, setFeatures] = useState<BreastCancerFeatures>({
@@ -22,6 +25,7 @@ export const App: React.FC = () => {
   const [result, setResult] = useState<PredictionResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<DashboardView>('prediction');
+  const [activeDetailTab, setActiveDetailTab] = useState<DetailTab>('tree');
 
   const runPrediction = async (
     currentFeatures: BreastCancerFeatures,
@@ -38,18 +42,28 @@ export const App: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    runPrediction(features, selectedModelId);
-  }, []);
-
   const handleModelChange = (newModelId: ModelOptionId) => {
     setSelectedModelId(newModelId);
-    runPrediction(features, newModelId);
+    if (result !== null) {
+      runPrediction(features, newModelId);
+    }
   };
 
   const handleResetFeatures = () => {
     setFeatures({ ...INITIAL_DEFAULT_FEATURES });
-    runPrediction(INITIAL_DEFAULT_FEATURES, selectedModelId);
+    setResult(null);
+  };
+
+  const handleSidebarNavigate = (view: DashboardView) => {
+    setActiveView(view);
+    if (view === 'prediction') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      if (view === 'tree') setActiveDetailTab('tree');
+      if (view === 'experiments') setActiveDetailTab('experiments');
+      if (view === 'dataset') setActiveDetailTab('dataset');
+      document.getElementById('details-section')?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -57,12 +71,7 @@ export const App: React.FC = () => {
       {/* SideNavBar (Desktop) */}
       <SideNavBar
         activeView={activeView}
-        onViewChange={(view) => {
-          setActiveView(view);
-          if (view !== 'prediction') {
-            document.getElementById('tree-section')?.scrollIntoView({ behavior: 'smooth' });
-          }
-        }}
+        onViewChange={handleSidebarNavigate}
         onResetFeatures={handleResetFeatures}
       />
 
@@ -96,7 +105,16 @@ export const App: React.FC = () => {
           </div>
 
           {/* Technical Details: Full Tree Hierarchy, 5-Experiment Comparison, Dataset Info */}
-          <TechnicalDetailsSection result={result} />
+          <TechnicalDetailsSection
+            result={result}
+            activeTab={activeDetailTab}
+            onTabChange={(tab) => {
+              setActiveDetailTab(tab);
+              if (tab === 'tree') setActiveView('tree');
+              if (tab === 'experiments') setActiveView('experiments');
+              if (tab === 'dataset') setActiveView('dataset');
+            }}
+          />
         </main>
 
         {/* Footer */}

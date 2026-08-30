@@ -10,14 +10,15 @@ export const PredictionResultCard: React.FC<PredictionResultCardProps> = ({
   result,
   isLoading,
 }) => {
-  const isMalignant = result ? result.prediction === 'M' : true;
-  const confidence = result ? (result.confidence * 100).toFixed(1) : '98.5';
-  const malignantProb = result
+  const hasResult = result !== null;
+  const isMalignant = result?.prediction === 'M';
+  const confidence = hasResult ? (result.confidence * 100).toFixed(1) : '--';
+  const malignantProb = hasResult
     ? (result.probabilities.malignant * 100).toFixed(1)
-    : '98.5';
-  const benignProb = result
+    : '--';
+  const benignProb = hasResult
     ? (result.probabilities.benign * 100).toFixed(1)
-    : '1.5';
+    : '--';
 
   const decisionPath = result?.decisionPath || [];
   const topFeatures = result?.topFeatures || [];
@@ -31,9 +32,11 @@ export const PredictionResultCard: React.FC<PredictionResultCardProps> = ({
             <span className="material-symbols-outlined text-secondary">health_and_safety</span>
             <h3 className="font-headline-md text-headline-md text-on-surface">Kết quả phân loại</h3>
           </div>
-          <span className="font-label-mono text-[11px] text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">
-            {result?.selectedModelId?.toUpperCase()}
-          </span>
+          {hasResult && (
+            <span className="font-label-mono text-[11px] text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">
+              {result.selectedModelId?.toUpperCase()}
+            </span>
+          )}
         </div>
 
         <div className="p-stack-md flex flex-col space-y-4">
@@ -42,6 +45,10 @@ export const PredictionResultCard: React.FC<PredictionResultCardProps> = ({
             {isLoading ? (
               <div className="inline-block bg-surface-container-high text-primary px-6 py-3 rounded-full font-headline-md border border-primary mb-2">
                 Đang duyệt cây quyết định...
+              </div>
+            ) : !hasResult ? (
+              <div className="inline-block bg-surface-container-low text-on-surface-variant px-6 py-2.5 rounded-full font-display-lg text-display-lg border border-outline-variant mb-2">
+                --
               </div>
             ) : isMalignant ? (
               <div className="inline-block bg-error-container text-on-error-container px-6 py-2.5 rounded-full font-display-lg text-display-lg border border-error mb-2">
@@ -72,7 +79,7 @@ export const PredictionResultCard: React.FC<PredictionResultCardProps> = ({
               <div className="w-full bg-surface-container-highest rounded-full h-2">
                 <div
                   className="bg-error h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${malignantProb}%` }}
+                  style={{ width: hasResult ? `${malignantProb}%` : '0%' }}
                 />
               </div>
             </div>
@@ -84,7 +91,7 @@ export const PredictionResultCard: React.FC<PredictionResultCardProps> = ({
               <div className="w-full bg-surface-container-highest rounded-full h-2">
                 <div
                   className="bg-tertiary-container h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${benignProb}%` }}
+                  style={{ width: hasResult ? `${benignProb}%` : '0%' }}
                 />
               </div>
             </div>
@@ -93,7 +100,7 @@ export const PredictionResultCard: React.FC<PredictionResultCardProps> = ({
       </div>
 
       {/* Decision Path Card */}
-      {decisionPath.length > 0 && (
+      {decisionPath.length > 0 ? (
         <div className="bg-surface-container-low rounded-xl border border-outline-variant shadow-sm p-stack-md space-y-3">
           <div className="flex items-center gap-2 border-b border-outline-variant pb-2">
             <span className="material-symbols-outlined text-primary text-sm">alt_route</span>
@@ -148,6 +155,10 @@ export const PredictionResultCard: React.FC<PredictionResultCardProps> = ({
               </div>
             </div>
           )}
+        </div>
+      ) : (
+        <div className="bg-surface-container-low rounded-xl border border-outline-variant shadow-sm p-stack-md text-center text-xs font-label-mono text-on-surface-variant">
+          Nhấn <strong>"Phân loại ngay"</strong> hoặc chọn mẫu thử để xem đường dẫn rẽ nhánh (Decision Path).
         </div>
       )}
     </div>

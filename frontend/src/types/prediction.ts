@@ -1,42 +1,44 @@
 /**
  * 30 Biological features from UCI Breast Cancer Wisconsin (Diagnostic) Dataset.
  */
+export type FeatureValue = number | '';
+
 export interface BreastCancerFeatures {
   // Mean values (10)
-  radius_mean: number;
-  texture_mean: number;
-  perimeter_mean: number;
-  area_mean: number;
-  smoothness_mean: number;
-  compactness_mean: number;
-  concavity_mean: number;
-  concave_points_mean: number;
-  symmetry_mean: number;
-  fractal_dimension_mean: number;
+  radius_mean: FeatureValue;
+  texture_mean: FeatureValue;
+  perimeter_mean: FeatureValue;
+  area_mean: FeatureValue;
+  smoothness_mean: FeatureValue;
+  compactness_mean: FeatureValue;
+  concavity_mean: FeatureValue;
+  concave_points_mean: FeatureValue;
+  symmetry_mean: FeatureValue;
+  fractal_dimension_mean: FeatureValue;
 
   // Standard Error values (10)
-  radius_se: number;
-  texture_se: number;
-  perimeter_se: number;
-  area_se: number;
-  smoothness_se: number;
-  compactness_se: number;
-  concavity_se: number;
-  concave_points_se: number;
-  symmetry_se: number;
-  fractal_dimension_se: number;
+  radius_se: FeatureValue;
+  texture_se: FeatureValue;
+  perimeter_se: FeatureValue;
+  area_se: FeatureValue;
+  smoothness_se: FeatureValue;
+  compactness_se: FeatureValue;
+  concavity_se: FeatureValue;
+  concave_points_se: FeatureValue;
+  symmetry_se: FeatureValue;
+  fractal_dimension_se: FeatureValue;
 
   // Worst / Largest values (10)
-  radius_worst: number;
-  texture_worst: number;
-  perimeter_worst: number;
-  area_worst: number;
-  smoothness_worst: number;
-  compactness_worst: number;
-  concavity_worst: number;
-  concave_points_worst: number;
-  symmetry_worst: number;
-  fractal_dimension_worst: number;
+  radius_worst: FeatureValue;
+  texture_worst: FeatureValue;
+  perimeter_worst: FeatureValue;
+  area_worst: FeatureValue;
+  smoothness_worst: FeatureValue;
+  compactness_worst: FeatureValue;
+  concavity_worst: FeatureValue;
+  concave_points_worst: FeatureValue;
+  symmetry_worst: FeatureValue;
+  fractal_dimension_worst: FeatureValue;
 }
 
 export type FeatureKey = keyof BreastCancerFeatures;
@@ -93,11 +95,11 @@ export interface ModelOptionInfo {
   maxDepth: number | 'None';
   minSamplesSplit: number;
   minSamplesLeaf: number;
-  accuracy: number;
-  errorRate: number;
-  recallMalignant: number;
-  f1Score: number;
-  precision: number;
+  accuracy: number | null;
+  errorRate: number | null;
+  recallMalignant: number | null;
+  f1Score: number | null;
+  precision: number | null;
   descriptionVi: string;
 }
 
@@ -115,10 +117,10 @@ export interface PredictionResponse {
   modelVersion: string;
   modelType: string;
   selectedModelId: ModelOptionId;
-  accuracy: number;
-  errorRate: number;
-  recallMalignant: number;
-  f1Score: number;
+  accuracy: number | null;
+  errorRate: number | null;
+  recallMalignant: number | null;
+  f1Score: number | null;
   timestamp: string;
   disclaimer: string;
 }
@@ -139,9 +141,9 @@ export interface ModelExperiment {
   maxDepth: number | 'None';
   minSamplesSplit: number;
   minSamplesLeaf: number;
-  accuracy: number;
-  f1Score: number;
-  recallMalignant: number;
-  errorRate: number;
+  accuracy: number | null;
+  f1Score: number | null;
+  recallMalignant: number | null;
+  errorRate: number | null;
   isBest?: boolean;
 }

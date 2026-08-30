@@ -1,26 +1,45 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { PredictionResponse } from '../../types/prediction';
 import {
   EXPERIMENT_COMPARISON_DATA,
   FULL_DECISION_TREE_STRUCTURE,
 } from '../../data/featureDefinitions';
 
+export type DetailTab = 'tree' | 'experiments' | 'dataset';
+
 interface TechnicalDetailsSectionProps {
   result: PredictionResponse | null;
+  activeTab: DetailTab;
+  onTabChange: (tab: DetailTab) => void;
 }
 
 export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = ({
   result,
+  activeTab,
+  onTabChange,
 }) => {
-  const [activeTab, setActiveTab] = useState<'tree' | 'experiments' | 'dataset'>('tree');
-
-  const accuracy = result ? (result.accuracy * 100).toFixed(2) : '97.37';
-  const errorRate = result ? (result.errorRate * 100).toFixed(2) : '2.63';
-  const recall = result ? (result.recallMalignant * 100).toFixed(2) : '97.62';
-  const f1 = result ? (result.f1Score * 100).toFixed(2) : '96.47';
+  const accuracy =
+    result?.accuracy !== null && result?.accuracy !== undefined
+      ? `${(result.accuracy * 100).toFixed(2)}%`
+      : '--';
+  const errorRate =
+    result?.errorRate !== null && result?.errorRate !== undefined
+      ? `${(result.errorRate * 100).toFixed(2)}%`
+      : '--';
+  const recall =
+    result?.recallMalignant !== null && result?.recallMalignant !== undefined
+      ? `${(result.recallMalignant * 100).toFixed(2)}%`
+      : '--';
+  const f1 =
+    result?.f1Score !== null && result?.f1Score !== undefined
+      ? `${(result.f1Score * 100).toFixed(2)}%`
+      : '--';
 
   return (
-    <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden" id="tree-section">
+    <div
+      className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden"
+      id="details-section"
+    >
       {/* Header & Sub-tabs */}
       <div className="border-b border-outline-variant bg-surface-bright p-stack-md flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
@@ -39,7 +58,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
         <div className="flex gap-1.5 overflow-x-auto bg-surface-container-low p-1 rounded-lg border border-outline-variant">
           <button
             type="button"
-            onClick={() => setActiveTab('tree')}
+            onClick={() => onTabChange('tree')}
             className={`px-3 py-1.5 font-label-mono text-xs rounded-md transition-colors flex items-center gap-1.5 ${
               activeTab === 'tree'
                 ? 'bg-white text-primary font-bold shadow-sm'
@@ -51,7 +70,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('experiments')}
+            onClick={() => onTabChange('experiments')}
             className={`px-3 py-1.5 font-label-mono text-xs rounded-md transition-colors flex items-center gap-1.5 ${
               activeTab === 'experiments'
                 ? 'bg-white text-primary font-bold shadow-sm'
@@ -63,7 +82,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('dataset')}
+            onClick={() => onTabChange('dataset')}
             className={`px-3 py-1.5 font-label-mono text-xs rounded-md transition-colors flex items-center gap-1.5 ${
               activeTab === 'dataset'
                 ? 'bg-white text-primary font-bold shadow-sm'
@@ -174,24 +193,24 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
 
         {/* Tab 2: 5-Experiment Comparison */}
         {activeTab === 'experiments' && (
-          <div className="space-y-4" id="experiments-section">
+          <div className="space-y-4">
             {/* Quick KPI Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
                 <div className="font-label-mono text-[11px] text-on-surface-variant uppercase">Accuracy</div>
-                <div className="font-data-metric text-lg font-bold text-primary mt-1">{accuracy}%</div>
+                <div className="font-data-metric text-lg font-bold text-primary mt-1">{accuracy}</div>
               </div>
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
                 <div className="font-label-mono text-[11px] text-on-surface-variant uppercase">Error Rate</div>
-                <div className="font-data-metric text-lg font-bold text-error mt-1">{errorRate}%</div>
+                <div className="font-data-metric text-lg font-bold text-error mt-1">{errorRate}</div>
               </div>
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
                 <div className="font-label-mono text-[11px] text-on-surface-variant uppercase">Malignant Recall</div>
-                <div className="font-data-metric text-lg font-bold text-primary mt-1">{recall}%</div>
+                <div className="font-data-metric text-lg font-bold text-primary mt-1">{recall}</div>
               </div>
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
                 <div className="font-label-mono text-[11px] text-on-surface-variant uppercase">F1-Score</div>
-                <div className="font-data-metric text-lg font-bold text-primary mt-1">{f1}%</div>
+                <div className="font-data-metric text-lg font-bold text-primary mt-1">{f1}</div>
               </div>
             </div>
 
@@ -224,10 +243,18 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                       </td>
                       <td className="p-3 text-on-surface">{exp.criterion}</td>
                       <td className="p-3 text-on-surface">{exp.maxDepth}</td>
-                      <td className="p-3 font-bold text-primary">{(exp.accuracy * 100).toFixed(2)}%</td>
-                      <td className="p-3 font-bold text-error">{(exp.errorRate * 100).toFixed(2)}%</td>
-                      <td className="p-3 font-bold text-on-surface">{(exp.recallMalignant * 100).toFixed(2)}%</td>
-                      <td className="p-3 text-on-surface">{(exp.f1Score * 100).toFixed(2)}%</td>
+                      <td className="p-3 font-bold text-primary">
+                        {exp.accuracy !== null ? `${(exp.accuracy * 100).toFixed(2)}%` : '--'}
+                      </td>
+                      <td className="p-3 font-bold text-error">
+                        {exp.errorRate !== null ? `${(exp.errorRate * 100).toFixed(2)}%` : '--'}
+                      </td>
+                      <td className="p-3 font-bold text-on-surface">
+                        {exp.recallMalignant !== null ? `${(exp.recallMalignant * 100).toFixed(2)}%` : '--'}
+                      </td>
+                      <td className="p-3 text-on-surface">
+                        {exp.f1Score !== null ? `${(exp.f1Score * 100).toFixed(2)}%` : '--'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -238,10 +265,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
             <div className="p-3.5 bg-surface-container-low rounded-lg border border-outline-variant text-xs font-sans text-on-surface space-y-1">
               <div className="font-bold text-primary flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-sm">insights</span>
-                Kết luận thực nghiệm:
+                Ghi chú thực nghiệm:
               </div>
               <p className="text-on-surface-variant">
-                Mô hình <strong>[I3]</strong> đạt kết quả cao nhất nhờ kết hợp tiêu chuẩn <strong>Entropy</strong> (phân nhánh chính xác hơn Gini đối với biến liên tục) và khống chế độ sâu <strong>max_depth = 4</strong> giúp triệt tiêu hoàn toàn overfitting.
+                Các chỉ số sẽ được tự động điền khi chạy pipeline huấn luyện và đánh giá trên backend Python (Stratified Split 70/30).
               </p>
             </div>
           </div>
@@ -249,26 +276,37 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
 
         {/* Tab 3: Dataset Provenance */}
         {activeTab === 'dataset' && (
-          <div className="space-y-3 font-sans text-xs text-on-surface" id="dataset-section">
-            <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-2">
+          <div className="space-y-4 font-sans text-xs text-on-surface">
+            <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-3">
               <h4 className="font-bold text-sm text-primary flex items-center gap-2">
                 <span className="material-symbols-outlined text-base">database</span>
-                Bộ dữ liệu UCI Breast Cancer Wisconsin (Diagnostic)
+                Bộ Dữ Liệu UCI Breast Cancer Wisconsin (Diagnostic)
               </h4>
               <p className="text-on-surface-variant leading-relaxed">
-                Được công bố bởi Dr. William H. Wolberg, W. Nick Street và Olvi L. Mangasarian (Đại học Wisconsin, 1995).
-                Gồm <strong>569 mẫu sinh thiết tế bào</strong> với <strong>30 thuộc tính số thực</strong> đo lường từ hình ảnh chọc hút kim nhỏ (FNA).
+                Được công bố bởi <strong>Dr. William H. Wolberg, W. Nick Street và Olvi L. Mangasarian</strong> (Đại học Wisconsin, 1995).
+                Gồm <strong>569 mẫu sinh thiết tế bào</strong> với <strong>30 thuộc tính số thực</strong> đo lường từ hình ảnh số hóa của chọc hút kim nhỏ (FNA).
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 font-mono text-[11px]">
-                <div className="bg-white p-2 rounded border border-outline-variant">
-                  <strong>Số mẫu:</strong> 569 (357 Lành, 212 Ác)
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-[11px]">
+                <div className="bg-white p-3 rounded-lg border border-outline-variant">
+                  <div className="text-on-surface-variant font-sans text-[10px] uppercase font-bold">Số Lượng Mẫu</div>
+                  <div className="font-bold text-primary text-sm mt-0.5">569 Instances</div>
+                  <div className="text-[10px] text-outline mt-0.5">357 Lành tính (B) · 212 Ác tính (M)</div>
                 </div>
-                <div className="bg-white p-2 rounded border border-outline-variant">
-                  <strong>Số đặc trưng:</strong> 30 số thực
+                <div className="bg-white p-3 rounded-lg border border-outline-variant">
+                  <div className="text-on-surface-variant font-sans text-[10px] uppercase font-bold">Thuộc Tính</div>
+                  <div className="font-bold text-primary text-sm mt-0.5">30 Features</div>
+                  <div className="text-[10px] text-outline mt-0.5">10 Mean · 10 SE · 10 Worst</div>
                 </div>
-                <div className="bg-white p-2 rounded border border-outline-variant">
-                  <strong>Giấy phép:</strong> CC BY 4.0 (UCI ID: 17)
+                <div className="bg-white p-3 rounded-lg border border-outline-variant">
+                  <div className="text-on-surface-variant font-sans text-[10px] uppercase font-bold">Provenance &amp; License</div>
+                  <div className="font-bold text-primary text-sm mt-0.5">UCI ID: 17</div>
+                  <div className="text-[10px] text-outline mt-0.5">CC BY 4.0 · DOI: 10.24432/C5DW2B</div>
                 </div>
+              </div>
+
+              <div className="p-3 bg-white rounded-lg border border-outline-variant text-[11px] font-mono text-on-surface-variant">
+                <strong>Trích dẫn học thuật (Citation):</strong> Wolberg, W., Street, W., &amp; Mangasarian, O. (1995). Breast Cancer Wisconsin (Diagnostic). UCI Machine Learning Repository. https://doi.org/10.24432/C5DW2B.
               </div>
             </div>
           </div>

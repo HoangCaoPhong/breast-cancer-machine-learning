@@ -33,10 +33,17 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
   const [activeCategory, setActiveCategory] = useState<FeatureCategory>('mean');
 
   const handleInputChange = (key: FeatureKey, rawValue: string) => {
+    if (rawValue.trim() === '') {
+      onChange({
+        ...features,
+        [key]: '',
+      });
+      return;
+    }
     const parsed = parseFloat(rawValue);
     onChange({
       ...features,
-      [key]: isNaN(parsed) ? 0 : parsed,
+      [key]: isNaN(parsed) ? '' : parsed,
     });
   };
 
@@ -54,7 +61,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
 
   return (
     <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
-      {/* Header & Model Selector (Single clean row) */}
+      {/* Header & Model Selector */}
       <div className="p-stack-md border-b border-outline-variant bg-surface-bright flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <span className="material-symbols-outlined text-primary">data_object</span>
@@ -75,7 +82,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
           >
             {MODEL_OPTIONS.map((opt) => (
               <option key={opt.id} value={opt.id}>
-                {opt.nameVi} (Acc: {(opt.accuracy * 100).toFixed(1)}%)
+                {opt.nameVi}
               </option>
             ))}
           </select>
@@ -124,7 +131,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
           {currentCategoryFeatures.map((meta) => {
             const val = features[meta.key];
-            const isInvalid = val < 0;
+            const isInvalid = typeof val === 'number' && val < 0;
 
             return (
               <div key={meta.key} className="flex flex-col gap-1">
@@ -140,7 +147,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
                   type="number"
                   step={meta.step}
                   min="0"
-                  value={val}
+                  value={val === '' ? '' : val}
                   onChange={(e) => handleInputChange(meta.key, e.target.value)}
                   className="border border-outline-variant rounded-lg p-2 font-data-metric text-data-metric focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors bg-white"
                   placeholder="0.00"
@@ -164,21 +171,21 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               onClick={() => handleApplyPreset(PRESET_SAMPLES[0])}
               className="px-3 py-1.5 text-primary border border-primary rounded-lg font-label-mono text-xs hover:bg-surface-container-low transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">upload_file</span> Mẫu Lành Tính
+              <span className="material-symbols-outlined text-sm">upload_file</span> Điền Mẫu Lành Tính
             </button>
             <button
               type="button"
               onClick={() => handleApplyPreset(PRESET_SAMPLES[1])}
               className="px-3 py-1.5 text-primary border border-primary rounded-lg font-label-mono text-xs hover:bg-surface-container-low transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">upload_file</span> Mẫu Ác Tính
+              <span className="material-symbols-outlined text-sm">upload_file</span> Điền Mẫu Ác Tính
             </button>
             <button
               type="button"
               onClick={() => handleApplyPreset(PRESET_SAMPLES[2])}
               className="px-3 py-1.5 text-on-surface-variant border border-outline-variant rounded-lg font-label-mono text-xs hover:bg-surface-container-low transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">upload_file</span> Mẫu Ranh Giới
+              <span className="material-symbols-outlined text-sm">upload_file</span> Điền Mẫu Ranh Giới
             </button>
           </div>
 
@@ -189,7 +196,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               onClick={handleReset}
               className="px-3.5 py-1.5 text-on-surface-variant font-label-mono text-xs hover:bg-surface-container-highest rounded-lg transition-colors flex items-center gap-1.5 border border-outline-variant"
             >
-              <span className="material-symbols-outlined text-sm">refresh</span> Làm mới
+              <span className="material-symbols-outlined text-sm">clear_all</span> Xóa dữ liệu
             </button>
             <button
               type="button"

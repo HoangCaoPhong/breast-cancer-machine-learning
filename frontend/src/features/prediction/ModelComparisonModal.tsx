@@ -75,16 +75,16 @@ export const ModelComparisonModal: React.FC<ModelComparisonModalProps> = ({
                     <td className="p-3.5 text-slate-300">{exp.criterion}</td>
                     <td className="p-3.5 text-slate-300">{exp.maxDepth}</td>
                     <td className="p-3.5 font-bold text-teal-400">
-                      {(exp.accuracy * 100).toFixed(2)}%
+                      {exp.accuracy !== null ? `${(exp.accuracy * 100).toFixed(2)}%` : '--'}
                     </td>
                     <td className="p-3.5 font-bold text-rose-400">
-                      {(exp.recallMalignant * 100).toFixed(2)}%
+                      {exp.recallMalignant !== null ? `${(exp.recallMalignant * 100).toFixed(2)}%` : '--'}
                     </td>
                     <td className="p-3.5 text-slate-200">
-                      {(exp.f1Score * 100).toFixed(2)}%
+                      {exp.f1Score !== null ? `${(exp.f1Score * 100).toFixed(2)}%` : '--'}
                     </td>
                     <td className="p-3.5 text-slate-400">
-                      {(exp.errorRate * 100).toFixed(2)}%
+                      {exp.errorRate !== null ? `${(exp.errorRate * 100).toFixed(2)}%` : '--'}
                     </td>
                   </tr>
                 );

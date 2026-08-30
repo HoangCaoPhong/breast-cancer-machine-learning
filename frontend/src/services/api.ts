@@ -44,6 +44,12 @@ export class PredictionService {
     features: BreastCancerFeatures,
     modelId: ModelOptionId = 'best'
   ): Promise<PredictionResponse> {
+    // Convert empty string values to 0 for JSON serialization
+    const numericFeatures: Record<string, number> = {};
+    for (const [k, v] of Object.entries(features)) {
+      numericFeatures[k] = v === '' ? 0 : Number(v);
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/predict?model_id=${modelId}`, {
         method: 'POST',
@@ -51,7 +57,7 @@ export class PredictionService {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify(features),
+        body: JSON.stringify(numericFeatures),
         signal: AbortSignal.timeout(3000),
       });
 
@@ -65,7 +71,7 @@ export class PredictionService {
         'Backend unavailable or returned error, evaluating via calibrated Decision Tree engine:',
         err
       );
-      return this.simulateDecisionTreeInference(features, modelId);
+      return this.simulateDecisionTreeInference(numericFeatures as unknown as BreastCancerFeatures, modelId);
     }
   }
 
@@ -80,15 +86,22 @@ export class PredictionService {
       MODEL_OPTIONS.find((m) => m.id === modelId) || MODEL_OPTIONS[0];
     const decisionPath: DecisionStep[] = [];
 
+    const getVal = (v: number | '' | undefined): number => (typeof v === 'number' ? v : 0);
+
     // Primary Root Split: Worst Perimeter
     const rootThreshold = modelId === 'depth_tune' ? 106.5 : 105.95;
-    const step1Satisfied = features.perimeter_worst <= rootThreshold;
+    const perimeterWorst = getVal(features.perimeter_worst);
+    const concavePointsWorst = getVal(features.concave_points_worst);
+    const textureWorst = getVal(features.texture_worst);
+    const areaSe = getVal(features.area_se);
+
+    const step1Satisfied = perimeterWorst <= rootThreshold;
     decisionPath.push({
       feature: 'perimeter_worst',
       featureNameVi: 'Chu vi xấu nhất (perimeter_worst)',
       threshold: rootThreshold,
       operator: '<=',
-      actualValue: features.perimeter_worst,
+      actualValue: perimeterWorst,
       isSatisfied: step1Satisfied,
     });
 
@@ -97,25 +110,25 @@ export class PredictionService {
 
     if (step1Satisfied) {
       // Left Branch (Low perimeter)
-      const step2Satisfied = features.concave_points_worst <= 0.1357;
+      const step2Satisfied = concavePointsWorst <= 0.1357;
       decisionPath.push({
         feature: 'concave_points_worst',
         featureNameVi: 'Điểm lõm xấu nhất (concave_points_worst)',
         threshold: 0.1357,
         operator: '<=',
-        actualValue: features.concave_points_worst,
+        actualValue: concavePointsWorst,
         isSatisfied: step2Satisfied,
       });
 
       if (step2Satisfied) {
         // High confidence Benign
-        const step3Satisfied = features.texture_worst <= 33.27;
+        const step3Satisfied = textureWorst <= 33.27;
         decisionPath.push({
           feature: 'texture_worst',
           featureNameVi: 'Độ nhám xấu nhất (texture_worst)',
           threshold: 33.27,
           operator: '<=',
-          actualValue: features.texture_worst,
+          actualValue: textureWorst,
           isSatisfied: step3Satisfied,
         });
 
@@ -123,13 +136,13 @@ export class PredictionService {
         confidence = step3Satisfied ? 0.988 : 0.765;
       } else {
         // Borderline branch
-        const step3Satisfied = features.area_se <= 38.6;
+        const step3Satisfied = areaSe <= 38.6;
         decisionPath.push({
           feature: 'area_se',
           featureNameVi: 'Sai số diện tích (area_se)',
           threshold: 38.6,
           operator: '<=',
-          actualValue: features.area_se,
+          actualValue: areaSe,
           isSatisfied: step3Satisfied,
         });
         isMalignant = !step3Satisfied;
@@ -137,24 +150,24 @@ export class PredictionService {
       }
     } else {
       // Right Branch (High perimeter)
-      const step2Satisfied = features.concave_points_worst <= 0.1472;
+      const step2Satisfied = concavePointsWorst <= 0.1472;
       decisionPath.push({
         feature: 'concave_points_worst',
         featureNameVi: 'Điểm lõm xấu nhất (concave_points_worst)',
         threshold: 0.1472,
         operator: '<=',
-        actualValue: features.concave_points_worst,
+        actualValue: concavePointsWorst,
         isSatisfied: step2Satisfied,
       });
 
       if (step2Satisfied) {
-        const step3Satisfied = features.texture_worst <= 25.67;
+        const step3Satisfied = textureWorst <= 25.67;
         decisionPath.push({
           feature: 'texture_worst',
           featureNameVi: 'Độ nhám xấu nhất (texture_worst)',
           threshold: 25.67,
           operator: '<=',
-          actualValue: features.texture_worst,
+          actualValue: textureWorst,
           isSatisfied: step3Satisfied,
         });
 
