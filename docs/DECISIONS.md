@@ -35,9 +35,36 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
 - Decision: README, frontend, report và video phải ghi rõ đây không phải chẩn đoán y khoa.
 - Consequences: không thu thập patient-identifiable data và không tuyên bố clinical readiness.
 
+## D-005 - Data retrieval method and feature names
+
+- Date: 2026-08-30
+- Status: proposed by Hòa – pending team ratification
+- Context: `data/raw/` contains only `.gitkeep`; UCI file not yet downloaded.
+- Decision: use `sklearn.datasets.load_breast_cancer` as the data source.
+  Feature names and data match UCI Breast Cancer Wisconsin Diagnostic (ID 17)
+  exactly. If the raw UCI file becomes available, replace this function, validate
+  the checksum, and supersede this decision.
+- Consequences: preprocessing code imports from sklearn; feature names come from
+  `load_breast_cancer().feature_names`; ID column is not included.
+
+## D-006 - Target encoding, positive class, split, seed and primary metric
+
+- Date: 2026-08-30
+- Status: proposed by Hòa – pending team ratification (especially Nhân/metrics owner)
+- Context: EXPERIMENT_PLAN.md section 2 left these as TBD.
+- Decision:
+  - Target encoding: M=1 (malignant, positive class), B=0 (benign).
+  - Split: stratified 80/20, `random_state=42`.
+  - Primary metric for model selection: **malignant recall** (CV scoring).
+    Rationale: in breast cancer screening, false negatives (missed malignant cases)
+    are clinically more costly than false positives. Recall on the positive class
+    directly minimises missed malignant predictions.
+  - Secondary metrics: accuracy, error rate, precision, F1, confusion matrix,
+    false-negative count, ROC-AUC where valid.
+- Consequences: all experiments must use the same split/seed/encoding/metric;
+  any change requires a new decision entry and re-run of all experiments.
+
 ## Pending decisions
 
-- D-005: retrieval method, raw checksum và canonical feature names/order.
-- D-006: target encoding, positive class, split ratio, seed và primary metric.
 - D-007: API request/response schema và model artifact metadata.
 - D-008: owner report/video, người đại diện và Group ID.
