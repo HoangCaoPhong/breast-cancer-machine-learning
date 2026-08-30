@@ -35,17 +35,17 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
 - Decision: README, frontend, report và video phải ghi rõ đây không phải chẩn đoán y khoa.
 - Consequences: không thu thập patient-identifiable data và không tuyên bố clinical readiness.
 
-## D-005 - Data retrieval method and feature names
+## D-005 - Canonical raw dataset retrieval and feature order
 
 - Date: 2026-08-30
-- Status: proposed by Hòa – pending team ratification
-- Context: `data/raw/` contains only `.gitkeep`; UCI file not yet downloaded.
-- Decision: use `sklearn.datasets.load_breast_cancer` as the data source.
-  Feature names and data match UCI Breast Cancer Wisconsin Diagnostic (ID 17)
-  exactly. If the raw UCI file becomes available, replace this function, validate
-  the checksum, and supersede this decision.
-- Consequences: preprocessing code imports from sklearn; feature names come from
-  `load_breast_cancer().feature_names`; ID column is not included.
+- Status: accepted
+- Decision: load directly from the canonical official UCI archive files
+  `data/raw/uci_wdbc/wdbc.data` and `wdbc.names`. Validate shape (569, 32) and
+  ensure no missing values. The `id` column (column 0) is excluded. Feature names
+  and order match the 30 UCI WDBC attributes. Fallback to `sklearn.datasets.load_breast_cancer`
+  is supported for environments where the raw file is not present.
+- Consequences: preprocessing code reads directly from the canonical raw file;
+  all experiments share the exact same immutable raw data.
 
 ## D-006 - Target encoding, positive class, split, seed and primary metric
 
@@ -68,3 +68,4 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
 
 - D-007: API request/response schema và model artifact metadata.
 - D-008: owner report/video, người đại diện và Group ID.
+

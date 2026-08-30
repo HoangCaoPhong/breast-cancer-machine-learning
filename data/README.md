@@ -8,6 +8,12 @@
 - UCI metadata: 569 instances, 30 real-valued predictive features, binary target
   `diagnosis` (`M` malignant, `B` benign), no missing values.
 - Features are derived from digitized fine-needle aspirate images of breast masses.
+- Tracked raw files: `data/raw/uci_wdbc/wdbc.data` and `wdbc.names`, downloaded
+  directly from the official UCI archive on 2026-08-30.
+- SHA-256 of `wdbc.data`:
+  `d606af411f3e5be8a317a5a8b652b425aaf0ff38ca683d5327ffff94c3695f4a`.
+- SHA-256 of `wdbc.names`:
+  `840e04e3f20f8a5b326892f3b9cbc01c4cd6f7e6c597630b701ef6c0ac79f5ef`.
 
 UCI is the authoritative project source. Tutorial/GitHub copies may be used for
 reference only; do not silently replace the canonical data with an unknown revision.
@@ -16,14 +22,14 @@ reference only; do not silently replace the canonical data with an unknown revis
 
 ```text
 data/
-├── raw/        # immutable source download; Git ignored
+├── raw/        # immutable canonical source files; explicit files may be tracked
 ├── processed/  # reproducible derived data; Git ignored
 └── samples/    # small redistributable fixtures for tests
 ```
 
 ## Rules
 
-- Chốt một retrieval method: official file/UCI client hoặc sklearn bundled dataset.
+- Retrieval method đã chốt: official UCI archive files.
 - Ghi ngày tải, raw filename, size và SHA-256 vào experiment metadata.
 - Không dùng ID làm feature; target mapping và feature order phải khai báo một nơi.
 - Dù UCI nói không missing, loader vẫn validate missing, duplicates, shape và types.
