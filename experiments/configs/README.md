@@ -1,6 +1,8 @@
 # Experiment configs
 
-Owner model thêm config sau khi canonical split/seed/metric được chốt. Tên gợi ý:
+Owner model thêm config sau khi canonical split/seed được chốt. Metrics đã chốt theo
+D-006: malignant F2 (`beta=2`) là primary selection metric, positive class là `M`.
+Tên gợi ý:
 
 - `baseline.yaml`
 - `max_depth.yaml`

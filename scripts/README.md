@@ -29,3 +29,16 @@ python scripts/run_custom_tree.py --criterion entropy --max-depth 3 --min-sample
 Script dùng stratified 80/20 split với seed 42 theo mặc định, in train/test accuracy,
 error rate, confusion matrix, classification report và malignant false-negative count.
 Các giá trị mặc định phục vụ demo local, chưa phải protocol chính thức cho report.
+
+## Run the max-depth experiment
+
+```bash
+python scripts/run_max_depth_experiment.py \
+  --config experiments/configs/max_depth.json
+```
+
+Experiment chỉ dùng cross-validation trên training split để chọn độ sâu, sau đó so sánh
+baseline không giới hạn với model đã chọn trên held-out test set. Primary selection
+metric là malignant F2 (`beta=2`) theo D-006; accuracy vẫn được báo như secondary
+metric. Bảng CSV, summary JSON, accuracy/F2 plots và selected-tree plot được ghi vào
+`experiments/results/max_depth/`.

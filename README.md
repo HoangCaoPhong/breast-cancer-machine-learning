@@ -63,7 +63,8 @@ See the [data guide](data/README.md) for provenance and handling rules.
 | --- | --- |
 | Repository structure, collaboration rules, and GitHub CI | Scaffolded |
 | Dataset selection and official provenance | Confirmed |
-| Canonical feature order, target mapping, split, seed, and primary metric | Pending team decision |
+| Canonical feature order and evaluation metrics | Confirmed (D-005 and D-006) |
+| Target encoding, split, seed, and cross-validation protocol | Pending team decision |
 | Decision Tree from scratch | Planned / assigned |
 | Scikit-learn baseline and three improvement experiments | Planned / assigned |
 | FastAPI backend and model-serving contract | Scaffolded, implementation pending |
@@ -240,7 +241,8 @@ Xem [hướng dẫn dữ liệu](data/README.md) để biết provenance và quy
 | --- | --- |
 | Cấu trúc repository, quy tắc phối hợp và GitHub CI | Đã scaffold |
 | Dataset và nguồn chính thức | Đã chốt |
-| Thứ tự feature, target mapping, split, seed và metric chính | Chờ nhóm chốt |
+| Thứ tự feature và bộ metrics đánh giá | Đã chốt (D-005 và D-006) |
+| Target encoding, split, seed và cross-validation protocol | Chờ nhóm chốt |
 | Decision Tree tự cài đặt | Đã phân công, chưa triển khai |
 | Baseline sklearn và ba thí nghiệm cải thiện | Đã phân công, chưa triển khai |
 | FastAPI backend và model-serving contract | Đã scaffold, chờ triển khai |

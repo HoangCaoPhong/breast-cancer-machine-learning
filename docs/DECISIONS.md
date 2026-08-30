@@ -46,8 +46,28 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
 - Consequences: tests and local experiments use one immutable dataset copy without a
   network call; feature names/order are stored by the fitted custom tree.
 
+## D-006 - Evaluation metrics and model-selection rule
+
+- Date: 2026-08-30
+- Status: accepted
+- Context: dataset có 357 mẫu benign và 212 mẫu malignant. Accuracy đơn độc có thể
+  che khuất false negative; malignant recall đơn độc lại có thể được tối đa hóa bằng
+  cách dự đoán mọi mẫu là malignant.
+- Decision: `M` (malignant) là positive class. Primary selection metric là
+  malignant-class F2 (`beta = 2`) tính trên validation/CV của training set. Tie-break
+  theo malignant recall cao hơn, F2 standard deviation thấp hơn, rồi cây ít leaf/depth
+  hơn. Required report metrics gồm malignant precision/recall/F1/F2, benign recall
+  (specificity), balanced accuracy, accuracy, error rate, confusion matrix theo label
+  order `B`, `M`, và raw FN/FP counts. ROC-AUC chỉ là supplementary khi score/probability
+  giữa các model hợp lệ và so sánh được.
+- Consequences: mọi experiment phải đổi model selection từ accuracy sang malignant F2,
+  giữ test set hoàn toàn ngoài tuning, dùng class-specific binary metrics cho `M` và
+  lưu averaging/label order trong config hoặc metadata. Accuracy vẫn phải báo theo đề
+  bài nhưng không quyết định model thắng. Kết quả hiện có tạo bằng selection metric khác
+  phải chạy lại trước khi đưa vào report.
+
 ## Pending decisions
 
-- D-006: target encoding, positive class, split ratio, seed và primary metric.
-- D-007: API request/response schema và model artifact metadata.
-- D-008: owner report/video, người đại diện và Group ID.
+- D-007: target encoding, split ratio, canonical seed và cross-validation protocol.
+- D-008: API request/response schema và model artifact metadata.
+- D-009: owner report/video, người đại diện và Group ID.
