@@ -1,9 +1,6 @@
 import React from 'react';
 import { PredictionResponse } from '../../types/prediction';
-import {
-  EXPERIMENT_COMPARISON_DATA,
-  FULL_DECISION_TREE_STRUCTURE,
-} from '../../data/featureDefinitions';
+import { EXPERIMENT_COMPARISON_DATA } from '../../data/featureDefinitions';
 
 export type DetailTab = 'tree' | 'experiments' | 'dataset';
 
@@ -98,96 +95,14 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
       <div className="p-stack-md">
         {/* Tab 1: Full Tree Diagram */}
         {activeTab === 'tree' && (
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <span className="text-xs font-sans text-on-surface-variant">
-                Độ sâu giới hạn: -- · Tiêu chuẩn phân hoạch: --
-              </span>
-              <div className="flex items-center gap-2 text-xs font-sans">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-surface-container-highest text-tertiary-container font-semibold">
-                  ● Nhóm Lành tính
-                </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-error-container text-error font-semibold">
-                  ● Nhóm Ác tính
-                </span>
-              </div>
-            </div>
-
-            {/* Hierarchical Tree Box */}
-            <div className="overflow-x-auto bg-surface-container-low border border-outline-variant rounded-xl p-5 font-sans text-xs space-y-4">
-              {/* Level 0: Root */}
-              <div className="flex flex-col items-center">
-                <div className="bg-white border-2 border-primary rounded-lg p-3 text-center shadow-sm max-w-sm w-full">
-                  <div className="font-bold text-primary text-sm">
-                    Nút gốc: Chu vi lớn nhất (perimeter_worst) ≤ {FULL_DECISION_TREE_STRUCTURE.threshold} mm
-                  </div>
-                  <div className="text-on-surface-variant text-[11px] mt-0.5 font-mono">
-                    Độ lợi thông tin = -- · Tổng số mẫu = --
-                  </div>
-                  <div className="text-[11px] text-on-surface font-medium mt-0.5">
-                    Phân phối mẫu: [Lành tính: --, Ác tính: --]
-                  </div>
-                </div>
-                <div className="w-0.5 h-6 bg-outline-variant my-1" />
-              </div>
-
-              {/* Level 1: Subtrees */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left Subtree (<= 105.95) */}
-                <div className="flex flex-col items-center bg-white/80 p-4 rounded-xl border border-outline-variant">
-                  <span className="text-[11px] font-semibold text-tertiary-container mb-2 bg-surface-container-highest px-2.5 py-0.5 rounded">
-                    Nhánh Trái: Chu vi lớn nhất ≤ 105.95 mm (Khuynh hướng lành tính)
-                  </span>
-                  <div className="bg-white border border-outline-variant rounded-lg p-2.5 text-center w-full">
-                    <div className="font-bold text-on-surface">
-                      Điểm lõm lớn nhất (concave_points_worst) ≤ 0.1357
-                    </div>
-                    <div className="text-[11px] text-on-surface-variant mt-0.5 font-mono">
-                      Tổng số mẫu = -- · [Lành: --, Ác: --]
-                    </div>
-                  </div>
-
-                  {/* Level 2 Left Leaves */}
-                  <div className="grid grid-cols-2 gap-3 mt-3 w-full">
-                    <div className="bg-surface-container-highest border border-tertiary-container rounded-lg p-2.5 text-center">
-                      <div className="font-bold text-tertiary-container">Kết luận: Lành tính</div>
-                      <div className="text-[11px] text-on-surface-variant mt-0.5">-- trường hợp</div>
-                    </div>
-                    <div className="bg-error-container border border-error rounded-lg p-2.5 text-center">
-                      <div className="font-bold text-error">Kết luận: Ác tính</div>
-                      <div className="text-[11px] text-on-surface-variant mt-0.5">-- trường hợp</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Subtree (> 105.95) */}
-                <div className="flex flex-col items-center bg-white/80 p-4 rounded-xl border border-outline-variant">
-                  <span className="text-[11px] font-semibold text-error mb-2 bg-error-container px-2.5 py-0.5 rounded">
-                    Nhánh Phải: Chu vi lớn nhất &gt; 105.95 mm (Khuynh hướng ác tính)
-                  </span>
-                  <div className="bg-white border border-outline-variant rounded-lg p-2.5 text-center w-full">
-                    <div className="font-bold text-on-surface">
-                      Điểm lõm lớn nhất (concave_points_worst) ≤ 0.1472
-                    </div>
-                    <div className="text-[11px] text-on-surface-variant mt-0.5 font-mono">
-                      Tổng số mẫu = -- · [Lành: --, Ác: --]
-                    </div>
-                  </div>
-
-                  {/* Level 2 Right Leaves */}
-                  <div className="grid grid-cols-2 gap-3 mt-3 w-full">
-                    <div className="bg-surface-container-highest border border-outline-variant rounded-lg p-2.5 text-center">
-                      <div className="font-bold text-on-surface">Độ nhám ≤ 25.67</div>
-                      <div className="text-[11px] text-on-surface-variant mt-0.5">-- trường hợp phân hóa</div>
-                    </div>
-                    <div className="bg-error-container border border-error rounded-lg p-2.5 text-center">
-                      <div className="font-bold text-error">Kết luận: Ác tính cao</div>
-                      <div className="text-[11px] text-on-surface-variant mt-0.5">-- trường hợp</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="p-8 bg-surface-container-low rounded-xl border border-outline-variant text-center space-y-3">
+            <span className="material-symbols-outlined text-4xl text-primary">account_tree</span>
+            <h4 className="font-bold text-sm text-on-surface">
+              Chờ nạp cấu trúc Cây Quyết định chính thức
+            </h4>
+            <p className="text-xs font-sans text-on-surface-variant max-w-lg mx-auto leading-relaxed">
+              Sơ đồ phân nhánh phân cấp (Nút gốc, các ngưỡng phân tách thuộc tính và nút lá phân loại) sẽ được tự động kết xuất trực quan khi nạp mô hình huấn luyện chính thức từ nhóm.
+            </p>
           </div>
         )}
 

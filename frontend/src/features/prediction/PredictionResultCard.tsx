@@ -69,11 +69,6 @@ export const PredictionResultCard: React.FC<PredictionResultCardProps> = ({
           </div>
         </div>
       </div>
-
-      {/* Decision Path Card */}
-      <div className="bg-surface-container-low rounded-xl border border-outline-variant shadow-sm p-stack-md text-center text-xs font-sans text-on-surface-variant">
-        Quy trình suy luận của Cây Quyết định sẽ được hiển thị khi cung cấp bộ dữ liệu và nạp mô hình chính thức từ nhóm.
-      </div>
     </div>
   );
 };
