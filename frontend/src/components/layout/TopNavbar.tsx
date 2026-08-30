@@ -15,12 +15,12 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
         {/* Brand & Logo */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-bold text-lg shadow-sm">
-            <span className="material-symbols-outlined text-2xl">account_tree</span>
+            <span className="material-symbols-outlined text-2xl">health_and_safety</span>
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-headline-md text-base font-bold text-on-surface">
-                OncoTree Classifier
+                Breast Cancer Diagnostic
               </h1>
               <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[11px] font-sans font-medium bg-surface-container-high text-primary border border-outline-variant">
                 Lab 2 · UCI Dataset #17
