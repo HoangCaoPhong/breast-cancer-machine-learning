@@ -35,9 +35,19 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
 - Decision: README, frontend, report và video phải ghi rõ đây không phải chẩn đoán y khoa.
 - Consequences: không thu thập patient-identifiable data và không tuyên bố clinical readiness.
 
+## D-005 - Dataset retrieval and canonical feature order
+
+- Date: 2026-08-30
+- Status: accepted
+- Decision: track the official UCI `wdbc.data` and `wdbc.names` files; validate their
+  checksums and load the 30 predictive columns in the order declared by
+  `backend/app/ml/preprocessing/breast_cancer.py`. The `id` field is validated but never
+  passed to a model. Diagnosis remains `B`/`M` until the shared encoding decision is made.
+- Consequences: tests and local experiments use one immutable dataset copy without a
+  network call; feature names/order are stored by the fitted custom tree.
+
 ## Pending decisions
 
-- D-005: retrieval method, raw checksum và canonical feature names/order.
 - D-006: target encoding, positive class, split ratio, seed và primary metric.
 - D-007: API request/response schema và model artifact metadata.
 - D-008: owner report/video, người đại diện và Group ID.

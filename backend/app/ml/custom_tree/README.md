@@ -1,7 +1,5 @@
 # Custom Decision Tree
 
-Owner: Hoàng Cao Phong.
-
 Implementation tự xây dựng impurity, split search, stopping conditions, tree nodes và
 traversal. Không gọi `sklearn.tree.DecisionTreeClassifier` trong code thuật toán.
 
@@ -29,3 +27,22 @@ Nếu nhiều split có information gain bằng nhau trong sai số `1e-12`, câ
 index nhỏ hơn, sau đó chọn threshold nhỏ hơn. Khi số phiếu class bằng nhau, cây chọn class
 đầu tiên trong `classes_` (thứ tự đã sort bởi NumPy). Quy tắc này giúp các run và test có
 kết quả deterministic.
+
+## Canonical dataset example
+
+Chạy từ repository root với `PYTHONPATH=backend`:
+
+```python
+from app.ml.custom_tree import DecisionTreeClassifierScratch
+from app.ml.preprocessing import load_breast_cancer_dataset
+
+dataset = load_breast_cancer_dataset("data/raw/uci_wdbc/wdbc.data")
+model = DecisionTreeClassifierScratch(max_depth=3, min_samples_leaf=5)
+model.fit(dataset.features, dataset.target)
+
+predictions = model.predict(dataset.features.iloc[:5])
+```
+
+Loader validate bản UCI 569 dòng, gắn đúng thứ tự 30 feature và loại `id` trước khi
+truyền dữ liệu vào model. Đoạn ví dụ chỉ minh họa integration; experiment chính thức vẫn
+phải dùng canonical train/test split sau khi nhóm chốt protocol.

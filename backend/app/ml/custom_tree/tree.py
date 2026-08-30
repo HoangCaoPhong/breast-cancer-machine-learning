@@ -79,12 +79,16 @@ class DecisionTreeClassifierScratch:
         self.classes_: NDArray | None = None
         self.n_classes_: int | None = None
         self.n_features_in_: int | None = None
+        self.feature_names_in_: NDArray[np.str_] | None = None
         self.tree_: TreeNode | None = None
 
     def fit(self, X: ArrayLike, y: ArrayLike) -> DecisionTreeClassifierScratch:
         """Build a classification tree from finite numeric training samples."""
 
+        feature_names = self._extract_feature_names(X)
         features = self._validate_features(X, fitting=True)
+        if feature_names is not None and feature_names.size != features.shape[1]:
+            raise ValueError("X column names must match its number of features")
         targets = np.asarray(y)
         if targets.ndim != 1:
             raise ValueError("y must be a one-dimensional array")
@@ -103,6 +107,7 @@ class DecisionTreeClassifierScratch:
         self.classes_ = classes
         self.n_classes_ = int(classes.size)
         self.n_features_in_ = int(features.shape[1])
+        self.feature_names_in_ = feature_names
         self.tree_ = self._build_tree(features, encoded_targets.astype(np.int64), depth=0)
         return self
 
@@ -261,6 +266,13 @@ class DecisionTreeClassifierScratch:
         return node
 
     def _validate_prediction_input(self, X: ArrayLike) -> NDArray[np.float64]:
+        feature_names = self._extract_feature_names(X)
+        if (
+            self.feature_names_in_ is not None
+            and feature_names is not None
+            and not np.array_equal(feature_names, self.feature_names_in_)
+        ):
+            raise ValueError("X feature names and order must match the fitted training data")
         features = self._validate_features(X, fitting=False)
         expected_features = self._fitted_n_features()
         if features.shape[1] != expected_features:
@@ -269,6 +281,18 @@ class DecisionTreeClassifierScratch:
                 f"{expected_features}"
             )
         return features
+
+    @staticmethod
+    def _extract_feature_names(X: ArrayLike) -> NDArray[np.str_] | None:
+        columns = getattr(X, "columns", None)
+        if columns is None:
+            return None
+        names = list(columns)
+        if not all(isinstance(name, str) for name in names):
+            raise ValueError("X column names must all be strings")
+        if len(set(names)) != len(names):
+            raise ValueError("X column names must be unique")
+        return np.asarray(names, dtype=str)
 
     @staticmethod
     def _validate_features(X: ArrayLike, *, fitting: bool) -> NDArray[np.float64]:

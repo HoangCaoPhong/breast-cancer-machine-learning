@@ -1,6 +1,12 @@
+from pathlib import Path
+
 import numpy as np
+import pandas as pd
 import pytest
 from app.ml.custom_tree import DecisionTreeClassifierScratch
+from app.ml.preprocessing import FEATURE_NAMES, load_breast_cancer_dataset
+
+_CANONICAL_DATASET = Path(__file__).parents[2] / "data/raw/uci_wdbc/wdbc.data"
 
 
 def test_pure_targets_create_one_leaf() -> None:
@@ -84,6 +90,34 @@ def test_equal_gain_uses_lower_feature_index_deterministically() -> None:
     roots = [DecisionTreeClassifierScratch().fit(X, y).tree_ for _ in range(3)]
 
     assert all(root is not None and root.feature_index == 0 for root in roots)
+
+
+def test_dataframe_feature_order_is_preserved() -> None:
+    X = pd.DataFrame({"radius": [1.0, 2.0, 8.0, 9.0], "texture": [2.0, 3.0, 8.0, 9.0]})
+    model = DecisionTreeClassifierScratch().fit(X, ["B", "B", "M", "M"])
+
+    assert model.feature_names_in_ is not None
+    assert model.feature_names_in_.tolist() == ["radius", "texture"]
+    with pytest.raises(ValueError, match="names and order"):
+        model.predict(X[["texture", "radius"]])
+
+
+def test_custom_tree_accepts_canonical_breast_cancer_dataset() -> None:
+    dataset = load_breast_cancer_dataset(_CANONICAL_DATASET)
+
+    assert dataset.features.shape == (569, 30)
+    assert dataset.target.value_counts().to_dict() == {"B": 357, "M": 212}
+    assert dataset.features.columns.tolist() == list(FEATURE_NAMES)
+
+    model = DecisionTreeClassifierScratch(max_depth=3, min_samples_leaf=5)
+    model.fit(dataset.features, dataset.target)
+    predictions = model.predict(dataset.features.iloc[:10])
+
+    assert model.n_features_in_ == 30
+    assert model.feature_names_in_ is not None
+    assert model.feature_names_in_.tolist() == list(FEATURE_NAMES)
+    assert predictions.shape == (10,)
+    assert set(predictions).issubset({"B", "M"})
 
 
 def test_simple_predictions_match_sklearn_reference() -> None:
