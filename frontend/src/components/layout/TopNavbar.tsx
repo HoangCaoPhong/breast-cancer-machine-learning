@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ApiDocsModal } from '../common/ApiDocsModal';
+import { AboutUsModal } from '../common/AboutUsModal';
 
 interface TopNavbarProps {
   onResetFeatures: () => void;
@@ -11,6 +12,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   onNavigateSection,
 }) => {
   const [isApiDocsOpen, setIsApiDocsOpen] = useState<boolean>(false);
+  const [isAboutUsOpen, setIsAboutUsOpen] = useState<boolean>(false);
 
   return (
     <>
@@ -67,6 +69,17 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               <span className="hidden sm:inline">Tài liệu API</span>
             </button>
 
+            {/* About Us Button */}
+            <button
+              type="button"
+              onClick={() => setIsAboutUsOpen(true)}
+              className="px-3 py-1.5 rounded-lg text-xs font-sans font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors flex items-center gap-1.5"
+              title="Thông tin về đồ án và nghiên cứu"
+            >
+              <span className="material-symbols-outlined text-base">info</span>
+              <span className="hidden sm:inline">About Us</span>
+            </button>
+
             <div className="h-5 w-px bg-outline-variant mx-1 hidden sm:block" />
 
             <button
@@ -85,6 +98,12 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
       <ApiDocsModal
         isOpen={isApiDocsOpen}
         onClose={() => setIsApiDocsOpen(false)}
+      />
+
+      {/* About Us Modal */}
+      <AboutUsModal
+        isOpen={isAboutUsOpen}
+        onClose={() => setIsAboutUsOpen(false)}
       />
     </>
   );
