@@ -1,9 +1,10 @@
-import React from 'react';
-import { PredictionResponse } from '../../types/prediction';
+import React, { useState, useEffect } from 'react';
+import { PredictionResponse, ModelExperiment } from '../../types/prediction';
 import {
   EXPERIMENT_COMPARISON_DATA,
   FULL_DECISION_TREE_STRUCTURE,
 } from '../../data/featureDefinitions';
+import { PredictionService } from '../../services/api';
 
 export type DetailTab = 'tree' | 'experiments' | 'dataset';
 
@@ -18,6 +19,17 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
   activeTab,
   onTabChange,
 }) => {
+  const [experiments, setExperiments] = useState<ModelExperiment[]>(
+    EXPERIMENT_COMPARISON_DATA
+  );
+
+  useEffect(() => {
+    PredictionService.getExperiments().then((data) => {
+      if (data && data.length > 0) {
+        setExperiments(data);
+      }
+    });
+  }, []);
   const accuracy =
     result?.accuracy !== null && result?.accuracy !== undefined
       ? `${(result.accuracy * 100).toFixed(2)}%`
@@ -229,7 +241,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant font-mono">
-                  {EXPERIMENT_COMPARISON_DATA.map((exp) => (
+                  {experiments.map((exp) => (
                     <tr
                       key={exp.id}
                       className={`transition-colors ${
