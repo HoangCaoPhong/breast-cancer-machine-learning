@@ -1,14 +1,5 @@
 import React from 'react';
 import { PredictionResponse } from '../../types/prediction';
-import {
-  ShieldAlert,
-  ShieldCheck,
-  Percent,
-  Cpu,
-  Clock,
-  Info,
-  Microscope,
-} from 'lucide-react';
 
 interface PredictionResultCardProps {
   result: PredictionResponse | null;
@@ -19,167 +10,146 @@ export const PredictionResultCard: React.FC<PredictionResultCardProps> = ({
   result,
   isLoading,
 }) => {
-  if (isLoading) {
-    return (
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800/80 shadow-2xl flex flex-col items-center justify-center min-h-[380px] space-y-4">
-        <div className="relative">
-          <div className="w-16 h-16 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 animate-pulse">
-            <Microscope className="w-8 h-8 animate-bounce" />
-          </div>
-          <div className="absolute -inset-1 rounded-2xl bg-teal-500/20 blur-sm -z-10 animate-pulse" />
-        </div>
-        <div className="text-center">
-          <h3 className="text-base font-bold text-white font-sans">
-            Mô Hình Đang Duyệt Cây Quyết Định...
-          </h3>
-          <p className="text-xs text-slate-400 font-mono mt-1">
-            Đánh giá 30 chỉ số tế bào học qua các ngưỡng phân nhánh
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const isMalignant = result ? result.prediction === 'M' : true;
+  const confidence = result ? (result.confidence * 100).toFixed(1) : '98.5';
+  const malignantProb = result
+    ? (result.probabilities.malignant * 100).toFixed(1)
+    : '98.5';
+  const benignProb = result
+    ? (result.probabilities.benign * 100).toFixed(1)
+    : '1.5';
 
-  if (!result) {
-    return (
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800/80 shadow-2xl flex flex-col items-center justify-center min-h-[380px] text-center space-y-3">
-        <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500">
-          <Microscope className="w-6 h-6" />
-        </div>
-        <h3 className="text-sm font-semibold text-slate-300 font-sans">
-          Chưa Có Kết Quả Phân Loại
-        </h3>
-        <p className="text-xs text-slate-400 font-sans max-w-xs">
-          Vui lòng chọn mẫu thử hoặc nhập 30 thông số tế bào học ở bảng bên trái, sau đó nhấn{' '}
-          <strong className="text-teal-400">"Chạy Phân Loại"</strong>.
-        </p>
-      </div>
-    );
-  }
-
-  const isMalignant = result.prediction === 'M';
-  const malignantPercentage = (result.probabilities.malignant * 100).toFixed(1);
-  const benignPercentage = (result.probabilities.benign * 100).toFixed(1);
+  const decisionPath = result?.decisionPath || [];
+  const topFeatures = result?.topFeatures || [];
 
   return (
-    <div
-      className={`glass-panel rounded-2xl overflow-hidden shadow-2xl border transition-all ${
-        isMalignant
-          ? 'border-rose-500/40 shadow-glow-rose'
-          : 'border-emerald-500/40 shadow-glow-emerald'
-      }`}
-    >
-      {/* Result Status Header */}
-      <div
-        className={`p-6 border-b flex items-center justify-between ${
-          isMalignant
-            ? 'bg-rose-950/30 border-rose-500/20'
-            : 'bg-emerald-950/30 border-emerald-500/20'
-        }`}
-      >
-        <div className="flex items-center space-x-3.5">
-          <div
-            className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-              isMalignant
-                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-            }`}
-          >
-            {isMalignant ? (
-              <ShieldAlert className="w-7 h-7 animate-pulse" />
-            ) : (
-              <ShieldCheck className="w-7 h-7" />
-            )}
+    <div className="space-y-gutter">
+      {/* Result State Card */}
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm flex flex-col">
+        <div className="p-stack-md border-b border-outline-variant bg-surface-bright flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-secondary">health_and_safety</span>
+            <h3 className="font-headline-md text-headline-md text-on-surface">Kết quả phân loại</h3>
           </div>
-          <div>
-            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 block">
-              Kết Quả Phân Loại Mô Hình
-            </span>
-            <h3
-              className={`text-xl sm:text-2xl font-extrabold font-sans tracking-tight ${
-                isMalignant ? 'text-rose-400' : 'text-emerald-400'
-              }`}
-            >
-              {result.diagnosisLabelVi}
-            </h3>
-          </div>
-        </div>
-
-        {/* Confidence Badge */}
-        <div className="text-right">
-          <span className="text-[11px] font-mono text-slate-400 block">Độ tin cậy</span>
-          <span className="text-lg font-bold font-mono text-white">
-            {(result.confidence * 100).toFixed(1)}%
+          <span className="font-label-mono text-[11px] text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">
+            {result?.selectedModelId?.toUpperCase()}
           </span>
         </div>
-      </div>
 
-      {/* Probabilities Distribution */}
-      <div className="p-6 space-y-5">
-        <div>
-          <div className="flex justify-between items-center text-xs font-mono mb-2">
-            <span className="text-slate-300 flex items-center gap-1.5">
-              <Percent className="w-3.5 h-3.5 text-teal-400" />
-              Phân Phối Xác Suất Hai Lớp (Class Probability)
-            </span>
+        <div className="p-stack-md flex flex-col space-y-4">
+          {/* Main Status Pill */}
+          <div className="text-center">
+            {isLoading ? (
+              <div className="inline-block bg-surface-container-high text-primary px-6 py-3 rounded-full font-headline-md border border-primary mb-2">
+                Đang duyệt cây quyết định...
+              </div>
+            ) : isMalignant ? (
+              <div className="inline-block bg-error-container text-on-error-container px-6 py-2.5 rounded-full font-display-lg text-display-lg border border-error mb-2">
+                Malignant (Ác tính)
+              </div>
+            ) : (
+              <div className="inline-block bg-surface-container-high text-tertiary-container px-6 py-2.5 rounded-full font-display-lg text-display-lg border border-tertiary-container mb-2 font-bold">
+                Benign (Lành tính)
+              </div>
+            )}
+
+            <p className="font-label-mono text-xs text-on-surface-variant flex items-center justify-center gap-1">
+              <span className="material-symbols-outlined text-xs text-primary">verified</span>
+              Độ tin cậy mô hình: <strong>{confidence}%</strong>
+            </p>
           </div>
 
-          <div className="space-y-2.5">
-            {/* Malignant Probability Bar */}
+          {/* Probability Distribution */}
+          <div className="space-y-3 border-t border-outline-variant pt-stack-md">
+            <h4 className="font-label-mono text-[11px] text-on-surface-variant uppercase tracking-wider">
+              Xác suất phân lớp (Class Probability)
+            </h4>
             <div>
-              <div className="flex justify-between text-xs font-mono mb-1">
-                <span className="text-rose-300 font-semibold">Ác tính (Malignant)</span>
-                <span className="text-rose-300 font-bold">{malignantPercentage}%</span>
+              <div className="flex justify-between font-label-mono text-xs mb-1">
+                <span className="text-error font-bold">Ác tính (Malignant)</span>
+                <span className="font-bold">{malignantProb}%</span>
               </div>
-              <div className="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-800">
+              <div className="w-full bg-surface-container-highest rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-rose-600 to-rose-400 h-2.5 rounded-full transition-all duration-700"
-                  style={{ width: `${malignantPercentage}%` }}
+                  className="bg-error h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${malignantProb}%` }}
                 />
               </div>
             </div>
-
-            {/* Benign Probability Bar */}
             <div>
-              <div className="flex justify-between text-xs font-mono mb-1">
-                <span className="text-emerald-300 font-semibold">Lành tính (Benign)</span>
-                <span className="text-emerald-300 font-bold">{benignPercentage}%</span>
+              <div className="flex justify-between font-label-mono text-xs mb-1">
+                <span className="text-tertiary-container font-bold">Lành tính (Benign)</span>
+                <span className="font-bold">{benignProb}%</span>
               </div>
-              <div className="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-800">
+              <div className="w-full bg-surface-container-highest rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-emerald-600 to-emerald-400 h-2.5 rounded-full transition-all duration-700"
-                  style={{ width: `${benignPercentage}%` }}
+                  className="bg-tertiary-container h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${benignProb}%` }}
                 />
               </div>
             </div>
           </div>
         </div>
-
-        {/* Clinical Cellular Summary */}
-        <div className="bg-slate-900/60 rounded-xl p-4 border border-slate-800/80 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-200 font-sans">
-            <Info className="w-4 h-4 text-teal-400 shrink-0" />
-            <span>Ý Nghĩa Hình Thái Học Tế Bào</span>
-          </div>
-          <p className="text-xs text-slate-300 font-sans leading-relaxed">
-            {isMalignant
-              ? 'Tế bào có đặc trưng chu vi lớn (perimeter worst) và nhiều điểm lõm bất thường (concave points), đây là các dấu hiệu phân nhánh mạnh dẫn đến kết luận ác tính trong cây quyết định.'
-              : 'Tế bào duy trì tính đồng nhất cao, bán kính và diện tích trong khoảng an toàn, không xuất hiện các biến dạng cấu trúc nhân nghiêm trọng.'}
-          </p>
-        </div>
-
-        {/* Metadata Footer */}
-        <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
-          <div className="flex items-center gap-1.5">
-            <Cpu className="w-3.5 h-3.5 text-teal-400" />
-            <span>{result.modelVersion}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-slate-400" />
-            <span>{new Date(result.timestamp).toLocaleTimeString('vi-VN')}</span>
-          </div>
-        </div>
       </div>
+
+      {/* Decision Path Card */}
+      {decisionPath.length > 0 && (
+        <div className="bg-surface-container-low rounded-xl border border-outline-variant shadow-sm p-stack-md space-y-3">
+          <div className="flex items-center gap-2 border-b border-outline-variant pb-2">
+            <span className="material-symbols-outlined text-primary text-sm">alt_route</span>
+            <h4 className="font-headline-sm text-sm font-bold text-on-surface">
+              Đường rẽ nhánh của mẫu (Decision Path)
+            </h4>
+          </div>
+
+          <div className="space-y-2">
+            {decisionPath.map((step, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between text-xs font-mono bg-white p-2.5 rounded-lg border border-outline-variant"
+              >
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="w-4 h-4 rounded-full bg-surface-container-high text-primary text-[10px] font-bold flex items-center justify-center shrink-0">
+                    {idx + 1}
+                  </span>
+                  <span className="truncate">{step.feature}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-on-surface-variant font-bold">
+                    {step.operator} {step.threshold}
+                  </span>
+                  <span
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                      step.isSatisfied
+                        ? 'bg-surface-container-highest text-tertiary-container'
+                        : 'bg-error-container text-error'
+                    }`}
+                  >
+                    {step.isSatisfied ? 'Thỏa' : 'Không'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Top Features */}
+          {topFeatures.length > 0 && (
+            <div className="pt-2 border-t border-outline-variant">
+              <span className="text-[11px] font-label-mono text-on-surface-variant uppercase block mb-1.5">
+                Top đặc trưng quyết định:
+              </span>
+              <div className="space-y-1.5">
+                {topFeatures.slice(0, 3).map((item, idx) => (
+                  <div key={idx} className="flex justify-between text-[11px] font-mono">
+                    <span className="text-on-surface truncate">{item.feature}</span>
+                    <span className="font-bold text-primary">{(item.importance * 100).toFixed(0)}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

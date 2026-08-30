@@ -70,6 +70,37 @@ export interface FeatureImportance {
   importance: number; // 0.0 to 1.0
 }
 
+export interface TreeNodeData {
+  id: string;
+  name: string;
+  feature?: string;
+  threshold?: number;
+  criterion?: string;
+  samples?: number;
+  values?: [number, number]; // [Benign, Malignant]
+  isLeaf?: boolean;
+  predictedClass?: 'Benign' | 'Malignant';
+  children?: TreeNodeData[];
+}
+
+export type ModelOptionId = 'best' | 'scratch' | 'baseline' | 'depth_tune';
+
+export interface ModelOptionInfo {
+  id: ModelOptionId;
+  name: string;
+  nameVi: string;
+  criterion: 'Entropy' | 'Gini';
+  maxDepth: number | 'None';
+  minSamplesSplit: number;
+  minSamplesLeaf: number;
+  accuracy: number;
+  errorRate: number;
+  recallMalignant: number;
+  f1Score: number;
+  precision: number;
+  descriptionVi: string;
+}
+
 export interface PredictionResponse {
   prediction: 'M' | 'B';
   diagnosisLabel: 'Malignant' | 'Benign';
@@ -83,6 +114,11 @@ export interface PredictionResponse {
   topFeatures: FeatureImportance[];
   modelVersion: string;
   modelType: string;
+  selectedModelId: ModelOptionId;
+  accuracy: number;
+  errorRate: number;
+  recallMalignant: number;
+  f1Score: number;
   timestamp: string;
   disclaimer: string;
 }

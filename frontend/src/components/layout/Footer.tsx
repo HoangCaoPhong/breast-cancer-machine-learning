@@ -1,35 +1,30 @@
 import React from 'react';
-import { Database, ExternalLink, Shield } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="mt-16 border-t border-slate-800/80 bg-slate-950/60 backdrop-blur py-8 text-xs text-slate-400">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 text-center sm:text-left">
-            <span className="font-mono text-slate-300 font-medium">HCMUS · Nhóm 4 (AI Lab 02)</span>
-            <span>Dataset: UCI Breast Cancer Wisconsin (Diagnostic)</span>
-            <span className="font-mono">DOI: 10.24432/C5DW2B</span>
-          </div>
-
-          <div className="flex items-center gap-4 font-mono">
-            <a
-              href="https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 hover:text-teal-400 transition-colors"
-            >
-              <Database className="w-3.5 h-3.5" />
-              <span>UCI Repository</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-            <span className="text-slate-700">|</span>
-            <span className="inline-flex items-center gap-1 text-slate-400">
-              <Shield className="w-3.5 h-3.5 text-teal-400" />
-              <span>CC BY 4.0</span>
-            </span>
-          </div>
-        </div>
+    <footer className="bg-surface-container-lowest dark:bg-on-background border-t border-outline-variant dark:border-outline docked full-width bottom-0 w-full py-stack-md px-gutter flex justify-between items-center max-w-container-max mx-auto mt-auto">
+      <div className="font-label-mono text-label-mono text-on-surface-variant dark:text-outline-variant">
+        © 2024 HCMUS Lab 02. Institutional Use Only.
+      </div>
+      <div className="flex gap-4">
+        <a
+          className="font-label-mono text-label-mono text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed opacity-90 hover:opacity-100"
+          href="#disclaimer"
+        >
+          Academic Disclaimer
+        </a>
+        <a
+          className="font-label-mono text-label-mono text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed opacity-90 hover:opacity-100"
+          href="#privacy"
+        >
+          Privacy Protocol
+        </a>
+        <a
+          className="font-label-mono text-label-mono text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed opacity-90 hover:opacity-100"
+          href="#ethics"
+        >
+          Data Ethics
+        </a>
       </div>
     </footer>
   );
