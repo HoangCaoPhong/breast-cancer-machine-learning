@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { PredictionResponse, ModelExperiment } from '../../types/prediction';
+import React from 'react';
+import { PredictionResponse } from '../../types/prediction';
 import {
   EXPERIMENT_COMPARISON_DATA,
   FULL_DECISION_TREE_STRUCTURE,
 } from '../../data/featureDefinitions';
-import { PredictionService } from '../../services/api';
 
 export type DetailTab = 'tree' | 'experiments' | 'dataset';
 
@@ -19,17 +18,6 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
   activeTab,
   onTabChange,
 }) => {
-  const [experiments, setExperiments] = useState<ModelExperiment[]>(
-    EXPERIMENT_COMPARISON_DATA
-  );
-
-  useEffect(() => {
-    PredictionService.getExperiments().then((data) => {
-      if (data && data.length > 0) {
-        setExperiments(data);
-      }
-    });
-  }, []);
   const accuracy =
     result?.accuracy !== null && result?.accuracy !== undefined
       ? `${(result.accuracy * 100).toFixed(2)}%`
@@ -113,7 +101,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <span className="text-xs font-sans text-on-surface-variant">
-                Độ sâu giới hạn: 4 tầng · Tiêu chuẩn phân hoạch: Độ lợi thông tin (Information Gain / Entropy)
+                Độ sâu giới hạn: -- · Tiêu chuẩn phân hoạch: --
               </span>
               <div className="flex items-center gap-2 text-xs font-sans">
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-surface-container-highest text-tertiary-container font-semibold">
@@ -134,10 +122,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                     Nút gốc: Chu vi lớn nhất (perimeter_worst) ≤ {FULL_DECISION_TREE_STRUCTURE.threshold} mm
                   </div>
                   <div className="text-on-surface-variant text-[11px] mt-0.5 font-mono">
-                    {FULL_DECISION_TREE_STRUCTURE.criterion} · Tổng số mẫu = {FULL_DECISION_TREE_STRUCTURE.samples}
+                    Độ lợi thông tin = -- · Tổng số mẫu = --
                   </div>
                   <div className="text-[11px] text-on-surface font-medium mt-0.5">
-                    Phân phối mẫu: [Lành tính: {FULL_DECISION_TREE_STRUCTURE.values?.[0]}, Ác tính: {FULL_DECISION_TREE_STRUCTURE.values?.[1]}]
+                    Phân phối mẫu: [Lành tính: --, Ác tính: --]
                   </div>
                 </div>
                 <div className="w-0.5 h-6 bg-outline-variant my-1" />
@@ -155,7 +143,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                       Điểm lõm lớn nhất (concave_points_worst) ≤ 0.1357
                     </div>
                     <div className="text-[11px] text-on-surface-variant mt-0.5 font-mono">
-                      Tổng số mẫu = 290 · [Lành: 275, Ác: 15]
+                      Tổng số mẫu = -- · [Lành: --, Ác: --]
                     </div>
                   </div>
 
@@ -163,11 +151,11 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                   <div className="grid grid-cols-2 gap-3 mt-3 w-full">
                     <div className="bg-surface-container-highest border border-tertiary-container rounded-lg p-2.5 text-center">
                       <div className="font-bold text-tertiary-container">Kết luận: Lành tính</div>
-                      <div className="text-[11px] text-on-surface-variant mt-0.5">268 trường hợp</div>
+                      <div className="text-[11px] text-on-surface-variant mt-0.5">-- trường hợp</div>
                     </div>
                     <div className="bg-error-container border border-error rounded-lg p-2.5 text-center">
                       <div className="font-bold text-error">Kết luận: Ác tính</div>
-                      <div className="text-[11px] text-on-surface-variant mt-0.5">15 trường hợp</div>
+                      <div className="text-[11px] text-on-surface-variant mt-0.5">-- trường hợp</div>
                     </div>
                   </div>
                 </div>
@@ -182,7 +170,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                       Điểm lõm lớn nhất (concave_points_worst) ≤ 0.1472
                     </div>
                     <div className="text-[11px] text-on-surface-variant mt-0.5 font-mono">
-                      Tổng số mẫu = 165 · [Lành: 10, Ác: 155]
+                      Tổng số mẫu = -- · [Lành: --, Ác: --]
                     </div>
                   </div>
 
@@ -190,11 +178,11 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                   <div className="grid grid-cols-2 gap-3 mt-3 w-full">
                     <div className="bg-surface-container-highest border border-outline-variant rounded-lg p-2.5 text-center">
                       <div className="font-bold text-on-surface">Độ nhám ≤ 25.67</div>
-                      <div className="text-[11px] text-on-surface-variant mt-0.5">25 trường hợp phân hóa</div>
+                      <div className="text-[11px] text-on-surface-variant mt-0.5">-- trường hợp phân hóa</div>
                     </div>
                     <div className="bg-error-container border border-error rounded-lg p-2.5 text-center">
                       <div className="font-bold text-error">Kết luận: Ác tính cao</div>
-                      <div className="text-[11px] text-on-surface-variant mt-0.5">140 trường hợp (100%)</div>
+                      <div className="text-[11px] text-on-surface-variant mt-0.5">-- trường hợp</div>
                     </div>
                   </div>
                 </div>
@@ -241,7 +229,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant font-mono">
-                  {experiments.map((exp) => (
+                  {EXPERIMENT_COMPARISON_DATA.map((exp) => (
                     <tr
                       key={exp.id}
                       className={`transition-colors ${
