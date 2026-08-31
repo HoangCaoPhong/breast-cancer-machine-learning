@@ -46,28 +46,32 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
 - Consequences: tests and local experiments use one immutable dataset copy without a
   network call; feature names/order are stored by the fitted custom tree.
 
-## D-006 - Evaluation metrics and model-selection rule
+## D-006 - Canonical baseline and evaluation protocol
 
 - Date: 2026-08-30
 - Status: accepted
 - Context: dataset có 357 mẫu benign và 212 mẫu malignant. Accuracy đơn độc có thể
   che khuất false negative; malignant recall đơn độc lại có thể được tối đa hóa bằng
   cách dự đoán mọi mẫu là malignant.
-- Decision: `M` (malignant) là positive class. Primary selection metric là
-  malignant-class F2 (`beta = 2`) tính trên validation/CV của training set. Tie-break
+- Decision: preserve labels `B`/`M`; use a stratified 80/20 train/test split with
+  `random_state=42` and stratified 5-fold CV on the training set for tuning. Baseline
+  B0 uses `DecisionTreeClassifier(criterion="gini", max_depth=None,
+  min_samples_leaf=1, min_samples_split=2, random_state=42)`. `M` (malignant) is the
+  positive class. Primary selection metric is malignant-class F2 (`beta=2`) computed
+  on training CV. Tie-break
   theo malignant recall cao hơn, F2 standard deviation thấp hơn, rồi cây ít leaf/depth
   hơn. Required report metrics gồm malignant precision/recall/F1/F2, benign recall
   (specificity), balanced accuracy, accuracy, error rate, confusion matrix theo label
   order `B`, `M`, và raw FN/FP counts. ROC-AUC chỉ là supplementary khi score/probability
   giữa các model hợp lệ và so sánh được.
-- Consequences: mọi experiment phải đổi model selection từ accuracy sang malignant F2,
-  giữ test set hoàn toàn ngoài tuning, dùng class-specific binary metrics cho `M` và
+- Consequences: B0 là mốc cố định và mọi improvement dùng cùng dataset, split, seed,
+  class semantics và CV. Mọi experiment phải chọn model bằng malignant F2, giữ test
+  set hoàn toàn ngoài tuning, dùng class-specific binary metrics cho `M` và
   lưu averaging/label order trong config hoặc metadata. Accuracy vẫn phải báo theo đề
   bài nhưng không quyết định model thắng. Kết quả hiện có tạo bằng selection metric khác
   phải chạy lại trước khi đưa vào report.
 
 ## Pending decisions
 
-- D-007: target encoding, split ratio, canonical seed và cross-validation protocol.
-- D-008: API request/response schema và model artifact metadata.
-- D-009: owner report/video, người đại diện và Group ID.
+- D-007: API request/response schema và model artifact metadata.
+- D-008: owner report/video, người đại diện và Group ID.
