@@ -35,16 +35,17 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
 - Decision: README, frontend, report và video phải ghi rõ đây không phải chẩn đoán y khoa.
 - Consequences: không thu thập patient-identifiable data và không tuyên bố clinical readiness.
 
-## D-005 - Dataset retrieval and canonical feature order
+## D-005 - Canonical raw dataset retrieval and feature order
 
 - Date: 2026-08-30
 - Status: accepted
-- Decision: track the official UCI `wdbc.data` and `wdbc.names` files; validate their
-  checksums and load the 30 predictive columns in the order declared by
-  `backend/app/ml/preprocessing/breast_cancer.py`. The `id` field is validated but never
-  passed to a model. Diagnosis remains `B`/`M` until the shared encoding decision is made.
-- Consequences: tests and local experiments use one immutable dataset copy without a
-  network call; feature names/order are stored by the fitted custom tree.
+- Decision: load directly from the canonical official UCI archive files
+  `data/raw/uci_wdbc/wdbc.data` and `wdbc.names`. Validate shape (569, 32) and
+  ensure no missing values. The `id` column (column 0) is excluded. Feature names
+  and order match the 30 UCI WDBC attributes. Fallback to `sklearn.datasets.load_breast_cancer`
+  is supported for environments where the raw file is not present.
+- Consequences: preprocessing code reads directly from the canonical raw file;
+  all experiments share the exact same immutable raw data.
 
 ## D-006 - Evaluation metrics and model-selection rule
 
@@ -68,6 +69,5 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
 
 ## Pending decisions
 
-- D-007: target encoding, split ratio, canonical seed và cross-validation protocol.
-- D-008: API request/response schema và model artifact metadata.
-- D-009: owner report/video, người đại diện và Group ID.
+- D-007: API request/response schema và model artifact metadata.
+- D-008: owner report/video, người đại diện và Group ID.
