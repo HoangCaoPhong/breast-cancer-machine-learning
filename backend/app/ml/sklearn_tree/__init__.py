@@ -1,15 +1,9 @@
-"""Scikit-learn Decision Tree baselines and controlled experiments."""
+"""Scikit-learn Decision Tree baseline and experiment helpers."""
 
-from app.ml.sklearn_tree.criterion_experiment import (
-    CriterionRun,
-    entropy_impurity,
-    fit_gini_and_entropy,
-    gini_impurity,
+from app.ml.sklearn_tree.baseline import (
+    BaselineConfig,
+    BaselineResult,
+    run_sklearn_baseline,
 )
 
-__all__ = [
-    "CriterionRun",
-    "entropy_impurity",
-    "fit_gini_and_entropy",
-    "gini_impurity",
-]
+__all__ = ["BaselineConfig", "BaselineResult", "run_sklearn_baseline"]
