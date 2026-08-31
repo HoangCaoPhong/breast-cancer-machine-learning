@@ -46,3 +46,13 @@ predictions = model.predict(dataset.features.iloc[:5])
 Loader validate bản UCI 569 dòng, gắn đúng thứ tự 30 feature và loại `id` trước khi
 truyền dữ liệu vào model. Đoạn ví dụ chỉ minh họa integration; experiment chính thức vẫn
 phải dùng canonical train/test split sau khi nhóm chốt protocol.
+
+## Gini versus Entropy experiment
+
+`criterion_experiment.py` runs Gini and Entropy on the custom implementation with
+the same canonical split, folds, parameters, and shared metrics used by the sklearn
+comparison. The report runner is:
+
+```bash
+python scripts/run_criterion_experiment.py
+```

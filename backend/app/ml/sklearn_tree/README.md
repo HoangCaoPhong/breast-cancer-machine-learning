@@ -33,11 +33,11 @@ runs = fit_gini_and_entropy(
 )
 ```
 
-Each run exposes the fitted estimator, model parameters, tree depth, leaf count,
-feature importances, and readable rules. `run_criterion_experiment` performs the
-canonical stratified 80/20 split, compares both variants with stratified 5-fold CV on
-the training partition, then evaluates only the selected variant on the held-out test
-partition. The two variants use identical model parameters except for `criterion`.
+Each sklearn run exposes the fitted estimator, model parameters, tree depth, leaf
+count, feature importances, and readable rules. The report runner also executes the
+same Gini/Entropy protocol with `DecisionTreeClassifierScratch`. Both model families
+use the same canonical stratified 80/20 split, stratified 5-fold CV, parameters, and
+shared metrics; within each family, only `criterion` changes.
 
 Run the complete experiment from the repository root:
 
@@ -46,5 +46,5 @@ python scripts/run_criterion_experiment.py
 ```
 
 The runner reads `experiments/configs/criterion.json` and writes report-ready CSV and
-JSON tables plus a combined Accuracy/F2 comparison figure and the selected tree under
-`experiments/results/criterion/`.
+JSON tables plus Accuracy/F2 figures with side-by-side Custom and Sklearn panels and
+the selected sklearn tree under `experiments/results/criterion/`.

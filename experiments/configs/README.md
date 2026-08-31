@@ -14,4 +14,5 @@ Nếu chưa chọn thư viện đọc YAML, có thể dùng JSON để tránh th
 
 `criterion.json` kế thừa dataset, split, seed, preprocessing và các tham số model từ
 baseline. Config không chứa trường `criterion` vì runner luôn chạy cả `gini` và
-`entropy`; đây là biến duy nhất khác nhau giữa hai run.
+`entropy` cho cả Custom Decision Tree và Sklearn Decision Tree; đây là biến duy nhất
+khác nhau giữa hai run trong từng model family.
