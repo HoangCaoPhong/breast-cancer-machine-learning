@@ -5,7 +5,6 @@ from app.ml.sklearn_tree.baseline import (
     BaselineResult,
     run_sklearn_baseline,
 )
-
 from app.ml.sklearn_tree.max_depth import (
     MaxDepthExperimentConfig,
     MaxDepthExperimentResult,

@@ -3,7 +3,7 @@
 Baseline, split, seed và metrics đã được chốt trong D-006. Config chính thức hiện có:
 
 - `baseline.json`
-- `max_depth.json`
+- `max_depth.json` - cùng search space cho custom và sklearn tree theo D-007
 
 Config cho improvement experiment cần thêm:
 

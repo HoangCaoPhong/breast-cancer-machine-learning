@@ -97,7 +97,7 @@ track tương ứng.
 | --- | --- | --- | --- | --- |
 | C0 | Decision Tree from scratch | Phong | Minh họa cách impurity/split/stopping tạo cây | Pending |
 | B0 | Sklearn baseline | Nhóm/model integrator | Mốc so sánh cố định theo D-006 | Implemented |
-| I1 | Tune `max_depth` | Phong | Giảm overfitting bằng giới hạn độ sâu | Pending |
+| I1 | Tune `max_depth` on custom + sklearn trees | Phong | Giảm overfitting bằng giới hạn độ sâu | Implemented |
 | I2 | Gini vs. Entropy | Ngọc; Kiên hỗ trợ setup tích hợp | Criterion khác có thể đổi split/complexity/performance | Pending |
 | I3 | Tune `min_samples_split`/`min_samples_leaf` | Hòa | Tránh nhánh quá đặc thù và giảm variance | Pending |
 
@@ -134,11 +134,14 @@ Nếu accuracy tăng nhưng
 malignant F2 hoặc recall giảm, báo trade-off; không gọi đó là cải thiện mặc định.
 Không tuyên bố hiệu quả lâm sàng từ kết quả trên dataset này.
 
-## 7. Reproduction command placeholder
-
-Owner model thay bằng entry point thật khi triển khai:
+## 7. Reproduction command
 
 ```bash
-# Placeholder only
-python scripts/run_experiment.py --config experiments/configs/<name>.yaml
+python scripts/run_max_depth_experiment.py \
+  --config experiments/configs/max_depth.json
 ```
+
+Runner chọn depth riêng cho custom và sklearn bằng cùng stratified training folds,
+sau đó chỉ đánh giá baseline và candidate đã chọn trên held-out test. Output gồm CSV,
+JSON provenance, report notes, complexity/performance charts, confusion matrices và
+hai tree figures trong `experiments/results/max_depth/`.

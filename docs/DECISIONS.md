@@ -71,7 +71,25 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
   bài nhưng không quyết định model thắng. Kết quả hiện có tạo bằng selection metric khác
   phải chạy lại trước khi đưa vào report.
 
+## D-007 - Dual-implementation max-depth experiment
+
+- Date: 2026-08-31
+- Status: accepted
+- Context: đề bài yêu cầu thay đổi `max_depth`, trình bày tree/result và giải thích
+  cải thiện; nhóm đồng thời cần chứng minh implementation tự cài đặt hoạt động trên
+  cùng protocol với sklearn reference.
+- Decision: I1 chạy trên cả `DecisionTreeClassifierScratch` và sklearn
+  `DecisionTreeClassifier`. Hai implementation dùng cùng stratified 80/20 split,
+  seed 42, stratified 5-fold training CV, feature order, class semantics, criterion,
+  `min_samples_split`, `min_samples_leaf` và search space. Mỗi implementation chọn
+  finite depth riêng theo D-006. Test set chỉ đánh giá unlimited baseline và depth đã
+  chọn; không dùng để chọn tham số.
+- Consequences: runner phải export kết quả của mọi candidate, metric/complexity chart,
+  confusion matrix, tree figure cho cả hai implementation và provenance đủ để viết
+  report. Khác biệt do split tie-breaking phải được giải thích, không ép hai cây giống
+  hệt nhau.
+
 ## Pending decisions
 
-- D-007: API request/response schema và model artifact metadata.
-- D-008: owner report/video, người đại diện và Group ID.
+- D-008: API request/response schema và model artifact metadata.
+- D-009: owner report/video, người đại diện và Group ID.
