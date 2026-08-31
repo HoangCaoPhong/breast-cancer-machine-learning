@@ -348,9 +348,18 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const selectedModelId = result?.selectedModelId?.toUpperCase() || 'I3';
+  const [matrixModelId, setMatrixModelId] = useState<string>('I3');
+
+  const selectedModelId = result?.selectedModelId?.toUpperCase() || matrixModelId;
   const currentMatrix =
-    CONFUSION_MATRIX_MAP[selectedModelId] || CONFUSION_MATRIX_MAP['I3'];
+    CONFUSION_MATRIX_MAP[matrixModelId] || CONFUSION_MATRIX_MAP[selectedModelId] || CONFUSION_MATRIX_MAP['I3'];
+
+  // Sync matrixModelId when result changes
+  useEffect(() => {
+    if (result?.selectedModelId) {
+      setMatrixModelId(result.selectedModelId.toUpperCase());
+    }
+  }, [result?.selectedModelId]);
 
   useEffect(() => {
     PredictionService.getExperiments().then((data) => {
@@ -744,33 +753,107 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
               )}
             </div>
 
-            {/* Tree Analysis & Overfitting Insights */}
-            <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-3 font-sans text-xs">
-              <h4 className="font-bold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-sm">insights</span>
-                Nhận Xét Cấu Trúc Cây &amp; Hiện Tượng Quá Khớp (Tree Analysis &amp; Overfitting)
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="bg-white p-3 rounded-lg border border-outline-variant space-y-1">
-                  <div className="font-semibold text-primary">1. Nút gốc &amp; Phân tách then chốt</div>
-                  <p className="text-on-surface-variant leading-relaxed">
-                    Thuộc tính <strong>perimeter_worst</strong> (hoặc <strong>concave_points_worst</strong>) liên tục được chọn làm nút gốc nhờ khả năng giảm độ đo tạp chất (Information Gain) lớn nhất.
-                  </p>
+            {/* Dynamic Tree Analysis & Overfitting Insights based on current treeData and model */}
+            {(() => {
+              const calculateStats = (node: TreeNodeData | null): { depth: number; leaves: number; totalNodes: number } => {
+                if (!node) return { depth: 0, leaves: 0, totalNodes: 0 };
+                if (!node.children || node.children.length === 0) {
+                  return { depth: 0, leaves: 1, totalNodes: 1 };
+                }
+                const childStats = node.children.map(calculateStats);
+                return {
+                  depth: 1 + Math.max(...childStats.map((s) => s.depth)),
+                  leaves: childStats.reduce((acc, s) => acc + s.leaves, 0),
+                  totalNodes: 1 + childStats.reduce((acc, s) => acc + s.totalNodes, 0),
+                };
+              };
+
+              const treeStats = calculateStats(treeData);
+              const rootFeature = treeData?.feature || 'perimeter_worst';
+              const rootThreshold = treeData?.threshold ?? 105.95;
+              const rootSamples = treeData?.samples ?? 455;
+
+              return (
+                <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-3 font-sans text-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <h4 className="font-bold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-sm">insights</span>
+                      Nhận Xét Động: Cấu Trúc Cây &amp; Hiện Tượng Quá Khớp ({selectedModelId})
+                    </h4>
+                    <span className="text-[11px] font-mono text-on-surface-variant">
+                      Độ sâu thực tế: <strong>{treeStats.depth}</strong> · Tổng nút lá: <strong>{treeStats.leaves}</strong> · Tổng số nút: <strong>{treeStats.totalNodes}</strong>
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {/* Card 1: Nút Gốc Thực Tế */}
+                    <div className="bg-white p-3 rounded-lg border border-outline-variant space-y-1">
+                      <div className="font-semibold text-primary flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm text-primary">alt_route</span>
+                        1. Phân tách then chốt tại nút gốc
+                      </div>
+                      <p className="text-on-surface-variant leading-relaxed">
+                        Mô hình <strong>{selectedModelId}</strong> chọn thuộc tính <code className="font-mono bg-surface-container-low px-1 py-0.5 rounded font-bold text-primary">{rootFeature} ≤ {rootThreshold}</code> làm nút gốc để phân loại ban đầu trên <strong>{rootSamples} mẫu</strong>, tối ưu hóa mức giảm tạp chất lớn nhất.
+                      </p>
+                    </div>
+
+                    {/* Card 2: Nhận xét Cấu trúc Cây theo Model */}
+                    <div className="bg-white p-3 rounded-lg border border-outline-variant space-y-1">
+                      <div className="font-semibold text-error flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm text-error">account_tree</span>
+                        2. Cấu trúc tầng &amp; Nguy cơ quá khớp
+                      </div>
+                      <p className="text-on-surface-variant leading-relaxed">
+                        {selectedModelId === 'B0' && (
+                          <span>
+                            Cây gốc không giới hạn (Unpruned) phát triển tới <strong>độ sâu {treeStats.depth}</strong> với <strong>{treeStats.leaves} nút lá</strong>, sinh ra nhiều lá nhỏ chứa ít mẫu, làm tăng phương sai và nguy cơ Overfitting.
+                          </span>
+                        )}
+                        {selectedModelId === 'C0' && (
+                          <span>
+                            Cây tự viết từ đầu (From Scratch) đạt <strong>độ sâu {treeStats.depth}</strong> với <strong>{treeStats.leaves} nút lá</strong>, thể hiện thuật toán đệ quy tự code hoạt động đồng nhất với cấu trúc cây chuẩn.
+                          </span>
+                        )}
+                        {selectedModelId === 'I1' && (
+                          <span>
+                            Khống chế <strong>max_depth=3</strong> giới hạn cây ở <strong>{treeStats.depth} tầng</strong> ({treeStats.leaves} lá), đơn giản hóa tối đa cấu trúc cây, loại bỏ hoàn toàn các nhánh phức tạp dư thừa.
+                          </span>
+                        )}
+                        {selectedModelId === 'I2' && (
+                          <span>
+                            Sử dụng tiêu chuẩn <strong>Entropy</strong> tạo cây có <strong>độ sâu {treeStats.depth}</strong> ({treeStats.leaves} lá), các ngưỡng cắt có độ phân hóa mạnh mẽ theo thước đo Độ lợi thông tin.
+                          </span>
+                        )}
+                        {selectedModelId === 'I3' && (
+                          <span>
+                            Áp dụng <strong>min_samples_split=4, leaf=2</strong> giúp cây dừng sớm ở <strong>độ sâu {treeStats.depth}</strong> ({treeStats.leaves} lá), ngăn chặn việc hình thành các lá đơn lẻ (1 mẫu).
+                          </span>
+                        )}
+                      </p>
+                    </div>
+
+                    {/* Card 3: Hiệu năng thực nghiệm */}
+                    <div className="bg-white p-3 rounded-lg border border-outline-variant space-y-1">
+                      <div className="font-semibold text-primary flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm text-primary">verified</span>
+                        3. Đánh giá tổng quát hóa (Test Set)
+                      </div>
+                      <p className="text-on-surface-variant leading-relaxed">
+                        {selectedModelId === 'I3' ? (
+                          <span>
+                            Mô hình đạt điểm số tốt nhất: <strong>Độ chính xác {accuracy}</strong>, <strong>Recall Ác tính {recall}</strong> và <strong>F1 {f1}</strong>, chứng minh việc cắt tỉa mẫu tối thiểu giúp cây khái quát hóa tối ưu nhất.
+                          </span>
+                        ) : (
+                          <span>
+                            Mô hình đạt <strong>Độ chính xác {accuracy}</strong> với <strong>tỷ lệ lỗi {errorRate}</strong> và <strong>F1 {f1}</strong> trên tập kiểm thử độc lập.
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-white p-3 rounded-lg border border-outline-variant space-y-1">
-                  <div className="font-semibold text-error">2. Nguy cơ Overfitting ở cây Baseline</div>
-                  <p className="text-on-surface-variant leading-relaxed">
-                    Mô hình cơ sở không giới hạn độ sâu (Unpruned) phát triển tới độ sâu ≥ 8, tạo ra nhiều nút lá chỉ chứa 1 mẫu bệnh phẩm, khiến cây quá khớp với tập huấn luyện và kém ổn định.
-                  </p>
-                </div>
-                <div className="bg-white p-3 rounded-lg border border-outline-variant space-y-1">
-                  <div className="font-semibold text-primary">3. Hiệu quả của Cắt tỉa (Pruning)</div>
-                  <p className="text-on-surface-variant leading-relaxed">
-                    Khi áp dụng <strong>min_samples_split=4</strong> và <strong>min_samples_leaf=2</strong>, cây loại bỏ các nhánh nhiễu, giúp giữ lại các quy tắc chẩn đoán ngắn gọn, trực quan và tổng quát hóa cao.
-                  </p>
-                </div>
-              </div>
-            </div>
+              );
+            })()}
           </div>
         )}
 
@@ -851,14 +934,31 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
 
             {/* Interactive Confusion Matrix */}
             <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-3 font-sans text-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h4 className="font-bold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-sm">grid_view</span>
-                  Ma Trận Nhầm Lẫn (Confusion Matrix: {currentMatrix.name})
-                </h4>
-                <span className="text-[11px] text-on-surface-variant font-mono">
-                  Tập kiểm thử Test: 171 mẫu (107 Lành tính · 64 Ác tính)
-                </span>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-bold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-sm">grid_view</span>
+                    Ma Trận Nhầm Lẫn (Confusion Matrix: {currentMatrix.name})
+                  </h4>
+                </div>
+
+                {/* Direct Model Switcher for Confusion Matrix */}
+                <div className="flex items-center gap-1 bg-surface-bright p-1 rounded-lg border border-outline-variant flex-wrap">
+                  {(['B0', 'C0', 'I1', 'I2', 'I3'] as const).map((mId) => (
+                    <button
+                      key={mId}
+                      type="button"
+                      onClick={() => setMatrixModelId(mId)}
+                      className={`px-2.5 py-1 text-[11px] rounded font-mono font-bold transition-all ${
+                        matrixModelId === mId
+                          ? 'bg-primary text-white shadow-xs scale-105'
+                          : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'
+                      }`}
+                    >
+                      {mId}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">

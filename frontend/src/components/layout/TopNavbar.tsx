@@ -28,9 +28,6 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
                 <h1 className="font-headline-md text-base font-bold text-on-surface">
                   Breast Cancer Diagnostic
                 </h1>
-                <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[11px] font-sans font-medium bg-surface-container-high text-primary border border-outline-variant">
-                  Lab 2 · UCI Dataset #17
-                </span>
               </div>
               <p className="font-sans text-xs text-on-surface-variant hidden xs:block">
                 Hệ thống Dự đoán &amp; Trực quan hóa Cây Quyết định Ung thư Vú

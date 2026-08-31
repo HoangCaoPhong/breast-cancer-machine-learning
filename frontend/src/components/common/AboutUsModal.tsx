@@ -59,7 +59,7 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
                   <tr>
                     <th className="p-3 text-center w-12">STT</th>
                     <th className="p-3 w-44">Họ và Tên</th>
-                    <th className="p-3 w-32">Mã Số SV (MSSV)</th>
+                    <th className="p-3 w-40">Gmail</th>
                     <th className="p-3">Nhiệm Vụ Đảm Nhận &amp; Đóng Góp</th>
                     <th className="p-3 text-center w-24">Đóng góp (%)</th>
                   </tr>

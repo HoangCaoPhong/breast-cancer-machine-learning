@@ -294,7 +294,8 @@ class ModelManager:
         m_id = (model_id or "I3").upper()
         model = self.fitted_custom_trees.get(m_id)
         if model is not None and model.tree_ is not None:
-            return self._build_node_schema(model.tree_, node_id="root", depth=0)
+            crit_name = getattr(model, "criterion", "gini").lower()
+            return self._build_node_schema(model.tree_, node_id="root", depth=0, criterion_name=crit_name)
 
         # Default fallback tree schema
         return TreeNodeSchema(
@@ -370,19 +371,21 @@ class ModelManager:
             ],
         )
 
-    def _build_node_schema(self, node: Any, node_id: str, depth: int) -> TreeNodeSchema:
+    def _build_node_schema(self, node: Any, node_id: str, depth: int, criterion_name: str = "gini") -> TreeNodeSchema:
         counts = [int(c) for c in node.class_counts] if hasattr(node, "class_counts") else [0, 0]
         benign_count = counts[0] if len(counts) > 0 else 0
         malignant_count = counts[1] if len(counts) > 1 else 0
 
-        if node.is_leaf or depth >= 4:
+        crit_label = "entropy" if criterion_name == "entropy" else "gini"
+
+        if node.is_leaf:
             pred_class = "Malignant" if malignant_count > benign_count else "Benign"
             return TreeNodeSchema(
                 id=node_id,
                 name=f"Lá: {pred_class}",
                 samples=node.n_samples,
                 values=[benign_count, malignant_count],
-                criterion=f"impurity = {node.impurity:.3f}",
+                criterion=f"{crit_label} = {node.impurity:.3f}",
                 is_leaf=True,
                 predicted_class=pred_class,
                 children=[],
@@ -392,8 +395,8 @@ class ModelManager:
         f_name_vi = FEATURE_NAME_VI_MAP.get(f_name, f_name)
         thresh = float(node.threshold) if node.threshold is not None else 0.0
 
-        left_child = self._build_node_schema(node.left, f"{node_id}_L", depth + 1) if node.left else None
-        right_child = self._build_node_schema(node.right, f"{node_id}_R", depth + 1) if node.right else None
+        left_child = self._build_node_schema(node.left, f"{node_id}_L", depth + 1, criterion_name) if node.left else None
+        right_child = self._build_node_schema(node.right, f"{node_id}_R", depth + 1, criterion_name) if node.right else None
 
         children = [c for c in [left_child, right_child] if c is not None]
 
@@ -402,7 +405,7 @@ class ModelManager:
             name=f"{f_name_vi} ({f_name}) ≤ {thresh:.2f}",
             feature=f_name,
             threshold=round(thresh, 4),
-            criterion=f"impurity = {node.impurity:.3f}",
+            criterion=f"{crit_label} = {node.impurity:.3f}",
             samples=node.n_samples,
             values=[benign_count, malignant_count],
             is_leaf=False,
