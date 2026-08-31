@@ -23,7 +23,9 @@ ENV/
 .direnv/
 .envrc
 .pytest_cache/
+.pytest_tmp/
 .hypothesis/
+
 .mypy_cache/
 .pyright/
 .ruff_cache/

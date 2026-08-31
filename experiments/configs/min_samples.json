@@ -1,0 +1,15 @@
+{
+  "experiment_name": "min_samples_tuning_I3",
+  "dataset": "data/raw/uci_wdbc/wdbc.data",
+  "output_dir": "experiments/results/min_samples",
+  "test_size": 0.2,
+  "random_state": 42,
+  "criterion": "gini",
+  "max_depth": null,
+  "min_samples_split_grid": [2, 5, 10, 20, 50],
+  "min_samples_leaf_grid": [1, 2, 5, 10, 20],
+  "cv_folds": 5,
+  "positive_class": "M",
+  "negative_class": "B",
+  "primary_metric": "malignant_recall"
+}
