@@ -11,6 +11,7 @@ import {
   PRESET_SAMPLES,
   INITIAL_DEFAULT_FEATURES,
   MODEL_OPTIONS,
+  getRandomDatasetSample,
 } from '../../data/featureDefinitions';
 
 interface FeatureInputFormProps {
@@ -51,6 +52,11 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
     onChange({ ...preset.features });
   };
 
+  const handleApplyRandom = () => {
+    const randomFeatures = getRandomDatasetSample();
+    onChange({ ...randomFeatures });
+  };
+
   const handleReset = () => {
     onChange({ ...INITIAL_DEFAULT_FEATURES });
   };
@@ -61,36 +67,18 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
 
   return (
     <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
-      {/* Header & Model Selector */}
-      <div className="p-stack-md border-b border-outline-variant bg-surface-bright flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Header */}
+      <div className="p-stack-md border-b border-outline-variant bg-surface-bright flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <span className="material-symbols-outlined text-primary">analytics</span>
           <div>
             <h3 className="font-headline-md text-headline-md text-on-surface">
-              Thông số tế bào sinh thiết (30 đặc trưng)
+              Nhập Chỉ Số Xét Nghiệm Tế Bào
             </h3>
             <p className="text-xs text-on-surface-variant font-sans">
-              Các chỉ số đo lường từ hình ảnh chọc hút kim nhỏ (FNA)
+              Nhập các chỉ số hoặc chọn nhanh mẫu ca bệnh bên dưới để chạy mô hình
             </p>
           </div>
-        </div>
-
-        {/* Compact Model Selector */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-sans text-on-surface-variant whitespace-nowrap font-medium">
-            Thuật toán:
-          </label>
-          <select
-            value={selectedModelId}
-            onChange={(e) => onModelChange(e.target.value as ModelOptionId)}
-            className="border border-outline-variant rounded-lg px-2.5 py-1.5 font-sans text-xs text-on-surface bg-surface-container-low focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
-          >
-            {MODEL_OPTIONS.map((opt) => (
-              <option key={opt.id} value={opt.id}>
-                {opt.nameVi}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
 
@@ -168,9 +156,9 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
         </div>
 
         {/* Action Row */}
-        <div className="mt-stack-lg pt-stack-md border-t border-outline-variant flex flex-wrap gap-3 items-center justify-between">
+        <div className="mt-stack-lg pt-stack-md border-t border-outline-variant space-y-3">
           {/* Quick presets */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap items-center">
             <button
               type="button"
               onClick={() => handleApplyPreset(PRESET_SAMPLES[0])}
@@ -190,31 +178,63 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               onClick={() => handleApplyPreset(PRESET_SAMPLES[2])}
               className="px-3 py-1.5 text-on-surface-variant border border-outline-variant rounded-lg font-sans text-xs hover:bg-surface-container-low transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">help</span> Mẫu ranh giới nghi ngờ
+              <span className="material-symbols-outlined text-sm">help</span> Mẫu ranh giới 50/50
+            </button>
+            <button
+              type="button"
+              onClick={handleApplyRandom}
+              className="px-3 py-1.5 text-secondary border border-secondary rounded-lg font-sans text-xs hover:bg-secondary-container/20 transition-colors flex items-center gap-1.5"
+              title="Lấy ngẫu nhiên một mẫu ca bệnh thực tế từ tập dữ liệu UCI WDBC"
+            >
+              <span className="material-symbols-outlined text-sm">shuffle</span> Mẫu ngẫu nhiên
             </button>
           </div>
 
-          {/* Form Actions */}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="px-3.5 py-1.5 text-on-surface-variant font-sans text-xs hover:bg-surface-container-highest rounded-lg transition-colors flex items-center gap-1.5 border border-outline-variant"
-            >
-              <span className="material-symbols-outlined text-sm">clear_all</span> Xóa tất cả
-            </button>
-            <button
-              type="button"
-              onClick={onSubmit}
-              disabled={isLoading}
-              className="px-5 py-2 bg-primary text-on-primary rounded-lg font-sans text-xs font-bold hover:bg-primary-container transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-sm">play_arrow</span>
-              {isLoading ? 'Đang phân tích...' : 'Thực hiện chẩn đoán'}
-            </button>
+          {/* Bottom Execution Controls: Model Selector on Left, Buttons on Right */}
+          <div className="flex flex-wrap gap-3 items-center justify-between pt-1">
+            {/* Algorithm Selector */}
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-sans text-on-surface-variant whitespace-nowrap font-bold flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm text-primary">psychology</span>
+                Thuật toán:
+              </label>
+              <select
+                value={selectedModelId}
+                onChange={(e) => onModelChange(e.target.value as ModelOptionId)}
+                className="border border-outline-variant rounded-lg px-3 py-2 font-sans text-xs text-on-surface bg-surface-container-low focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors font-medium shadow-sm"
+              >
+                {MODEL_OPTIONS.map((opt) => (
+                  <option key={opt.id} value={opt.id}>
+                    {opt.nameVi}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleReset}
+                className="px-3.5 py-2 text-on-surface-variant font-sans text-xs hover:bg-surface-container-highest rounded-lg transition-colors flex items-center gap-1.5 border border-outline-variant"
+              >
+                <span className="material-symbols-outlined text-sm">clear_all</span> Xóa tất cả
+              </button>
+              <button
+                type="button"
+                onClick={onSubmit}
+                disabled={isLoading}
+                className="px-5 py-2 bg-primary text-on-primary rounded-lg font-sans text-xs font-bold hover:bg-primary-container transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-sm">play_arrow</span>
+                {isLoading ? 'Đang phân tích...' : 'Thực hiện chẩn đoán'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+export default FeatureInputForm;

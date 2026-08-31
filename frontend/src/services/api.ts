@@ -156,7 +156,21 @@ export class PredictionService {
         signal: AbortSignal.timeout(2000),
       });
       if (response.ok) {
-        return await response.json();
+        const rawList = await response.json();
+        return rawList.map((item: any) => ({
+          id: item.id,
+          name: item.name || item.name_vi,
+          assignedTo: item.assignedTo || item.assigned_to,
+          criterion: item.criterion,
+          maxDepth: item.maxDepth ?? item.max_depth,
+          minSamplesSplit: item.minSamplesSplit ?? item.min_samples_split ?? 2,
+          minSamplesLeaf: item.minSamplesLeaf ?? item.min_samples_leaf ?? 1,
+          accuracy: item.accuracy !== undefined && item.accuracy !== null ? item.accuracy : null,
+          errorRate: item.errorRate ?? item.error_rate ?? null,
+          f1Score: item.f1Score ?? item.f1_score ?? null,
+          recallMalignant: item.recallMalignant ?? item.recall_malignant ?? null,
+          isBest: item.isBest ?? item.is_best ?? false,
+        }));
       }
     } catch {
       // Fallback

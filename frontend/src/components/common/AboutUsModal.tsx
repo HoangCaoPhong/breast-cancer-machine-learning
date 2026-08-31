@@ -11,20 +11,22 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
       <div
-        className="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden"
+        className="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden"
         role="dialog"
         aria-modal="true"
       >
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-outline-variant bg-surface-bright flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm">
-              <span className="material-symbols-outlined text-lg">info</span>
+            <div className="w-9 h-9 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm shadow-sm">
+              <span className="material-symbols-outlined text-xl">groups</span>
             </div>
             <div>
-              <h3 className="font-bold text-base text-on-surface">Về Dự Án (About Us)</h3>
+              <h3 className="font-bold text-base text-on-surface">
+                Thông Tin Nhóm &amp; Báo Cáo Đồ Án (About Us)
+              </h3>
               <p className="text-xs font-sans text-on-surface-variant">
-                Đồ án Nghiên cứu &amp; Ứng dụng Machine Learning
+                Giới thiệu thành viên &amp; Phân công nhiệm vụ
               </p>
             </div>
           </div>
@@ -38,68 +40,154 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
         </div>
 
         {/* Modal Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 font-sans text-xs text-on-surface leading-relaxed">
-          {/* Project Banner Card */}
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 font-sans text-xs text-on-surface leading-relaxed">
+          {/* Section 1: Group Members & Contribution (5 Member Slots) */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="font-bold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-base">badge</span>
+                Danh Sách Thành Viên &amp; Phân Công Nhiệm Vụ
+              </h4>
+              <span className="text-[11px] px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-mono">
+                Quy mô: 5 Thành viên
+              </span>
+            </div>
+
+            <div className="overflow-x-auto border border-outline-variant rounded-xl shadow-sm">
+              <table className="w-full text-left font-sans text-xs border-collapse">
+                <thead className="bg-surface-bright text-on-surface font-semibold border-b border-outline-variant">
+                  <tr>
+                    <th className="p-3 text-center w-12">STT</th>
+                    <th className="p-3 w-44">Họ và Tên</th>
+                    <th className="p-3 w-32">Mã Số SV (MSSV)</th>
+                    <th className="p-3">Nhiệm Vụ Đảm Nhận &amp; Đóng Góp</th>
+                    <th className="p-3 text-center w-24">Đóng góp (%)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant">
+                  {/* Member 1 */}
+                  <tr className="hover:bg-surface-container-low transition-colors">
+                    <td className="p-3 text-center font-bold text-primary">1</td>
+                    <td className="p-3 font-semibold text-on-surface">
+                      Thành viên 1
+                    </td>
+                    <td className="p-3 font-mono text-on-surface-variant">
+                      .....................
+                    </td>
+                    <td className="p-3 text-on-surface-variant font-mono">
+                      ----
+                    </td>
+                    <td className="p-3 text-center font-bold text-primary">--</td>
+                  </tr>
+
+                  {/* Member 2 */}
+                  <tr className="hover:bg-surface-container-low transition-colors">
+                    <td className="p-3 text-center font-bold text-primary">2</td>
+                    <td className="p-3 font-semibold text-on-surface">
+                      Thành viên 2
+                    </td>
+                    <td className="p-3 font-mono text-on-surface-variant">
+                      .....................
+                    </td>
+                    <td className="p-3 text-on-surface-variant font-mono">
+                      ----
+                    </td>
+                    <td className="p-3 text-center font-bold text-primary">--</td>
+                  </tr>
+
+                  {/* Member 3 */}
+                  <tr className="hover:bg-surface-container-low transition-colors">
+                    <td className="p-3 text-center font-bold text-primary">3</td>
+                    <td className="p-3 font-semibold text-on-surface">
+                      Thành viên 3
+                    </td>
+                    <td className="p-3 font-mono text-on-surface-variant">
+                      .....................
+                    </td>
+                    <td className="p-3 text-on-surface-variant font-mono">
+                      ----
+                    </td>
+                    <td className="p-3 text-center font-bold text-primary">--</td>
+                  </tr>
+
+                  {/* Member 4 */}
+                  <tr className="hover:bg-surface-container-low transition-colors">
+                    <td className="p-3 text-center font-bold text-primary">4</td>
+                    <td className="p-3 font-semibold text-on-surface">
+                      Thành viên 4
+                    </td>
+                    <td className="p-3 font-mono text-on-surface-variant">
+                      .....................
+                    </td>
+                    <td className="p-3 text-on-surface-variant font-mono">
+                      ----
+                    </td>
+                    <td className="p-3 text-center font-bold text-primary">--</td>
+                  </tr>
+
+                  {/* Member 5 */}
+                  <tr className="hover:bg-surface-container-low transition-colors">
+                    <td className="p-3 text-center font-bold text-primary">5</td>
+                    <td className="p-3 font-semibold text-on-surface">
+                      Thành viên 5
+                    </td>
+                    <td className="p-3 font-mono text-on-surface-variant">
+                      .....................
+                    </td>
+                    <td className="p-3 text-on-surface-variant font-mono">
+                      ----
+                    </td>
+                    <td className="p-3 text-center font-bold text-primary">--</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Section 2: Project Objectives */}
           <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-2">
             <div className="font-bold text-sm text-primary flex items-center gap-1.5">
               <span className="material-symbols-outlined text-base">psychology</span>
-              Hệ Thống Phân Loại &amp; Trực Quan Hóa Cây Quyết Định Ung Thư Vú
+              Tổng Quan Đề Tài &amp; Mục Tiêu Nghiên Cứu
             </div>
-            <p className="text-on-surface-variant">
-              Dự án được phát triển nhằm mục đích nghiên cứu chuyên sâu về thuật toán <strong>Cây Quyết định (Decision Tree Classifier)</strong>, kiểm thử khả năng tự lập trình thuật toán từ con số 0 (from scratch) và tối ưu hóa các siêu tham số phân loại trên tập dữ liệu y sinh học thực tế.
+            <p className="text-on-surface-variant leading-relaxed">
+              Hệ thống được phát triển nhằm mục đích nghiên cứu chuyên sâu về <strong>Thuật toán Cây Quyết định (Decision Tree Learning)</strong> ứng dụng trong phân loại chẩn đoán u vú (Lành tính vs Ác tính). Đề tài bao gồm việc tự lập trình thuật toán từ đầu, đánh giá mô hình cơ sở unpruned và đề xuất <strong>3 phương pháp cải tiến</strong> hiệu năng thực nghiệm.
             </p>
           </div>
 
-          {/* Research Objectives */}
+          {/* Section 3: Summary of the 3 Key Improvements */}
           <div className="space-y-2">
             <h4 className="font-bold text-xs text-on-surface uppercase tracking-wider flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm text-primary">flag</span>
-              Mục Tiêu Nghiên Cứu Chính
+              <span className="material-symbols-outlined text-sm text-primary">auto_fix_high</span>
+              Tóm Tắt 3 Phương Pháp Cải Tiến Đã Thực Hiện
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               <div className="p-3 bg-white rounded-lg border border-outline-variant space-y-1">
-                <div className="font-semibold text-primary">1. Cài đặt thuật toán thuần (From Scratch)</div>
+                <div className="font-semibold text-primary">Cải tiến 1: Độ Sâu Cây</div>
                 <div className="text-[11px] text-on-surface-variant">
-                  Xây dựng thuật toán phân hoạch không phụ thuộc thư viện có sẵn để hiểu rõ cơ chế tính toán Information Gain / Gini Impurity.
+                  Khống chế <code className="font-mono text-primary font-bold">max_depth=3</code> giúp cấu trúc cây tinh gọn, dễ diễn giải và ngăn chặn hiện tượng quá khớp (Overfitting).
                 </div>
               </div>
               <div className="p-3 bg-white rounded-lg border border-outline-variant space-y-1">
-                <div className="font-semibold text-primary">2. Tối ưu hóa siêu tham số</div>
+                <div className="font-semibold text-primary">Cải tiến 2: Độ Lợi Entropy</div>
                 <div className="text-[11px] text-on-surface-variant">
-                  Khống chế độ sâu tối đa (max_depth), so sánh Entropy vs Gini, và tinh chỉnh min_samples_split / leaf nhằm chống overfitting.
+                  Chuyển tiêu chuẩn phân tách sang <code className="font-mono text-primary font-bold">Entropy (Information Gain)</code> giúp tìm ngưỡng phân tách sắc nét hơn trên thuộc tính liên tục.
                 </div>
               </div>
               <div className="p-3 bg-white rounded-lg border border-outline-variant space-y-1">
-                <div className="font-semibold text-primary">3. Nền tảng Web Trực quan hóa</div>
+                <div className="font-semibold text-primary">Cải tiến 3: Cắt Tỉa Nhánh (Tốt nhất)</div>
                 <div className="text-[11px] text-on-surface-variant">
-                  Xây dựng giao diện tương tác Full-stack (React + FastAPI) hỗ trợ truy vết từng bước rẽ nhánh suy luận (Decision Path).
-                </div>
-              </div>
-              <div className="p-3 bg-white rounded-lg border border-outline-variant space-y-1">
-                <div className="font-semibold text-primary">4. Đánh giá đa độ đo y khoa</div>
-                <div className="text-[11px] text-on-surface-variant">
-                  Đối chiếu toàn diện giữa Accuracy, Precision, Recall (Độ nhạy ác tính) và F1-Score trên cùng phân chia Stratified 70/30.
+                  Thiết lập <code className="font-mono text-primary font-bold">min_samples_split=4, leaf=2</code> loại bỏ các nhánh nhỏ nhiễu, đạt F1-Score cao nhất <strong>91.25%</strong> và Recall <strong>85.71%</strong>.
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Dataset Provenance */}
-          <div className="p-3.5 bg-white rounded-lg border border-outline-variant space-y-1 text-[11px]">
-            <div className="font-bold text-on-surface flex items-center gap-1.5 text-xs">
-              <span className="material-symbols-outlined text-sm text-primary">storage</span>
-              Tập Dữ Liệu Tham Chiếu
-            </div>
-            <div className="text-on-surface-variant">
-              <strong>UCI Breast Cancer Wisconsin (Diagnostic) Dataset (ID #17)</strong> · 569 mẫu bệnh phẩm · 30 thuộc tính số thực trích xuất từ ảnh số hóa của sinh thiết chọc hút kim nhỏ (FNA).
-            </div>
-          </div>
-
-          {/* Academic Disclaimer Note */}
+          {/* Section 4: Dataset & Disclaimer */}
           <div className="p-3 bg-surface-container-high rounded-lg border border-outline-variant text-[11px] text-on-surface-variant flex items-start gap-2">
             <span className="material-symbols-outlined text-sm text-primary shrink-0 mt-0.5">verified_user</span>
             <span>
-              <strong>Lưu ý học thuật:</strong> Ứng dụng này được thiết kế phục vụ mục đích nghiên cứu và giáo dục trong khuôn khổ môn học Machine Learning, không cấu thành lời khuyên hay quyết định chẩn đoán y tế.
+              <strong>Lưu ý học thuật:</strong> Ứng dụng này được thiết kế phục vụ mục đích nghiên cứu và giáo dục trong khuôn khổ môn học Machine Learning, không cấu thành lời khuyên hay quyết định chẩn đoán y tế lâm sàng.
             </span>
           </div>
         </div>
@@ -118,3 +206,5 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
     </div>
   );
 };
+
+export default AboutUsModal;
