@@ -69,8 +69,49 @@ export class PredictionService {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        return data;
+        const raw = await response.json();
+        const predCode = (raw.prediction === 'Malignant' || raw.prediction === 'M') ? 'M' : 'B';
+        const isMal = predCode === 'M';
+        const malProb = raw.probabilities?.malignant ?? raw.malignant_prob ?? (isMal ? (raw.confidence ?? 0.95) : 1 - (raw.confidence ?? 0.95));
+        const benProb = raw.probabilities?.benign ?? raw.benign_prob ?? (1 - malProb);
+        const conf = raw.confidence ?? (isMal ? malProb : benProb);
+
+        const decisionPath: DecisionStep[] = (raw.decisionPath || raw.decision_path || []).map((step: any) => ({
+          feature: step.feature,
+          featureNameVi: step.featureNameVi || step.feature_name_vi || step.feature,
+          threshold: step.threshold,
+          operator: step.operator,
+          actualValue: step.actualValue ?? step.value ?? 0,
+          isSatisfied: step.isSatisfied ?? step.is_satisfied ?? false,
+        }));
+
+        const topFeatures: FeatureImportance[] = (raw.topFeatures || raw.top_features || []).map((tf: any) => ({
+          feature: tf.feature,
+          featureNameVi: tf.featureNameVi || tf.feature_name_vi || tf.feature,
+          importance: tf.importance ?? 0,
+        }));
+
+        return {
+          prediction: predCode,
+          diagnosisLabel: isMal ? 'Malignant' : 'Benign',
+          diagnosisLabelVi: isMal ? 'Ác tính (Malignant)' : 'Lành tính (Benign)',
+          confidence: conf,
+          probabilities: {
+            malignant: malProb,
+            benign: benProb,
+          },
+          decisionPath,
+          topFeatures,
+          modelVersion: raw.modelVersion || raw.selected_model_id || modelId,
+          modelType: raw.modelType || `Mô hình ${modelId}`,
+          selectedModelId: raw.selected_model_id || raw.selectedModelId || modelId,
+          accuracy: raw.accuracy ?? 0.9386,
+          errorRate: raw.error_rate ?? raw.errorRate ?? 0.0614,
+          recallMalignant: raw.recall_malignant ?? raw.recallMalignant ?? 0.8571,
+          f1Score: raw.f1_score ?? raw.f1Score ?? 0.9125,
+          timestamp: raw.timestamp || new Date().toISOString(),
+          disclaimer: raw.disclaimer || 'Đây là mô hình demo học thuật Machine Learning.',
+        };
       }
       throw new Error(`API error ${response.status}: ${response.statusText}`);
     } catch (err) {

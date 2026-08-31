@@ -5,6 +5,7 @@ import {
   ModelOptionId,
 } from './types/prediction';
 import { INITIAL_DEFAULT_FEATURES } from './data/featureDefinitions';
+import { PredictionService } from './services/api';
 import { TopNavbar } from './components/layout/TopNavbar';
 import { DisclaimerBanner } from './components/layout/DisclaimerBanner';
 import { Footer } from './components/layout/Footer';
@@ -25,14 +26,18 @@ export const App: React.FC = () => {
   const [activeDetailTab, setActiveDetailTab] = useState<DetailTab>('tree');
 
   const runPrediction = async (
-    _currentFeatures: BreastCancerFeatures,
-    _modelId: ModelOptionId
+    currentFeatures: BreastCancerFeatures,
+    modelId: ModelOptionId
   ) => {
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await PredictionService.predict(currentFeatures, modelId);
+      setResult(res);
+    } catch (err) {
+      console.error('Prediction error:', err);
+    } finally {
       setIsLoading(false);
-      setResult(null);
-    }, 400);
+    }
   };
 
   const handleModelChange = (newModelId: ModelOptionId) => {
