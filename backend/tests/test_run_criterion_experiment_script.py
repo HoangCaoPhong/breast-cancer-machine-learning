@@ -52,7 +52,8 @@ def test_run_criterion_experiment_script_exports_both_variants(tmp_path: Path) -
         "comparison.json",
         "accuracy_by_criterion.png",
         "malignant_f2_by_criterion.png",
-        "selected_tree.png",
+        "selected_custom_tree.png",
+        "selected_sklearn_tree.png",
     }
     assert {path.name for path in output_dir.iterdir()} == expected_files
     cv_results = pd.read_csv(output_dir / "cv_results.csv")
@@ -77,3 +78,5 @@ def test_run_criterion_experiment_script_exports_both_variants(tmp_path: Path) -
         assert "overfitting" in family_results[family]["interpretation"]["overfitting_observation"]
     assert (output_dir / "accuracy_by_criterion.png").stat().st_size > 0
     assert (output_dir / "malignant_f2_by_criterion.png").stat().st_size > 0
+    assert (output_dir / "selected_custom_tree.png").stat().st_size > 0
+    assert (output_dir / "selected_sklearn_tree.png").stat().st_size > 0

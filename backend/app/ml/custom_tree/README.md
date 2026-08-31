@@ -56,3 +56,6 @@ comparison. The report runner is:
 ```bash
 python scripts/run_criterion_experiment.py
 ```
+
+The runner exports `selected_custom_tree.png`, including feature thresholds, impurity,
+sample counts, class counts, and predicted classes through depth 4.

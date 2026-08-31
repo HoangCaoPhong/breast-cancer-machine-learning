@@ -37,6 +37,7 @@ from app.ml.custom_tree.criterion_experiment import (  # noqa: E402
     CustomCriterionExperimentResult,
     run_custom_criterion_experiment,
 )
+from app.ml.custom_tree.tree import TreeNode  # noqa: E402
 from app.ml.preprocessing import load_breast_cancer_dataset  # noqa: E402
 from app.ml.sklearn_tree.baseline import BaselineConfig  # noqa: E402
 from app.ml.sklearn_tree.criterion_experiment import (  # noqa: E402
@@ -115,9 +116,10 @@ def export_results(
         "comparison": output_dir / "comparison.json",
         "accuracy_plot": output_dir / "accuracy_by_criterion.png",
         "f2_plot": output_dir / "malignant_f2_by_criterion.png",
-        "tree_plot": output_dir / "selected_tree.png",
+        "custom_tree_plot": output_dir / "selected_custom_tree.png",
+        "sklearn_tree_plot": output_dir / "selected_sklearn_tree.png",
     }
-    for legacy_name in ("criterion_comparison.png",):
+    for legacy_name in ("criterion_comparison.png", "selected_tree.png"):
         (output_dir / legacy_name).unlink(missing_ok=True)
     cv_results = _build_cv_results(results)
     final_comparison = _build_final_comparison(results)
@@ -177,8 +179,11 @@ def export_results(
         path=paths["f2_plot"],
     )
     sklearn_result = results["sklearn"]
+    custom_result = results["custom"]
     assert isinstance(sklearn_result, CriterionExperimentResult)
-    _save_tree_plot(sklearn_result, paths["tree_plot"])
+    assert isinstance(custom_result, CustomCriterionExperimentResult)
+    _save_custom_tree_plot(custom_result, paths["custom_tree_plot"])
+    _save_sklearn_tree_plot(sklearn_result, paths["sklearn_tree_plot"])
     return paths
 
 
@@ -437,7 +442,108 @@ def _save_metric_plot(
     plt.close(figure)
 
 
-def _save_tree_plot(result: CriterionExperimentResult, path: Path) -> None:
+def _save_custom_tree_plot(result: CustomCriterionExperimentResult, path: Path) -> None:
+    run = result.runs[result.selected_criterion]
+    root = run.estimator.tree_
+    if root is None:
+        raise RuntimeError("Selected custom tree must be fitted before plotting")
+    shown_depth = min(run.tree_depth, 4)
+    positions: dict[int, tuple[float, int]] = {}
+    leaf_counter = 0
+
+    def assign_positions(node: TreeNode, depth: int) -> float:
+        nonlocal leaf_counter
+        if node.is_leaf or depth >= shown_depth:
+            x_position = float(leaf_counter)
+            leaf_counter += 1
+        else:
+            assert node.left is not None and node.right is not None
+            left_position = assign_positions(node.left, depth + 1)
+            right_position = assign_positions(node.right, depth + 1)
+            x_position = (left_position + right_position) / 2.0
+        positions[id(node)] = (x_position, depth)
+        return x_position
+
+    assign_positions(root, 0)
+    figure_width = max(18.0, leaf_counter * 2.2)
+    figure_height = max(10.0, (shown_depth + 1) * 2.1)
+    figure, axis = plt.subplots(figsize=(figure_width, figure_height))
+
+    def draw_node(node: TreeNode, depth: int) -> None:
+        x_position, _ = positions[id(node)]
+        if not node.is_leaf and depth < shown_depth:
+            assert node.left is not None and node.right is not None
+            for child, branch_label in ((node.left, "True"), (node.right, "False")):
+                child_x, child_depth = positions[id(child)]
+                axis.plot(
+                    [x_position, child_x],
+                    [-depth, -child_depth],
+                    color="0.35",
+                    linewidth=1.2,
+                    zorder=1,
+                )
+                if depth < 2:
+                    axis.text(
+                        (x_position + child_x) / 2.0,
+                        (-depth - child_depth) / 2.0 + 0.06,
+                        branch_label,
+                        ha="center",
+                        va="bottom",
+                        fontsize=7,
+                    )
+                draw_node(child, depth + 1)
+
+        predicted_class = result.class_names[node.prediction_index]
+        counts = ", ".join(str(int(value)) for value in node.class_counts)
+        lines: list[str] = []
+        if node.is_leaf:
+            lines.append("leaf")
+        else:
+            assert node.feature_index is not None and node.threshold is not None
+            lines.append(f"{result.feature_names[node.feature_index]} <= {node.threshold:.3f}")
+        lines.extend(
+            [
+                f"{run.criterion} = {node.impurity:.3f}",
+                f"samples = {node.n_samples}",
+                f"value = [{counts}]",
+                f"class = {predicted_class}",
+            ]
+        )
+        if not node.is_leaf and depth >= shown_depth:
+            lines.append("(subtree truncated)")
+        purity = float(node.class_counts.max() / node.n_samples)
+        face_color = "#F4A261" if node.prediction_index == 0 else "#4EA8DE"
+        axis.text(
+            x_position,
+            -depth,
+            "\n".join(lines),
+            ha="center",
+            va="center",
+            fontsize=7,
+            bbox={
+                "boxstyle": "round,pad=0.35",
+                "facecolor": face_color,
+                "edgecolor": "0.2",
+                "alpha": 0.35 + 0.55 * purity,
+            },
+            zorder=2,
+        )
+
+    draw_node(root, 0)
+    axis.set_xlim(-0.7, max(leaf_counter - 1, 0) + 0.7)
+    axis.set_ylim(-shown_depth - 0.7, 0.7)
+    axis.axis("off")
+    suffix = "" if shown_depth == run.tree_depth else f" (shown through depth {shown_depth})"
+    axis.set_title(
+        f"Selected Custom Decision Tree: criterion={result.selected_criterion.title()}{suffix}",
+        fontsize=14,
+    )
+    figure.tight_layout()
+    figure.savefig(path, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
+def _save_sklearn_tree_plot(result: CriterionExperimentResult, path: Path) -> None:
     run = result.runs[result.selected_criterion]
     shown_depth = min(run.tree_depth, 4)
     figure_width = max(18, 5 * shown_depth)
@@ -457,7 +563,9 @@ def _save_tree_plot(result: CriterionExperimentResult, path: Path) -> None:
         ax=axis,
     )
     suffix = "" if shown_depth == run.tree_depth else f" (shown through depth {shown_depth})"
-    axis.set_title(f"Selected Decision Tree: criterion={result.selected_criterion.title()}{suffix}")
+    axis.set_title(
+        f"Selected Sklearn Decision Tree: criterion={result.selected_criterion.title()}{suffix}"
+    )
     figure.tight_layout()
     figure.savefig(path, dpi=180, bbox_inches="tight")
     plt.close(figure)

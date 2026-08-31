@@ -13,7 +13,7 @@ Trees.
 | Compute accuracy and error rate | Both are included in the CV table and selected-model held-out table. |
 | Compare results fairly | Both implementations use the same canonical dataset, stratified 80/20 split, seed 42, and stratified 5-fold training CV. |
 | Explain improvement or non-improvement | Selection and interpretation use mean validation malignant F2; the test set is not searched. |
-| Provide visual aids | Accuracy and malignant F2 figures show side-by-side Custom and Sklearn panels with mean and standard deviation. |
+| Provide visual aids | Accuracy/F2 figures compare both implementations, and separate selected-tree figures expose both tree structures. |
 
 ## Reproduction
 

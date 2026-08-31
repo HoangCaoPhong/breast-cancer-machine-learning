@@ -47,4 +47,4 @@ python scripts/run_criterion_experiment.py
 
 The runner reads `experiments/configs/criterion.json` and writes report-ready CSV and
 JSON tables plus Accuracy/F2 figures with side-by-side Custom and Sklearn panels and
-the selected sklearn tree under `experiments/results/criterion/`.
+separate selected Custom/Sklearn tree figures under `experiments/results/criterion/`.
