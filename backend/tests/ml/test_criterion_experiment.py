@@ -1,9 +1,12 @@
 import numpy as np
+import pandas as pd
 import pytest
+from app.ml.sklearn_tree.baseline import BaselineConfig
 from app.ml.sklearn_tree.criterion_experiment import (
     entropy_impurity,
     fit_gini_and_entropy,
     gini_impurity,
+    run_criterion_experiment,
 )
 
 
@@ -75,3 +78,31 @@ def test_fit_rejects_criterion_and_missing_seed() -> None:
             y_train,
             model_parameters={"max_depth": 1},
         )
+
+
+def test_run_criterion_experiment_uses_one_canonical_split_and_shared_metrics() -> None:
+    features = pd.DataFrame(
+        {
+            "radius": [1.0, 1.2, 1.4, 1.6, 1.8, 3.0, 3.2, 3.4, 3.6, 3.8],
+            "texture": [0.0, 0.2, 0.1, 0.3, 0.4, 1.0, 1.2, 1.1, 1.3, 1.4],
+        }
+    )
+    target = pd.Series(["B"] * 5 + ["M"] * 5)
+
+    result = run_criterion_experiment(
+        features,
+        target,
+        BaselineConfig(test_size=0.2, random_state=42, max_depth=2),
+        cv_folds=2,
+    )
+
+    assert set(result.runs) == {"gini", "entropy"}
+    assert set(result.train_metrics) == {"gini", "entropy"}
+    assert set(result.validation_metrics) == {"gini", "entropy"}
+    assert all(len(folds) == 2 for folds in result.validation_metrics.values())
+    assert result.selected_criterion in {"gini", "entropy"}
+    assert result.feature_names == ("radius", "texture")
+    assert result.class_names == ("B", "M")
+    assert (result.train_size, result.test_size) == (8, 2)
+    assert result.cv_folds == 2
+    assert result.selected_test_metrics.malignant_recall == pytest.approx(1.0)

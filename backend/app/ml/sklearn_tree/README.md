@@ -17,7 +17,7 @@ requires the canonical `random_state`, which prevents the two runs from accident
 differing in more than the splitting criterion.
 
 ```python
-from app.ml.sklearn_tree import fit_gini_and_entropy
+from app.ml.sklearn_tree.criterion_experiment import fit_gini_and_entropy
 
 runs = fit_gini_and_entropy(
     X_train,
@@ -34,11 +34,16 @@ runs = fit_gini_and_entropy(
 ```
 
 Each run exposes the fitted estimator, model parameters, tree depth, leaf count,
-feature importances, and readable rules. Metric calculation and result-table export
-must use the shared helpers under `backend/app/ml/evaluation/` after that contract is
-merged. This module intentionally does not implement accuracy, error rate, precision,
-recall, F1, ROC-AUC, or confusion matrix independently.
+feature importances, and readable rules. `run_criterion_experiment` performs the
+canonical stratified 80/20 split, compares both variants with stratified 5-fold CV on
+the training partition, then evaluates only the selected variant on the held-out test
+partition. The two variants use identical model parameters except for `criterion`.
 
-Do not create the final `criterion.json` experiment config until D-005 and D-006 in
-`docs/DECISIONS.md` are accepted. In particular, do not invent a separate split or
-seed on this feature branch.
+Run the complete experiment from the repository root:
+
+```bash
+python scripts/run_criterion_experiment.py
+```
+
+The runner reads `experiments/configs/criterion.json` and writes the report-ready
+comparison to `experiments/results/criterion/comparison.json`.

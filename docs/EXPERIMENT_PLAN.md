@@ -67,7 +67,7 @@ track tương ứng.
 | C0 | Decision Tree from scratch | Phong | Minh họa cách impurity/split/stopping tạo cây | Pending |
 | B0 | Sklearn baseline | Nhóm/model integrator | Mốc so sánh cố định theo D-006 | Implemented |
 | I1 | Tune `max_depth` | Phong | Giảm overfitting bằng giới hạn độ sâu | Pending |
-| I2 | Gini vs. Entropy | Ngọc; Kiên hỗ trợ setup tích hợp | Criterion khác có thể đổi split/complexity/performance | Pending |
+| I2 | Gini vs. Entropy | Ngọc; Kiên hỗ trợ setup tích hợp | Criterion khác có thể đổi split/complexity/performance | Implemented |
 | I3 | Tune `min_samples_split`/`min_samples_leaf` | Hòa | Tránh nhánh quá đặc thù và giảm variance | Pending |
 
 Các giá trị thử phải được ghi trước trong config. Nếu tham khảo paper để chọn search
