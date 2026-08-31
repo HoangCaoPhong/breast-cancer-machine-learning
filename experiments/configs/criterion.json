@@ -5,6 +5,8 @@
   "test_size": 0.2,
   "random_state": 42,
   "cv_folds": 5,
+  "criteria": ["gini", "entropy"],
+  "primary_metric": "malignant_f2",
   "max_depth": null,
   "min_samples_split": 2,
   "min_samples_leaf": 1,

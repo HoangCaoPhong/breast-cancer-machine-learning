@@ -13,6 +13,5 @@ Config cho improvement experiment cần thêm:
 Nếu chưa chọn thư viện đọc YAML, có thể dùng JSON để tránh thêm dependency chỉ vì format.
 
 `criterion.json` kế thừa dataset, split, seed, preprocessing và các tham số model từ
-baseline. Config không chứa trường `criterion` vì runner luôn chạy cả `gini` và
-`entropy` cho cả Custom Decision Tree và Sklearn Decision Tree; đây là biến duy nhất
-khác nhau giữa hai run trong từng model family.
+baseline. Config khai báo hai candidate `gini` và `entropy`; runner sklearn giữ mọi
+tham số khác giống nhau giữa hai candidate.

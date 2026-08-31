@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from app.ml.sklearn_tree.baseline import BaselineConfig
-from app.ml.sklearn_tree.criterion_experiment import (
+from app.ml.sklearn_tree.gini_vs_entropy import (
     entropy_impurity,
     fit_gini_and_entropy,
     gini_impurity,

@@ -3,7 +3,6 @@
 - [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.md): checklist từ đề Lab 2.
 - [ARCHITECTURE.md](ARCHITECTURE.md): ranh giới frontend, API, service và ML.
 - [EXPERIMENT_PLAN.md](EXPERIMENT_PLAN.md): dataset/model matrix và protocol so sánh.
-- [I2_CRITERION_RESULTS.md](I2_CRITERION_RESULTS.md): kết quả và diễn giải Gini/Entropy.
 - [TIMELINE.md](TIMELINE.md): mốc bàn giao từ biên bản họp 29/08.
 - [DECISIONS.md](DECISIONS.md): quyết định ảnh hưởng dataset, split, metric và interface.
 - [../TEAM.md](../TEAM.md): owner, reviewer và đóng góp.

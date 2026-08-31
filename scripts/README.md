@@ -50,8 +50,8 @@ Từ repository root:
 python scripts/run_criterion_experiment.py
 ```
 
-Script dùng cùng dataset, stratified 80/20 split, seed và baseline parameters đã chốt
-trong D-006 cho cả Custom Decision Tree và Sklearn Decision Tree. Gini/Entropy được
-so sánh bằng stratified 5-fold CV riêng trong mỗi model family; chỉ biến thể được chọn
-của mỗi family mới được đánh giá trên test set. Kết quả gồm bảng CSV/JSON, ảnh Accuracy
-và F2 với hai panel Custom/Sklearn, cùng hai ảnh cây Custom/Sklearn được chọn.
+Script dùng sklearn Decision Tree với cùng dataset, stratified 80/20 split, seed và
+baseline parameters đã chốt trong D-006. Chỉ `criterion` thay đổi giữa Gini và Entropy.
+Model được chọn bằng malignant F2 trên stratified 5-fold CV; test set chỉ được dùng sau
+khi chọn. Output gồm `cv_results.csv`, `summary.json`, `criterion_comparison.png` và
+`selected_tree.png`.

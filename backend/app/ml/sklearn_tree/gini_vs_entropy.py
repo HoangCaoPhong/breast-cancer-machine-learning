@@ -1,4 +1,4 @@
-"""Controlled fitting of Gini and Entropy Decision Tree variants.
+"""Controlled comparison of Gini and Entropy sklearn Decision Tree variants.
 
 This module owns only the I2 model change. Dataset splitting and shared metric
 calculation belong to the preprocessing and evaluation modules respectively.
