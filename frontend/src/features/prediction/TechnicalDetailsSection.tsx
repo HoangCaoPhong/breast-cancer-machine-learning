@@ -186,12 +186,18 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
             </div>
           )}
 
-          {node.values && node.values.length === 2 && (
-            <div className="text-[11px] text-outline mt-0.5 flex justify-center gap-2 font-mono">
-              <span className="text-tertiary-container">Lành: {node.values[0]}</span>
-              <span className="text-error">Ác: {node.values[1]}</span>
-            </div>
-          )}
+          {node.values && node.values.length === 2 && (() => {
+            const total = node.values[0] + node.values[1];
+            const benignPct = total > 0 ? ((node.values[0] / total) * 100).toFixed(1) : '0';
+            const malignantPct = total > 0 ? ((node.values[1] / total) * 100).toFixed(1) : '0';
+
+            return (
+              <div className="text-[11px] text-outline mt-1 flex justify-center gap-2 font-mono flex-wrap">
+                <span className="text-tertiary-container font-medium">Lành: {node.values[0]} ({benignPct}%)</span>
+                <span className="text-error font-medium">Ác: {node.values[1]} ({malignantPct}%)</span>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
