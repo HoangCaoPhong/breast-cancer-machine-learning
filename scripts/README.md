@@ -53,4 +53,5 @@ python scripts/run_criterion_experiment.py
 Script dùng cùng dataset, stratified 80/20 split, seed và baseline parameters đã chốt
 trong D-006. Hai criterion được so sánh bằng stratified 5-fold CV trên training set;
 chỉ biến thể được chọn mới được đánh giá trên test set. Kết quả được in ra terminal và
-lưu tại `experiments/results/criterion/comparison.json`.
+lưu dưới `experiments/results/criterion/`, gồm bảng CSV/JSON, biểu đồ Accuracy/F2 và
+ảnh cây được chọn.

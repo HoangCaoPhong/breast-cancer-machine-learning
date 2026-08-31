@@ -45,6 +45,9 @@ class CriterionExperimentResult:
 
     runs: dict[str, CriterionRun]
     train_metrics: dict[str, BinaryClassificationMetrics]
+    training_cv_metrics: dict[str, tuple[BinaryClassificationMetrics, ...]]
+    training_cv_mean_metrics: dict[str, dict[str, float | None]]
+    training_cv_std_metrics: dict[str, dict[str, float | None]]
     validation_metrics: dict[str, tuple[BinaryClassificationMetrics, ...]]
     validation_mean_metrics: dict[str, dict[str, float | None]]
     validation_std_metrics: dict[str, dict[str, float | None]]
@@ -161,6 +164,9 @@ def run_criterion_experiment(
     validation_metrics: dict[str, list[BinaryClassificationMetrics]] = {
         criterion: [] for criterion in CRITERIA
     }
+    training_cv_metrics: dict[str, list[BinaryClassificationMetrics]] = {
+        criterion: [] for criterion in CRITERIA
+    }
     cross_validator = StratifiedKFold(
         n_splits=cv_folds,
         shuffle=True,
@@ -178,6 +184,14 @@ def run_criterion_experiment(
             feature_names=features.columns,
         )
         for criterion, fold_run in fold_runs.items():
+            training_cv_metrics[criterion].append(
+                _evaluate(
+                    fold_run.estimator,
+                    fold_features,
+                    fold_target,
+                    settings,
+                )
+            )
             validation_metrics[criterion].append(
                 _evaluate(
                     fold_run.estimator,
@@ -187,9 +201,18 @@ def run_criterion_experiment(
                 )
             )
 
+    frozen_training_cv_metrics = {
+        criterion: tuple(metrics) for criterion, metrics in training_cv_metrics.items()
+    }
     frozen_validation_metrics = {
         criterion: tuple(metrics) for criterion, metrics in validation_metrics.items()
     }
+    training_cv_mean_metrics: dict[str, dict[str, float | None]] = {}
+    training_cv_std_metrics: dict[str, dict[str, float | None]] = {}
+    for criterion, metrics in frozen_training_cv_metrics.items():
+        means, standard_deviations = _aggregate_metrics(metrics)
+        training_cv_mean_metrics[criterion] = means
+        training_cv_std_metrics[criterion] = standard_deviations
     validation_mean_metrics: dict[str, dict[str, float | None]] = {}
     validation_std_metrics: dict[str, dict[str, float | None]] = {}
     for criterion, metrics in frozen_validation_metrics.items():
@@ -224,6 +247,9 @@ def run_criterion_experiment(
     return CriterionExperimentResult(
         runs=runs,
         train_metrics=train_metrics,
+        training_cv_metrics=frozen_training_cv_metrics,
+        training_cv_mean_metrics=training_cv_mean_metrics,
+        training_cv_std_metrics=training_cv_std_metrics,
         validation_metrics=frozen_validation_metrics,
         validation_mean_metrics=validation_mean_metrics,
         validation_std_metrics=validation_std_metrics,

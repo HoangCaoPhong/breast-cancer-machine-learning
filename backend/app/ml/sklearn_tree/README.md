@@ -45,5 +45,6 @@ Run the complete experiment from the repository root:
 python scripts/run_criterion_experiment.py
 ```
 
-The runner reads `experiments/configs/criterion.json` and writes the report-ready
-comparison to `experiments/results/criterion/comparison.json`.
+The runner reads `experiments/configs/criterion.json` and writes report-ready CSV and
+JSON tables plus Accuracy/F2 comparison plots and the selected tree under
+`experiments/results/criterion/`.

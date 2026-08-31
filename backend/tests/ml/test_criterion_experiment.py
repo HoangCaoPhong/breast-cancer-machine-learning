@@ -98,6 +98,8 @@ def test_run_criterion_experiment_uses_one_canonical_split_and_shared_metrics() 
 
     assert set(result.runs) == {"gini", "entropy"}
     assert set(result.train_metrics) == {"gini", "entropy"}
+    assert set(result.training_cv_metrics) == {"gini", "entropy"}
+    assert all(len(folds) == 2 for folds in result.training_cv_metrics.values())
     assert set(result.validation_metrics) == {"gini", "entropy"}
     assert all(len(folds) == 2 for folds in result.validation_metrics.values())
     assert result.selected_criterion in {"gini", "entropy"}
