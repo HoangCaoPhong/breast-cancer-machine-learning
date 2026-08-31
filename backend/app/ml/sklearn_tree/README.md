@@ -10,17 +10,18 @@ Mọi experiment phải đọc cùng split/config và export kết quả theo
 
 ## Gini versus Entropy (I2)
 
-`gini_vs_entropy.py` contains the reusable sklearn-only comparison logic. It
-keeps every baseline parameter fixed and changes only `criterion` between `gini` and
-`entropy`. Model selection uses mean malignant F2 from stratified CV on the training
-split; the held-out test set is evaluated only after selecting the criterion.
+`gini_vs_entropy.py` contains the reusable I2 orchestration for both the existing
+custom tree and sklearn tree. It imports the original estimators without modifying
+their implementation, keeps every baseline parameter fixed, and changes only
+`criterion` between `gini` and `entropy`. Both families use the same shuffled,
+stratified split and CV folds.
 
 Run from the repository root:
 
 ```bash
-python scripts/run_criterion_experiment.py
+python scripts/run_gini_vs_entropy.py
 ```
 
 The runner reads `experiments/configs/criterion.json` and writes one CV table, one JSON
-summary, one comparison chart, and one selected sklearn-tree figure under
+summary, one two-family comparison chart, and one combined selected-trees figure under
 `experiments/results/criterion/`. The custom-tree implementation remains independent.

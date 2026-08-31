@@ -36,10 +36,10 @@ làm việc; nếu có khác biệt, đề gốc là nguồn có thẩm quyền.
 ## 4. Cải thiện mô hình
 
 - [ ] Đề xuất và triển khai 2-3 phương pháp khác nhau.
-- [x] I2 Gini/Entropy đã chạy trên sklearn tree theo protocol chung.
+- [x] I2 Gini/Entropy đã chạy trên custom và sklearn tree theo protocol chung.
   - [x] Có mô tả method và setting kiểm soát.
   - [x] Có Accuracy, error rate, malignant F2/recall và metrics liên quan.
-  - [x] Có bảng CSV/JSON, biểu đồ criterion và hình cây được chọn.
+  - [x] Có bảng CSV/JSON, biểu đồ hai model family và hình hai cây được chọn.
 - [ ] Mỗi phương pháp có:
   - [ ] mô tả và giả thuyết;
   - [ ] setting/cây đã chỉnh;

@@ -47,11 +47,11 @@ Các giá trị mặc định phục vụ demo local, chưa phải protocol chí
 Từ repository root:
 
 ```bash
-python scripts/run_criterion_experiment.py
+python scripts/run_gini_vs_entropy.py
 ```
 
-Script dùng sklearn Decision Tree với cùng dataset, stratified 80/20 split, seed và
-baseline parameters đã chốt trong D-006. Chỉ `criterion` thay đổi giữa Gini và Entropy.
-Model được chọn bằng malignant F2 trên stratified 5-fold CV; test set chỉ được dùng sau
-khi chọn. Output gồm `cv_results.csv`, `summary.json`, `criterion_comparison.png` và
-`selected_tree.png`.
+Script chạy cả Custom Decision Tree và Sklearn Decision Tree với cùng dataset,
+shuffled stratified 80/20 split, seed và baseline parameters đã chốt trong D-006.
+Chỉ `criterion` thay đổi giữa Gini và Entropy trong từng family. Model được chọn bằng
+malignant F2 trên stratified 5-fold CV; test set chỉ được dùng sau khi chọn. Output gồm
+`cv_results.csv`, `summary.json`, `criterion_comparison.png` và `selected_trees.png`.

@@ -6,10 +6,10 @@ from pathlib import Path
 import pandas as pd
 
 _REPOSITORY_ROOT = Path(__file__).parents[2]
-_SCRIPT = _REPOSITORY_ROOT / "scripts/run_criterion_experiment.py"
+_SCRIPT = _REPOSITORY_ROOT / "scripts/run_gini_vs_entropy.py"
 
 
-def test_run_criterion_experiment_script_exports_sklearn_results(tmp_path: Path) -> None:
+def test_run_gini_vs_entropy_script_exports_both_families(tmp_path: Path) -> None:
     output_dir = tmp_path / "criterion"
     config_path = tmp_path / "criterion.json"
     config_path.write_text(
@@ -40,29 +40,37 @@ def test_run_criterion_experiment_script_exports_sklearn_results(tmp_path: Path)
         text=True,
     )
 
-    assert "Gini-versus-Entropy sklearn cross-validation results" in completed.stdout
-    assert "Selected criterion:" in completed.stdout
-    assert "Held-out test:" in completed.stdout
+    assert "Gini-versus-Entropy cross-validation results" in completed.stdout
+    assert "custom:" in completed.stdout
+    assert "sklearn:" in completed.stdout
     expected_files = {
         "cv_results.csv",
         "summary.json",
         "criterion_comparison.png",
-        "selected_tree.png",
+        "selected_trees.png",
     }
     assert {path.name for path in output_dir.iterdir()} == expected_files
 
     cv_results = pd.read_csv(output_dir / "cv_results.csv")
-    assert cv_results["criterion"].tolist() == ["gini", "entropy"]
-    assert cv_results["selected"].sum() == 1
+    assert cv_results["family"].tolist() == ["custom", "custom", "sklearn", "sklearn"]
+    assert cv_results["criterion"].tolist() == ["gini", "entropy", "gini", "entropy"]
+    assert cv_results["selected"].sum() == 2
 
     summary = json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
     assert summary["sample_counts"] == {"train": 455, "test": 114}
-    assert summary["protocol"]["model_family"] == "sklearn_decision_tree"
+    assert summary["protocol"]["model_families"] == ["custom", "sklearn"]
     assert summary["protocol"]["controlled_variable"] == "criterion"
+    assert summary["protocol"]["shuffle"] is True
     assert summary["protocol"]["primary_metric"] == "mean_validation_malignant_f2"
     assert summary["protocol"]["test_set_used_for_selection"] is False
-    assert set(summary["variants"]) == {"gini", "entropy"}
-    assert summary["selection"]["selected_criterion"] in {"gini", "entropy"}
-    assert summary["selection"]["selected_test_metrics"]["false_negatives"] >= 0
+    family_results = summary["model_family_results"]
+    assert set(family_results) == {"custom", "sklearn"}
+    for family in ("custom", "sklearn"):
+        assert set(family_results[family]["variants"]) == {"gini", "entropy"}
+        assert family_results[family]["selection"]["selected_criterion"] in {
+            "gini",
+            "entropy",
+        }
+        assert family_results[family]["selection"]["selected_test_metrics"]["false_negatives"] >= 0
     assert (output_dir / "criterion_comparison.png").stat().st_size > 0
-    assert (output_dir / "selected_tree.png").stat().st_size > 0
+    assert (output_dir / "selected_trees.png").stat().st_size > 0
