@@ -36,6 +36,11 @@ làm việc; nếu có khác biệt, đề gốc là nguồn có thẩm quyền.
 ## 4. Cải thiện mô hình
 
 - [ ] Đề xuất và triển khai 2-3 phương pháp khác nhau.
+- [x] I2 Gini/Entropy đã chạy cho cả Custom và Sklearn trên cùng protocol.
+  - [x] Có mô tả method và setting kiểm soát.
+  - [x] Có Accuracy, error rate, malignant F2/recall và metrics liên quan.
+  - [x] Có bảng CSV/JSON và hình so sánh Custom/Sklearn.
+  - [x] Có kết luận Entropy không cải thiện so với Gini trong protocol hiện tại.
 - [ ] Mỗi phương pháp có:
   - [ ] mô tả và giả thuyết;
   - [ ] setting/cây đã chỉnh;
