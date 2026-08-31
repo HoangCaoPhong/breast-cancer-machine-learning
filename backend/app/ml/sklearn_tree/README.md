@@ -46,5 +46,5 @@ python scripts/run_criterion_experiment.py
 ```
 
 The runner reads `experiments/configs/criterion.json` and writes report-ready CSV and
-JSON tables plus Accuracy/F2 comparison plots and the selected tree under
+JSON tables plus a combined Accuracy/F2 comparison figure and the selected tree under
 `experiments/results/criterion/`.

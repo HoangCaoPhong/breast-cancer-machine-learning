@@ -92,10 +92,11 @@ def export_results(
         "cv_results": output_dir / "cv_results.csv",
         "final_comparison": output_dir / "final_comparison.csv",
         "comparison": output_dir / "comparison.json",
-        "accuracy_plot": output_dir / "accuracy_by_criterion.png",
-        "f2_plot": output_dir / "malignant_f2_by_criterion.png",
+        "comparison_plot": output_dir / "criterion_comparison.png",
         "tree_plot": output_dir / "selected_tree.png",
     }
+    for legacy_name in ("accuracy_by_criterion.png", "malignant_f2_by_criterion.png"):
+        (output_dir / legacy_name).unlink(missing_ok=True)
     cv_results = _build_cv_results(result)
     final_comparison = _build_final_comparison(result)
     cv_results.to_csv(paths["cv_results"], index=False)
@@ -176,21 +177,10 @@ def export_results(
         json.dumps(summary, indent=2, ensure_ascii=True) + "\n",
         encoding="utf-8",
     )
-    _save_metric_plot(
+    _save_comparison_plot(
         cv_results,
         result.selected_criterion,
-        metric="accuracy",
-        ylabel="Accuracy",
-        title="Decision Tree accuracy across splitting criteria",
-        path=paths["accuracy_plot"],
-    )
-    _save_metric_plot(
-        cv_results,
-        result.selected_criterion,
-        metric="malignant_f2",
-        ylabel="Malignant F2 (beta=2)",
-        title="Decision Tree malignant F2 across splitting criteria",
-        path=paths["f2_plot"],
+        paths["comparison_plot"],
     )
     _save_tree_plot(result, paths["tree_plot"])
     return paths
@@ -290,50 +280,59 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _save_metric_plot(
+def _save_comparison_plot(
     cv_results: pd.DataFrame,
     selected_criterion: str,
-    *,
-    metric: str,
-    ylabel: str,
-    title: str,
     path: Path,
 ) -> None:
     labels = [str(value).title() for value in cv_results["criterion"]]
     positions = np.arange(len(labels))
-    figure, axis = plt.subplots(figsize=(9, 6))
-    axis.plot(
-        positions,
-        cv_results[f"train_{metric}_mean"],
-        marker="o",
-        linewidth=2,
-        label="Training CV mean",
-    )
-    axis.errorbar(
-        positions,
-        cv_results[f"validation_{metric}_mean"],
-        yerr=cv_results[f"validation_{metric}_std"],
-        marker="o",
-        linewidth=2,
-        capsize=5,
-        label="Validation CV mean +/- 1 std",
-    )
     selected_position = int(cv_results.index[cv_results["criterion"] == selected_criterion][0])
-    axis.axvline(
-        selected_position,
-        color="tab:green",
-        linestyle="--",
-        alpha=0.8,
-        label=f"Selected criterion = {selected_criterion.title()}",
+    figure, axes = plt.subplots(1, 2, figsize=(15, 6), sharey=True)
+    bar_width = 0.34
+    plot_specs = (
+        ("accuracy", "Accuracy"),
+        ("malignant_f2", "Malignant F2 (beta=2)"),
     )
-    axis.set_xticks(positions, labels)
-    axis.set_xlabel("Splitting criterion")
-    axis.set_ylabel(ylabel)
-    axis.set_title(title)
-    axis.set_ylim(0.0, 1.05)
-    axis.grid(alpha=0.25)
-    axis.legend()
-    figure.tight_layout()
+    for axis, (metric, title) in zip(axes, plot_specs, strict=True):
+        training_values = cv_results[f"train_{metric}_mean"].to_numpy(dtype=float)
+        validation_values = cv_results[f"validation_{metric}_mean"].to_numpy(dtype=float)
+        validation_errors = cv_results[f"validation_{metric}_std"].to_numpy(dtype=float)
+        training_bars = axis.bar(
+            positions - bar_width / 2,
+            training_values,
+            width=bar_width,
+            color="tab:blue",
+            label="Training CV mean",
+        )
+        validation_bars = axis.bar(
+            positions + bar_width / 2,
+            validation_values,
+            width=bar_width,
+            yerr=validation_errors,
+            capsize=5,
+            color="tab:orange",
+            label="Validation CV mean +/- 1 std",
+        )
+        axis.axvspan(
+            selected_position - 0.48,
+            selected_position + 0.48,
+            color="tab:green",
+            alpha=0.09,
+            label=f"Selected = {selected_criterion.title()}",
+        )
+        axis.bar_label(training_bars, fmt="%.4f", padding=3, fontsize=9)
+        axis.bar_label(validation_bars, fmt="%.4f", padding=3, fontsize=9)
+        axis.set_xticks(positions, labels)
+        axis.set_xlabel("Splitting criterion")
+        axis.set_title(title)
+        axis.set_ylim(0.80, 1.04)
+        axis.grid(axis="y", alpha=0.25)
+    axes[0].set_ylabel("Cross-validated score (zoomed scale)")
+    handles, legend_labels = axes[0].get_legend_handles_labels()
+    figure.legend(handles, legend_labels, loc="lower center", ncol=3, frameon=True)
+    figure.suptitle("Gini versus Entropy Decision Tree comparison", fontsize=16)
+    figure.subplots_adjust(bottom=0.20, top=0.86, wspace=0.08)
     figure.savefig(path, dpi=180, bbox_inches="tight")
     plt.close(figure)
 

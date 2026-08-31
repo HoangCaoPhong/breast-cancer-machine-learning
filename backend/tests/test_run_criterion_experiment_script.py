@@ -26,8 +26,7 @@ def test_run_criterion_experiment_script_exports_both_variants(tmp_path: Path) -
         "cv_results.csv",
         "final_comparison.csv",
         "comparison.json",
-        "accuracy_by_criterion.png",
-        "malignant_f2_by_criterion.png",
+        "criterion_comparison.png",
         "selected_tree.png",
     }
     assert {path.name for path in output_dir.iterdir()} == expected_files
@@ -51,4 +50,4 @@ def test_run_criterion_experiment_script_exports_both_variants(tmp_path: Path) -
     assert summary["selection"]["selected_criterion"] in {"gini", "entropy"}
     assert summary["selection"]["test_set_used_for_selection"] is False
     assert summary["selected_test_metrics"]["false_negatives"] >= 0
-    assert (output_dir / "malignant_f2_by_criterion.png").stat().st_size > 0
+    assert (output_dir / "criterion_comparison.png").stat().st_size > 0
