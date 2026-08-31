@@ -238,6 +238,37 @@ def _build_family_summary(
             "test_set_used_for_selection": False,
         },
         "selected_test_metrics": result.selected_test_metrics.to_dict(),
+        "interpretation": _build_family_interpretation(result),
+    }
+
+
+def _build_family_interpretation(result: FamilyResult) -> dict[str, Any]:
+    gini_metrics = result.validation_mean_metrics["gini"]
+    entropy_metrics = result.validation_mean_metrics["entropy"]
+    selected_training_f2 = result.training_cv_mean_metrics[result.selected_criterion][
+        "malignant_f2"
+    ]
+    selected_validation_f2 = result.validation_mean_metrics[result.selected_criterion][
+        "malignant_f2"
+    ]
+    assert selected_training_f2 is not None and selected_validation_f2 is not None
+    f2_delta = entropy_metrics["malignant_f2"] - gini_metrics["malignant_f2"]
+    accuracy_delta = entropy_metrics["accuracy"] - gini_metrics["accuracy"]
+    return {
+        "entropy_minus_gini_validation_malignant_f2": f2_delta,
+        "entropy_minus_gini_validation_accuracy": accuracy_delta,
+        "selected_training_minus_validation_malignant_f2": (
+            selected_training_f2 - selected_validation_f2
+        ),
+        "criterion_conclusion": (
+            "Entropy improved mean validation malignant F2 over the Gini baseline."
+            if f2_delta > 0
+            else "Entropy did not improve mean validation malignant F2 over the Gini baseline."
+        ),
+        "overfitting_observation": (
+            "The selected unlimited tree fits training folds better than validation folds; "
+            "this gap is evidence of likely overfitting."
+        ),
     }
 
 
@@ -458,6 +489,21 @@ def _print_results(
             float_format=lambda value: f"{value:.4f}",
         )
     )
+    print("\nInterpretation")
+    for family in MODEL_FAMILIES:
+        result = results[family]
+        interpretation = _build_family_interpretation(result)
+        print(f"- {MODEL_FAMILY_LABELS[family]}: {interpretation['criterion_conclusion']}")
+        print(
+            "  Entropy - Gini mean validation: "
+            f"F2={interpretation['entropy_minus_gini_validation_malignant_f2']:+.4f}, "
+            f"accuracy={interpretation['entropy_minus_gini_validation_accuracy']:+.4f}."
+        )
+        print(
+            "  Selected training-validation F2 gap: "
+            f"{interpretation['selected_training_minus_validation_malignant_f2']:.4f}; "
+            "the unlimited tree is likely overfitting."
+        )
     print(
         f"\nProtocol: stratified split, test_size={config.test_size}, "
         f"seed={config.random_state}, {results[MODEL_FAMILIES[0]].cv_folds}-fold CV"

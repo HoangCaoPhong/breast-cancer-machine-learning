@@ -43,6 +43,9 @@ def test_run_criterion_experiment_script_exports_both_variants(tmp_path: Path) -
     assert "Custom Decision Tree" in result.stdout
     assert "Sklearn Decision Tree" in result.stdout
     assert "Final held-out comparison" in result.stdout
+    assert "Interpretation" in result.stdout
+    assert "Entropy did not improve" in result.stdout
+    assert "likely overfitting" in result.stdout
     expected_files = {
         "cv_results.csv",
         "final_comparison.csv",
@@ -70,5 +73,7 @@ def test_run_criterion_experiment_script_exports_both_variants(tmp_path: Path) -
         }
         assert family_results[family]["selection"]["test_set_used_for_selection"] is False
         assert family_results[family]["selected_test_metrics"]["false_negatives"] >= 0
+        assert "criterion_conclusion" in family_results[family]["interpretation"]
+        assert "overfitting" in family_results[family]["interpretation"]["overfitting_observation"]
     assert (output_dir / "accuracy_by_criterion.png").stat().st_size > 0
     assert (output_dir / "malignant_f2_by_criterion.png").stat().st_size > 0
