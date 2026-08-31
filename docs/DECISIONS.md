@@ -46,8 +46,23 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
 - Consequences: tests and local experiments use one immutable dataset copy without a
   network call; feature names/order are stored by the fitted custom tree.
 
+## D-006 - Canonical baseline and evaluation metrics
+
+- Date: 2026-08-30
+- Status: accepted
+- Decision: baseline B0 dùng `DecisionTreeClassifier` với `criterion="gini"`,
+  `max_depth=None`, `min_samples_leaf=1`, `min_samples_split=2` và
+  `random_state=42`. Protocol hiện tại là stratified 80/20 split, positive class là
+  `M` và negative class là `B`. Primary model-selection metric cho các improvement
+  experiment là malignant F2 (`beta=2`) tính trên validation/CV của training set.
+  Baseline report bắt buộc xuất malignant precision/recall/F1/F2, benign recall
+  (specificity), balanced accuracy, accuracy, error rate, confusion counts theo thứ
+  tự `B`, `M`, và ROC-AUC khi có probability hợp lệ.
+- Consequences: B0 là mốc cố định, không tune trên test set. Mọi improvement phải dùng
+  cùng dataset/split/seed/class semantics và so sánh với B0. Accuracy vẫn được báo theo
+  đề bài nhưng không thay thế malignant F2/recall và raw false-negative count.
+
 ## Pending decisions
 
-- D-006: target encoding, positive class, split ratio, seed và primary metric.
 - D-007: API request/response schema và model artifact metadata.
 - D-008: owner report/video, người đại diện và Group ID.
