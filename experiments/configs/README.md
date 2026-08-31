@@ -2,12 +2,11 @@
 
 Baseline, split, seed và metrics đã được chốt trong D-006. Config chính thức hiện có:
 
-- `baseline.json`
+- `baseline.json`: Cấu hình cho baseline B0 cố định.
+- `min_samples.json`: Cấu hình cho thí nghiệm I3 (min_samples_split và min_samples_leaf tuning).
 
-Config cho improvement experiment cần thêm:
+Config cho các improvement experiment khác:
 
-- `max_depth.yaml`
-- `criterion.yaml`
-- `min_samples.yaml`
+- `max_depth.json` (I1)
+- `criterion.json` (I2)
 
-Nếu chưa chọn thư viện đọc YAML, có thể dùng JSON để tránh thêm dependency chỉ vì format.

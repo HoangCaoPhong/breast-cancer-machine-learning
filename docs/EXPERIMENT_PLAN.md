@@ -64,11 +64,11 @@ track tương ứng.
 
 | ID | Model/change | Owner | Giả thuyết chính | Status |
 | --- | --- | --- | --- | --- |
-| C0 | Decision Tree from scratch | Phong | Minh họa cách impurity/split/stopping tạo cây | Pending |
+| C0 | Decision Tree from scratch | Phong | Minh họa cách impurity/split/stopping tạo cây | Implemented |
 | B0 | Sklearn baseline | Nhóm/model integrator | Mốc so sánh cố định theo D-006 | Implemented |
 | I1 | Tune `max_depth` | Phong | Giảm overfitting bằng giới hạn độ sâu | Pending |
 | I2 | Gini vs. Entropy | Ngọc; Kiên hỗ trợ setup tích hợp | Criterion khác có thể đổi split/complexity/performance | Pending |
-| I3 | Tune `min_samples_split`/`min_samples_leaf` | Hòa | Tránh nhánh quá đặc thù và giảm variance | Pending |
+| I3 | Tune `min_samples_split`/`min_samples_leaf` | Hòa | Tránh nhánh quá đặc thù và giảm variance | Implemented |
 
 Các giá trị thử phải được ghi trước trong config. Nếu tham khảo paper để chọn search
 space, lưu citation và không dùng test set để chọn ngưỡng.
@@ -102,11 +102,20 @@ Chọn improvement theo mean malignant F2 trên training CV. Nếu accuracy tăn
 malignant F2 hoặc recall giảm, báo trade-off; không gọi đó là cải thiện mặc định.
 Không tuyên bố hiệu quả lâm sàng từ kết quả trên dataset này.
 
-## 7. Reproduction command placeholder
+## 7. Reproduction commands
 
-Owner model thay bằng entry point thật khi triển khai:
+Lệnh chạy tái lập chính thức cho từng track:
 
 ```bash
-# Placeholder only
-python scripts/run_experiment.py --config experiments/configs/<name>.yaml
+# 1. Chạy Baseline B0 (Nhóm)
+python scripts/run_baseline.py
+
+# 2. Chạy Custom Decision Tree (Phong)
+python scripts/run_custom_tree.py
+
+# 3. Chạy Thí nghiệm I3 & Benchmark (Hòa)
+python scripts/benchmark_min_samples.py --include-custom-tree
+
+# 4. Sinh biểu đồ so sánh cho I3 (Hòa)
+python scripts/plot_min_samples_comparison.py
 ```
