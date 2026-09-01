@@ -183,7 +183,7 @@ export const translations: Record<Language, Translations> = {
     // Disclaimer
     disclaimerTag: 'Lưu ý Học thuật',
     disclaimerText:
-      'Ứng dụng này phục vụ mục đích nghiên cứu và giáo dục trong khuôn khổ môn học Machine Learning (Học Máy), không cấu thành lời khuyên y tế lâm sàng hay thay thế chẩn đoán của bác sĩ.',
+      'Ứng dụng này phục vụ mục đích nghiên cứu và giáo dục trong khuôn khổ kiến thức nghiên cứu Machine Learning (Học máy), không cấu thành lời khuyên y tế lâm sàng hay thay thế chẩn đoán của bác sĩ.',
 
     // Form
     formTitle: 'Dữ Liệu Khối U Sinh Thiết (30 Chỉ Số)',
@@ -320,7 +320,7 @@ export const translations: Record<Language, Translations> = {
     datasetCitationTitle: 'Trích dẫn khoa học:',
 
     // Modals
-    aboutUsTitle: 'Về Nhóm Nghiên Cứu & Đề Tài Lab 2',
+    aboutUsTitle: 'Về Nhóm Nghiên Cứu & Đề Tài',
     aboutUsSubtitle: 'Phân loại Chẩn đoán Ung thư Vú bằng Thuật toán Cây Quyết định (Decision Tree Learning)',
     aboutUsObjectives: 'Mục Tiêu Đề Tài:',
     aboutUsTeamTableTitle: 'Danh Sách Thành Viên & Bảng Phân Công Nhiệm Vụ:',
@@ -334,7 +334,7 @@ export const translations: Record<Language, Translations> = {
     btnClose: 'Đóng',
 
     // Footer
-    footerDisclaimer: 'Cảnh báo: Ứng dụng phục vụ nghiên cứu và giáo dục học thuật môn học Machine Learning, không thay thế chẩn đoán y tế chuyên khoa.',
+    footerDisclaimer: 'Cảnh báo: Ứng dụng phục vụ nghiên cứu và giáo dục học thuật Machine Learning, không thay thế chẩn đoán y tế chuyên khoa.',
     footerRights: 'Breast Cancer Decision Tree Platform · All rights reserved.',
   },
 
@@ -488,7 +488,7 @@ export const translations: Record<Language, Translations> = {
     datasetCitationTitle: 'Academic Citation:',
 
     // Modals
-    aboutUsTitle: 'About Research Team & Lab 2 Project',
+    aboutUsTitle: 'About Research Team & Project',
     aboutUsSubtitle: 'Breast Cancer Diagnostic Classification using Decision Tree Learning Paradigms',
     aboutUsObjectives: 'Core Academic Objectives:',
     aboutUsTeamTableTitle: 'Team Member Roster & Assigned Responsibilities:',

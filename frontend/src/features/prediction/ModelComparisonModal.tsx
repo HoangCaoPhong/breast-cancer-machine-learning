@@ -24,7 +24,7 @@ export const ModelComparisonModal: React.FC<ModelComparisonModalProps> = ({
             </div>
             <div>
               <h3 className="text-lg font-bold text-white font-sans">
-                Bảng So Sánh Các Thí Nghiệm Decision Tree (Lab 02)
+                Bảng So Sánh Các Thí Nghiệm Decision Tree
               </h3>
               <p className="text-xs text-slate-400 font-sans">
                 Đánh giá trên cùng bộ dữ liệu Wisconsin (Diagnostic), Stratified Split & Random Seed
