@@ -151,6 +151,8 @@ export interface ModelExperiment {
   assignedTo?: string;
   criterion: 'Gini' | 'Entropy';
   maxDepth: number | 'None';
+  fittedDepth?: number;
+  leafCount?: number;
   minSamplesSplit: number;
   minSamplesLeaf: number;
   accuracy: number | null;

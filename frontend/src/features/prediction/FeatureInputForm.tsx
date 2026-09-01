@@ -13,6 +13,7 @@ import {
   MODEL_OPTIONS,
   getRandomDatasetSample,
 } from '../../data/featureDefinitions';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface FeatureInputFormProps {
   features: BreastCancerFeatures;
@@ -32,6 +33,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
   isLoading,
 }) => {
   const [activeCategory, setActiveCategory] = useState<FeatureCategory>('mean');
+  const { language, t } = useLanguage();
 
   const handleInputChange = (key: FeatureKey, rawValue: string) => {
     if (rawValue.trim() === '') {
@@ -73,10 +75,10 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
           <span className="material-symbols-outlined text-primary">analytics</span>
           <div>
             <h3 className="font-headline-md text-headline-md text-on-surface">
-              Nhập Chỉ Số Xét Nghiệm Tế Bào
+              {t.formTitle}
             </h3>
             <p className="text-xs text-on-surface-variant font-sans">
-              Nhập các chỉ số hoặc chọn nhanh mẫu ca bệnh bên dưới để chạy mô hình
+              {t.formSubtitle}
             </p>
           </div>
         </div>
@@ -93,7 +95,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               : 'text-on-surface-variant hover:text-primary'
           }`}
         >
-          1. Giá trị trung bình (Mean)
+          1. {t.tabMean}
         </button>
         <button
           type="button"
@@ -104,7 +106,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               : 'text-on-surface-variant hover:text-primary'
           }`}
         >
-          2. Sai số chuẩn (SE)
+          2. {t.tabSe}
         </button>
         <button
           type="button"
@@ -115,7 +117,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               : 'text-on-surface-variant hover:text-primary'
           }`}
         >
-          3. Giá trị lớn nhất (Worst)
+          3. {t.tabWorst}
         </button>
       </div>
 
@@ -130,7 +132,21 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               <div key={meta.key} className="flex flex-col gap-1">
                 <label className="font-sans text-xs font-semibold text-on-surface flex items-center justify-between">
                   <span className="truncate">
-                    {meta.vietnameseLabel} <span className="text-on-surface-variant font-normal">({meta.label.replace(/\s*\((Mean|SE|Worst)\)/i, '')})</span>
+                    {language === 'vi' ? (
+                      <>
+                        {meta.vietnameseLabel}{' '}
+                        <span className="text-on-surface-variant font-normal">
+                          ({meta.label.replace(/\s*\((Mean|SE|Worst)\)/i, '')})
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        {meta.label}{' '}
+                        <span className="text-on-surface-variant font-normal">
+                          ({meta.key})
+                        </span>
+                      </>
+                    )}
                   </span>
                   <span className="text-[11px] text-outline font-normal">
                     ({meta.unit})
@@ -147,7 +163,8 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
                 />
                 {isInvalid && (
                   <span className="text-error text-xs font-sans flex items-center gap-1 mt-0.5">
-                    <span className="material-symbols-outlined text-[14px]">error</span> Giá trị phải lớn hơn hoặc bằng 0
+                    <span className="material-symbols-outlined text-[14px]">error</span>{' '}
+                    {language === 'vi' ? 'Giá trị phải lớn hơn hoặc bằng 0' : 'Value must be >= 0'}
                   </span>
                 )}
               </div>
@@ -164,29 +181,29 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               onClick={() => handleApplyPreset(PRESET_SAMPLES[0])}
               className="px-3 py-1.5 text-primary border border-primary rounded-lg font-sans text-xs hover:bg-surface-container-low transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">check_circle</span> Mẫu khối u lành tính
+              <span className="material-symbols-outlined text-sm">check_circle</span> {t.btnBenignPreset}
             </button>
             <button
               type="button"
               onClick={() => handleApplyPreset(PRESET_SAMPLES[1])}
               className="px-3 py-1.5 text-error border border-error rounded-lg font-sans text-xs hover:bg-error-container/20 transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">warning</span> Mẫu khối u ác tính
+              <span className="material-symbols-outlined text-sm">warning</span> {t.btnMalignantPreset}
             </button>
             <button
               type="button"
               onClick={() => handleApplyPreset(PRESET_SAMPLES[2])}
               className="px-3 py-1.5 text-on-surface-variant border border-outline-variant rounded-lg font-sans text-xs hover:bg-surface-container-low transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">help</span> Mẫu ranh giới 50/50
+              <span className="material-symbols-outlined text-sm">help</span> {t.btnBorderlinePreset}
             </button>
             <button
               type="button"
               onClick={handleApplyRandom}
               className="px-3 py-1.5 text-secondary border border-secondary rounded-lg font-sans text-xs hover:bg-secondary-container/20 transition-colors flex items-center gap-1.5"
-              title="Lấy ngẫu nhiên một mẫu ca bệnh thực tế từ tập dữ liệu UCI WDBC"
+              title="Pick a random sample from UCI WDBC dataset"
             >
-              <span className="material-symbols-outlined text-sm">shuffle</span> Mẫu ngẫu nhiên
+              <span className="material-symbols-outlined text-sm">shuffle</span> {t.btnRandom}
             </button>
           </div>
 
@@ -196,7 +213,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
             <div className="flex items-center gap-2">
               <label className="text-xs font-sans text-on-surface-variant whitespace-nowrap font-bold flex items-center gap-1">
                 <span className="material-symbols-outlined text-sm text-primary">psychology</span>
-                Thuật toán:
+                {t.selectModelLabel}:
               </label>
               <select
                 value={selectedModelId}
@@ -205,7 +222,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
               >
                 {MODEL_OPTIONS.map((opt) => (
                   <option key={opt.id} value={opt.id}>
-                    {opt.nameVi}
+                    {language === 'vi' ? opt.nameVi : `${opt.id}: ${opt.name}`}
                   </option>
                 ))}
               </select>
@@ -218,7 +235,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
                 onClick={handleReset}
                 className="px-3.5 py-2 text-on-surface-variant font-sans text-xs hover:bg-surface-container-highest rounded-lg transition-colors flex items-center gap-1.5 border border-outline-variant"
               >
-                <span className="material-symbols-outlined text-sm">clear_all</span> Xóa tất cả
+                <span className="material-symbols-outlined text-sm">clear_all</span> {t.btnClear}
               </button>
               <button
                 type="button"
@@ -227,7 +244,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
                 className="px-5 py-2 bg-primary text-on-primary rounded-lg font-sans text-xs font-bold hover:bg-primary-container transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
               >
                 <span className="material-symbols-outlined text-sm">play_arrow</span>
-                {isLoading ? 'Đang phân tích...' : 'Thực hiện chẩn đoán'}
+                {isLoading ? t.btnSubmitting : t.btnSubmit}
               </button>
             </div>
           </div>
@@ -238,3 +255,4 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
 };
 
 export default FeatureInputForm;
+

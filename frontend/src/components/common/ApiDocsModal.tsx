@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface ApiDocsModalProps {
   isOpen: boolean;
@@ -6,6 +7,7 @@ interface ApiDocsModalProps {
 }
 
 export const ApiDocsModal: React.FC<ApiDocsModalProps> = ({ isOpen, onClose }) => {
+  const { language, t } = useLanguage();
   if (!isOpen) return null;
 
   return (
@@ -22,9 +24,9 @@ export const ApiDocsModal: React.FC<ApiDocsModalProps> = ({ isOpen, onClose }) =
               <span className="material-symbols-outlined text-lg">api</span>
             </div>
             <div>
-              <h3 className="font-bold text-base text-on-surface">Tài Liệu Backend API</h3>
+              <h3 className="font-bold text-base text-on-surface">{t.apiDocsTitle}</h3>
               <p className="text-xs font-sans text-on-surface-variant">
-                FastAPI RESTful Web Service · Khung kiến trúc v1.0
+                {t.apiDocsSubtitle}
               </p>
             </div>
           </div>
@@ -44,33 +46,35 @@ export const ApiDocsModal: React.FC<ApiDocsModalProps> = ({ isOpen, onClose }) =
             <div className="flex items-center justify-between">
               <span className="font-bold text-primary flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-base">terminal</span>
-                Cổng Tương Tác Trực Tiếp (Interactive API Explorer)
+                {language === 'vi' ? 'Cổng Tương Tác Trực Tiếp (Interactive API Explorer)' : 'Interactive OpenAPI Documentation'}
               </span>
               <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-surface-container-high text-primary border border-outline-variant">
-                Port: 8000
+                Port: 3000 / 8000
               </span>
             </div>
             <p className="text-on-surface-variant leading-relaxed">
-              FastAPI tự động sinh tài liệu chuẩn OpenAPI (Swagger UI) và ReDoc cho phép kiểm thử trực tiếp các request/response từ trình duyệt:
+              {language === 'vi'
+                ? 'FastAPI tự động sinh tài liệu chuẩn OpenAPI (Swagger UI) và ReDoc cho phép kiểm thử trực tiếp các request/response từ trình duyệt:'
+                : 'FastAPI automatically generates interactive OpenAPI schemas and documentation:'}
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
               <a
-                href="http://127.0.0.1:8000/docs"
+                href="/docs"
                 target="_blank"
                 rel="noreferrer"
                 className="px-3.5 py-1.5 bg-primary text-white rounded-lg font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-1.5 shadow-sm"
               >
                 <span className="material-symbols-outlined text-sm">open_in_new</span>
-                Mở Swagger UI (/docs)
+                {language === 'vi' ? 'Mở Swagger UI (/docs)' : 'Open Swagger UI (/docs)'}
               </a>
               <a
-                href="http://127.0.0.1:8000/redoc"
+                href="/redoc"
                 target="_blank"
                 rel="noreferrer"
                 className="px-3.5 py-1.5 bg-surface-container-high text-primary border border-outline-variant rounded-lg font-semibold hover:bg-surface-container-highest transition-colors inline-flex items-center gap-1.5"
               >
                 <span className="material-symbols-outlined text-sm">menu_book</span>
-                Mở ReDoc (/redoc)
+                {language === 'vi' ? 'Mở ReDoc (/redoc)' : 'Open ReDoc (/redoc)'}
               </a>
             </div>
           </div>
@@ -78,7 +82,7 @@ export const ApiDocsModal: React.FC<ApiDocsModalProps> = ({ isOpen, onClose }) =
           {/* Endpoint Specification Table */}
           <div className="space-y-2">
             <h4 className="font-bold text-xs text-on-surface uppercase tracking-wider">
-              Danh Sách Các Endpoint Chính
+              {language === 'vi' ? 'Danh Sách Các Endpoint Chính' : 'Primary REST API Endpoints'}
             </h4>
             <div className="space-y-2">
               {/* Endpoint 1 */}
@@ -91,7 +95,9 @@ export const ApiDocsModal: React.FC<ApiDocsModalProps> = ({ isOpen, onClose }) =
                     <span className="font-mono font-semibold text-on-surface">/api/v1/predict</span>
                   </div>
                   <div className="text-[11px] text-on-surface-variant">
-                    Dự đoán phân loại u vú từ 30 thuộc tính số thực &amp; truy xuất decision path.
+                    {language === 'vi'
+                      ? 'Dự đoán phân loại u vú từ 30 thuộc tính số thực & truy xuất decision path.'
+                      : 'Predict tumor malignancy from 30 continuous features and extract live decision path.'}
                   </div>
                 </div>
                 <span className="text-[11px] font-mono text-outline shrink-0">Param: model_id</span>
@@ -107,7 +113,9 @@ export const ApiDocsModal: React.FC<ApiDocsModalProps> = ({ isOpen, onClose }) =
                     <span className="font-mono font-semibold text-on-surface">/api/v1/models</span>
                   </div>
                   <div className="text-[11px] text-on-surface-variant">
-                    Lấy danh sách các mô hình Cây Quyết định và cấu hình siêu tham số.
+                    {language === 'vi'
+                      ? 'Lấy danh sách các mô hình Cây Quyết định và cấu hình siêu tham số.'
+                      : 'List available Decision Tree model variants and hyperparameter configs.'}
                   </div>
                 </div>
                 <span className="text-[11px] font-mono text-outline shrink-0">JSON list</span>
@@ -123,7 +131,9 @@ export const ApiDocsModal: React.FC<ApiDocsModalProps> = ({ isOpen, onClose }) =
                     <span className="font-mono font-semibold text-on-surface">/api/v1/experiments</span>
                   </div>
                   <div className="text-[11px] text-on-surface-variant">
-                    Truy xuất bảng so sánh độ đo hiệu năng giữa 5 phương pháp thực nghiệm.
+                    {language === 'vi'
+                      ? 'Truy xuất bảng so sánh độ đo hiệu năng giữa 5 phương pháp thực nghiệm.'
+                      : 'Fetch 5-experiment evaluation benchmark metrics comparison matrix.'}
                   </div>
                 </div>
                 <span className="text-[11px] font-mono text-outline shrink-0">JSON metrics</span>
@@ -139,7 +149,9 @@ export const ApiDocsModal: React.FC<ApiDocsModalProps> = ({ isOpen, onClose }) =
                     <span className="font-mono font-semibold text-on-surface">/api/v1/tree-structure</span>
                   </div>
                   <div className="text-[11px] text-on-surface-variant">
-                    Xuất cấu trúc cây dạng cây phân cấp (Hierarchical Tree JSON).
+                    {language === 'vi'
+                      ? 'Xuất cấu trúc cây dạng cây phân cấp (Hierarchical Tree JSON).'
+                      : 'Export hierarchical Decision Tree structure for visual canvas.'}
                   </div>
                 </div>
                 <span className="text-[11px] font-mono text-outline shrink-0">Tree Node</span>
@@ -155,7 +167,9 @@ export const ApiDocsModal: React.FC<ApiDocsModalProps> = ({ isOpen, onClose }) =
                     <span className="font-mono font-semibold text-on-surface">/health</span>
                   </div>
                   <div className="text-[11px] text-on-surface-variant">
-                    Kiểm tra trạng thái sẵn sàng của FastAPI Server.
+                    {language === 'vi'
+                      ? 'Kiểm tra trạng thái sẵn sàng của FastAPI Server.'
+                      : 'Liveness and model readiness health check.'}
                   </div>
                 </div>
                 <span className="text-[11px] font-mono text-emerald-600 font-semibold shrink-0">
@@ -173,7 +187,7 @@ export const ApiDocsModal: React.FC<ApiDocsModalProps> = ({ isOpen, onClose }) =
             onClick={onClose}
             className="px-4 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
           >
-            Đóng
+            {t.btnClose}
           </button>
         </div>
       </div>

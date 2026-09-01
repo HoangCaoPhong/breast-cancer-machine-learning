@@ -32,6 +32,8 @@ UCI raw data -> validation/preprocessing -> canonical split
 - `backend/app/services/`: model load/predict và response orchestration.
 - `backend/app/ml/custom_tree/`: thuật toán tự cài đặt, không phụ thuộc FastAPI.
 - `backend/app/ml/sklearn_tree/`: baseline, tuning và ba thí nghiệm sklearn.
+- `backend/app/ml/selected_models/`: preset có version được chọn từ I1/I2/I3 để tích
+  hợp; không chứa thuật toán, HTTP logic hoặc model artifact.
 - `backend/app/ml/preprocessing/`: load/schema/split/pipeline.
 - `backend/app/ml/evaluation/`: metric, comparison table và tree visualization.
 - `frontend/src/features/prediction/`: form và result UI.
