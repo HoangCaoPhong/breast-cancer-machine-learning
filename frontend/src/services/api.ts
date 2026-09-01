@@ -18,6 +18,49 @@ const API_BASE_URL =
   (import.meta as unknown as { env: { VITE_API_URL?: string } }).env?.VITE_API_URL ||
   '/api/v1';
 
+interface ApiDecisionStep {
+  feature: string;
+  featureNameVi?: string;
+  feature_name_vi?: string;
+  threshold: number;
+  operator: '<=' | '>';
+  actualValue?: number;
+  value?: number;
+  isSatisfied?: boolean;
+  is_satisfied?: boolean;
+}
+
+interface ApiFeatureImportance {
+  feature: string;
+  featureNameVi?: string;
+  feature_name_vi?: string;
+  importance?: number;
+}
+
+interface ApiExperiment {
+  id: string;
+  name?: string;
+  name_vi?: string;
+  assignedTo?: string;
+  assigned_to?: string;
+  criterion: 'Gini' | 'Entropy';
+  maxDepth?: number | 'None';
+  max_depth?: number | 'None';
+  minSamplesSplit?: number;
+  min_samples_split?: number;
+  minSamplesLeaf?: number;
+  min_samples_leaf?: number;
+  accuracy?: number | null;
+  errorRate?: number | null;
+  error_rate?: number | null;
+  f1Score?: number | null;
+  f1_score?: number | null;
+  recallMalignant?: number | null;
+  recall_malignant?: number | null;
+  isBest?: boolean;
+  is_best?: boolean;
+}
+
 export class PredictionService {
   /**
    * Health check to see if FastAPI backend is available.
@@ -76,7 +119,8 @@ export class PredictionService {
         const benProb = raw.probabilities?.benign ?? raw.benign_prob ?? (1 - malProb);
         const conf = raw.confidence ?? (isMal ? malProb : benProb);
 
-        const decisionPath: DecisionStep[] = (raw.decisionPath || raw.decision_path || []).map((step: any) => ({
+        const rawDecisionPath = (raw.decisionPath || raw.decision_path || []) as ApiDecisionStep[];
+        const decisionPath: DecisionStep[] = rawDecisionPath.map((step) => ({
           feature: step.feature,
           featureNameVi: step.featureNameVi || step.feature_name_vi || step.feature,
           threshold: step.threshold,
@@ -85,7 +129,8 @@ export class PredictionService {
           isSatisfied: step.isSatisfied ?? step.is_satisfied ?? false,
         }));
 
-        const topFeatures: FeatureImportance[] = (raw.topFeatures || raw.top_features || []).map((tf: any) => ({
+        const rawTopFeatures = (raw.topFeatures || raw.top_features || []) as ApiFeatureImportance[];
+        const topFeatures: FeatureImportance[] = rawTopFeatures.map((tf) => ({
           feature: tf.feature,
           featureNameVi: tf.featureNameVi || tf.feature_name_vi || tf.feature,
           importance: tf.importance ?? 0,
@@ -156,13 +201,13 @@ export class PredictionService {
         signal: AbortSignal.timeout(2000),
       });
       if (response.ok) {
-        const rawList = await response.json();
-        return rawList.map((item: any) => ({
+        const rawList = (await response.json()) as ApiExperiment[];
+        return rawList.map((item) => ({
           id: item.id,
-          name: item.name || item.name_vi,
+          name: item.name || item.name_vi || item.id,
           assignedTo: item.assignedTo || item.assigned_to,
           criterion: item.criterion,
-          maxDepth: item.maxDepth ?? item.max_depth,
+          maxDepth: item.maxDepth ?? item.max_depth ?? 'None',
           minSamplesSplit: item.minSamplesSplit ?? item.min_samples_split ?? 2,
           minSamplesLeaf: item.minSamplesLeaf ?? item.min_samples_leaf ?? 1,
           accuracy: item.accuracy !== undefined && item.accuracy !== null ? item.accuracy : null,

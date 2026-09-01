@@ -1,17 +1,18 @@
 """Model evaluation metrics calculation."""
 
-from typing import Dict, Any
+from typing import Any
+
 import numpy as np
 from sklearn.metrics import (
     accuracy_score,
+    confusion_matrix,
+    f1_score,
     precision_score,
     recall_score,
-    f1_score,
-    confusion_matrix,
 )
 
 
-def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, Any]:
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, Any]:
     """Compute standard classification metrics for binary diagnosis.
 
     Positive class = 1 (Malignant), Negative class = 0 (Benign).

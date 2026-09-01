@@ -1,6 +1,5 @@
 """Application configuration settings."""
 
-from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,7 +11,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # CORS allowlist
-    CORS_ORIGINS: List[str] = [
+    CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://localhost:5174",
         "http://localhost:3000",

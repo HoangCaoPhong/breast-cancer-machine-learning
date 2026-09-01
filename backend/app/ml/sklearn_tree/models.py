@@ -1,5 +1,7 @@
 from typing import Any
+
 from sklearn.tree import DecisionTreeClassifier
+
 from app.ml.custom_tree.decision_tree import CustomDecisionTreeClassifier
 
 

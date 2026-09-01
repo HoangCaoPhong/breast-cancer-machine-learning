@@ -118,7 +118,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
         {isActivePath && !isLeaf && currentStep && (
           <div className="inline-flex items-center gap-1 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 shadow-sm animate-fade-in whitespace-nowrap">
             <span className="material-symbols-outlined text-[12px]">route</span>
-            Bước {depth + 1}: {currentStep.actualValue ?? (currentStep as any).value} ≤ {currentStep.threshold} ➔{' '}
+            Bước {depth + 1}: {currentStep.actualValue} ≤ {currentStep.threshold} ➔{' '}
             {currentStep.isSatisfied ? 'ĐÚNG' : 'SAI'}
           </div>
         )}

@@ -5,16 +5,16 @@ from app.ml.sklearn_tree.baseline import (
     build_baseline,
     fit_baseline,
 )
-from app.ml.sklearn_tree.max_depth import (
-    MaxDepthExperimentConfig,
-    MaxDepthExperimentResult,
-    run_max_depth_experiment,
-)
 from app.ml.sklearn_tree.criterion_experiment import (
     CriterionRun,
     entropy_impurity,
     fit_gini_and_entropy,
     gini_impurity,
+)
+from app.ml.sklearn_tree.max_depth import (
+    MaxDepthExperimentConfig,
+    MaxDepthExperimentResult,
+    run_max_depth_experiment,
 )
 from app.ml.sklearn_tree.min_samples_experiment import (
     ExperimentResult,

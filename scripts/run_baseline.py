@@ -14,8 +14,8 @@ BACKEND_ROOT = REPOSITORY_ROOT / "backend"
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
-from app.ml.sklearn_tree.baseline import build_baseline  # noqa: E402
 from app.ml.preprocessing import load_breast_cancer_dataset  # noqa: E402
+from app.ml.sklearn_tree.baseline import build_baseline  # noqa: E402
 
 DEFAULT_DATASET = REPOSITORY_ROOT / "data/raw/uci_wdbc/wdbc.data"
 
@@ -61,7 +61,7 @@ def main() -> None:
     print(f"Dataset: {args.dataset}")
     print(f"Samples: {len(dataset.features)} | Features: {dataset.features.shape[1]}")
     print(f"Train: {len(X_train)} | Test: {len(X_test)} | Seed: {args.seed}")
-    print(f"Parameters: criterion=gini, max_depth=None, min_samples_split=2, min_samples_leaf=1")
+    print("Parameters: criterion=gini, max_depth=None, min_samples_split=2, min_samples_leaf=1")
     print(f"Fitted depth: {model.get_depth()} | Leaves: {model.get_n_leaves()}\n")
     print(f"Train accuracy: {train_accuracy:.4f}")
     print(f"Test accuracy:  {test_accuracy:.4f}")

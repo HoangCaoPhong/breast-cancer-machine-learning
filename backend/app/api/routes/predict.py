@@ -1,13 +1,12 @@
 """FastAPI route handlers for breast cancer prediction, models, and experiments."""
 
-from typing import List, Optional
 from fastapi import APIRouter, Query, status
 
 from app.schemas.prediction import (
     BreastCancerFeaturesSchema,
-    PredictionResponseSchema,
-    ModelOptionInfoSchema,
     ExperimentMetricSchema,
+    ModelOptionInfoSchema,
+    PredictionResponseSchema,
     TreeNodeSchema,
 )
 from app.services.prediction_service import prediction_service
@@ -23,7 +22,7 @@ router = APIRouter(tags=["Predictions & Experiments"])
 )
 def predict_breast_cancer(
     features: BreastCancerFeaturesSchema,
-    model_id: Optional[str] = Query(
+    model_id: str | None = Query(
         "I3",
         description="Target model identifier (e.g. 'I3', 'C0', 'B0', 'I1', 'I2')",
     ),
@@ -38,22 +37,22 @@ def predict_breast_cancer(
 
 @router.get(
     "/models",
-    response_model=List[ModelOptionInfoSchema],
+    response_model=list[ModelOptionInfoSchema],
     status_code=status.HTTP_200_OK,
     summary="List all available Decision Tree models with actual benchmark metrics",
 )
-def get_available_models() -> List[ModelOptionInfoSchema]:
+def get_available_models() -> list[ModelOptionInfoSchema]:
     """Retrieve metadata and test metrics for all 5 trained models."""
     return prediction_service.get_model_options()
 
 
 @router.get(
     "/experiments",
-    response_model=List[ExperimentMetricSchema],
+    response_model=list[ExperimentMetricSchema],
     status_code=status.HTTP_200_OK,
     summary="Get 5-experiment comparative metrics matrix",
 )
-def get_experiment_comparison() -> List[ExperimentMetricSchema]:
+def get_experiment_comparison() -> list[ExperimentMetricSchema]:
     """Retrieve the comparison table data across Baseline, Scratch, and 3 Improvements."""
     return prediction_service.get_experiments()
 
@@ -65,7 +64,7 @@ def get_experiment_comparison() -> List[ExperimentMetricSchema]:
     summary="Get hierarchical tree structure for diagram visualization",
 )
 def get_decision_tree_structure(
-    model_id: Optional[str] = Query(
+    model_id: str | None = Query(
         "I3",
         description="Model ID to extract tree structure for",
     ),
