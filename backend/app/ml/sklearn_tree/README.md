@@ -24,18 +24,8 @@ D-006/D-007, primary metric là malignant F2 (`beta=2`). Tie-break lần lượt
 malignant recall cao hơn, F2 standard deviation thấp hơn, ít leaf hơn, fitted depth
 thấp hơn và candidate order.
 
-## Selected I1 preset for later integration
+## Selected I1 preset
 
-The canonical run selected `max_depth=8` for both implementations. Integration code
-should import the versioned preset instead of repeating its parameters:
-
-```python
-from app.ml.sklearn_tree import build_selected_max_depth_model
-
-model = build_selected_max_depth_model("sklearn")
-model.fit(X_train, y_train)
-```
-
-`selected_max_depth.py` exposes the stable model ID, version, selection protocol,
-class semantics, and constructors for both the custom and sklearn trees. It builds
-an unfitted estimator only; fitting and artifact persistence remain offline concerns.
+The canonical run selected `max_depth=8` for both implementations. The versioned
+integration preset is kept separately under `backend/app/ml/selected_models/` so this
+package remains focused on sklearn baselines and experiment orchestration.

@@ -92,7 +92,8 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
   bằng candidate unlimited về held-out metrics và fitted complexity (8 levels, 24
   leaves), nên đây là cấu hình hữu hạn tái lập được, không phải một cải thiện hiệu
   năng hay giảm độ phức tạp trên split này. Preset tích hợp có model ID `I1`, version
-  `i1-max-depth-v1`, và được expose từ ML layer để backend sau này không hard-code lại.
+  `i1-max-depth-v1`, và được expose từ `backend/app/ml/selected_models/` để backend
+  sau này không hard-code lại.
 
 ## Pending decisions
 

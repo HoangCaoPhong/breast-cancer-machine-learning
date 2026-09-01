@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 from app.ml.custom_tree import DecisionTreeClassifierScratch
-from app.ml.sklearn_tree import (
+from app.ml.selected_models import (
     SELECTED_MAX_DEPTH_CONFIG,
     build_selected_max_depth_model,
     selected_max_depth_metadata,

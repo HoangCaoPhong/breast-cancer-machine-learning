@@ -103,6 +103,7 @@ project2/
 │   └── app/ml/
 │       ├── custom_tree/     # Decision Tree implemented from scratch
 │       ├── sklearn_tree/    # Baseline and improvement experiments
+│       ├── selected_models/ # Versioned presets selected for later integration
 │       ├── preprocessing/   # Dataset schema, split, and preprocessing
 │       └── evaluation/      # Metrics, comparisons, and visualizations
 ├── frontend/                # Web prediction interface
