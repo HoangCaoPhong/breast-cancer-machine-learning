@@ -21,6 +21,7 @@ interface FeatureInputFormProps {
   selectedModelId: ModelOptionId;
   onModelChange: (modelId: ModelOptionId) => void;
   onSubmit: () => void;
+  onReset?: () => void;
   isLoading: boolean;
 }
 
@@ -30,6 +31,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
   selectedModelId,
   onModelChange,
   onSubmit,
+  onReset,
   isLoading,
 }) => {
   const [activeCategory, setActiveCategory] = useState<FeatureCategory>('mean');
@@ -61,6 +63,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
 
   const handleReset = () => {
     onChange({ ...INITIAL_DEFAULT_FEATURES });
+    onReset?.();
   };
 
   const currentCategoryFeatures = FEATURE_METADATA_LIST.filter(

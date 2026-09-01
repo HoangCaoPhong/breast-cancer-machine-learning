@@ -4,6 +4,7 @@ import {
   ModelExperiment,
   TreeNodeData,
   DecisionStep,
+  ModelOptionId,
 } from '../../types/prediction';
 import { EXPERIMENT_COMPARISON_DATA } from '../../data/featureDefinitions';
 import { PredictionService } from '../../services/api';
@@ -15,54 +16,55 @@ export type TreeViewMode = 'full' | 'path_only';
 
 interface TechnicalDetailsSectionProps {
   result: PredictionResponse | null;
+  currentModelId?: ModelOptionId;
   activeTab: DetailTab;
   onTabChange: (tab: DetailTab) => void;
 }
 
-// Confusion matrix data for each model based on test set (171 samples: 107 Benign, 64 Malignant)
+// Confusion matrix data for each model based on test set (114 samples: 71 Benign, 43 Malignant)
 const CONFUSION_MATRIX_MAP: Record<
   string,
   { tn: number; fp: number; fn: number; tp: number; nameVi: string; nameEn: string }
 > = {
   B0: {
     nameVi: 'Mô hình Gốc: Sklearn Baseline (Unpruned)',
-    nameEn: 'Baseline Model: Sklearn Unpruned Tree',
-    tn: 101,
-    fp: 6,
-    fn: 6,
-    tp: 58,
+    nameEn: 'Baseline Model: Sklearn Baseline',
+    tn: 68,
+    fp: 4,
+    fn: 4,
+    tp: 38,
   },
   C0: {
     nameVi: 'Cây Tự Lập Trình: Custom Tree',
     nameEn: 'Custom Decision Tree from Scratch',
-    tn: 104,
-    fp: 3,
-    fn: 14,
-    tp: 50,
+    tn: 71,
+    fp: 1,
+    fn: 10,
+    tp: 32,
   },
   I1: {
-    nameVi: 'Cải tiến 1: Giới hạn Độ sâu cây (max_depth=3)',
-    nameEn: 'Improvement 1: Max Depth Constraint (depth=3)',
-    tn: 103,
+    nameVi: 'Cải tiến 1: Giới hạn Độ sâu cây (max_depth=8)',
+    nameEn: 'Improvement 1: Max Depth Constraint (max_depth=8)',
+    tn: 68,
     fp: 4,
-    fn: 10,
-    tp: 54,
+    fn: 4,
+    tp: 38,
   },
   I2: {
-    nameVi: 'Cải tiến 2: Dùng Tiêu chuẩn Entropy',
-    nameEn: 'Improvement 2: Splitting Criterion (Entropy)',
-    tn: 103,
+    nameVi: 'Cải tiến 2: Tiêu chuẩn phân hoạch (Gini vs Entropy)',
+    nameEn: 'Improvement 2: Splitting Criterion (Gini vs Entropy)',
+    tn: 68,
     fp: 4,
-    fn: 8,
-    tp: 56,
+    fn: 4,
+    tp: 38,
   },
   I3: {
-    nameVi: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu (min_samples)',
-    nameEn: 'Improvement 3: Adjusting min_samples for split / leaf nodes',
-    tn: 104,
+    nameVi: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu (min_samples_split=5)',
+    nameEn: 'Improvement 3: Adjusting min_samples (min_split=5)',
+    tn: 69,
     fp: 3,
-    fn: 8,
-    tp: 56,
+    fn: 4,
+    tp: 38,
   },
 };
 
@@ -338,6 +340,7 @@ const formatPercent = (val: number | null | undefined): string => {
 
 export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = ({
   result,
+  currentModelId = 'I3',
   activeTab,
   onTabChange,
 }) => {
@@ -362,16 +365,19 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
 
   const [matrixModelId, setMatrixModelId] = useState<string>('I3');
 
-  const selectedModelId = result?.selectedModelId?.toUpperCase() || matrixModelId;
+  const selectedModelId = result?.selectedModelId?.toUpperCase() || currentModelId.toUpperCase() || matrixModelId;
   const currentMatrix =
     CONFUSION_MATRIX_MAP[matrixModelId] || CONFUSION_MATRIX_MAP[selectedModelId] || CONFUSION_MATRIX_MAP['I3'];
 
-  // Sync matrixModelId when result changes
+  // Sync matrixModelId when result or currentModelId changes
   useEffect(() => {
     if (result?.selectedModelId) {
       setMatrixModelId(result.selectedModelId.toUpperCase());
+    } else if (currentModelId) {
+      setMatrixModelId(currentModelId.toUpperCase());
+      setPanOffset({ x: 0, y: 0 });
     }
-  }, [result?.selectedModelId]);
+  }, [result?.selectedModelId, currentModelId]);
 
   useEffect(() => {
     PredictionService.getExperiments().then((data) => {
@@ -384,7 +390,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
   useEffect(() => {
     if (activeTab === 'tree') {
       setLoadingTree(true);
-      const modelId = result?.selectedModelId || 'I3';
+      const modelId = result?.selectedModelId || currentModelId || 'I3';
       PredictionService.getTreeStructure(modelId)
         .then((data) => {
           setTreeData(data);
@@ -393,7 +399,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
           setLoadingTree(false);
         });
     }
-  }, [activeTab, result?.selectedModelId]);
+  }, [activeTab, result?.selectedModelId, currentModelId]);
 
   // Non-passive wheel event listener for smooth zooming on canvas
   useEffect(() => {
@@ -828,17 +834,17 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                           <>
                             {selectedModelId === 'B0' && `Cây gốc không giới hạn (Unpruned) phát triển tới độ sâu ${treeStats.depth} với ${treeStats.leaves} nút lá, sinh ra nhiều lá nhỏ chứa ít mẫu, làm tăng phương sai và nguy cơ Overfitting.`}
                             {selectedModelId === 'C0' && `Cây tự viết từ đầu (From Scratch) đạt độ sâu ${treeStats.depth} với ${treeStats.leaves} nút lá, thể hiện thuật toán đệ quy tự code hoạt động đồng nhất với cấu trúc cây chuẩn.`}
-                            {selectedModelId === 'I1' && `Khống chế max_depth=3 giới hạn cây ở ${treeStats.depth} tầng (${treeStats.leaves} lá), đơn giản hóa tối đa cấu trúc cây, loại bỏ hoàn toàn các nhánh phức tạp dư thừa.`}
-                            {selectedModelId === 'I2' && `Sử dụng tiêu chuẩn Entropy tạo cây có độ sâu ${treeStats.depth} (${treeStats.leaves} lá), các ngưỡng cắt có độ phân hóa mạnh mẽ theo thước đo Độ lợi thông tin.`}
-                            {selectedModelId === 'I3' && `Áp dụng min_samples_split=4, leaf=2 giúp cây dừng sớm ở độ sâu ${treeStats.depth} (${treeStats.leaves} lá), ngăn chặn việc hình thành các lá đơn lẻ (1 mẫu).`}
+                            {selectedModelId === 'I1' && `Khống chế max_depth=8 giới hạn cây ở ${treeStats.depth} tầng (${treeStats.leaves} lá), cân bằng tối ưu giữa giảm thiểu lỗi và duy trì độ nhạy phát hiện khối u ác tính.`}
+                            {selectedModelId === 'I2' && `Thực nghiệm so sánh Gini vs Entropy: tiêu chuẩn Gini được chọn qua 5-Fold CV với cây độ sâu ${treeStats.depth} (${treeStats.leaves} lá) cho đường biên phân lớp ổn định nhất.`}
+                            {selectedModelId === 'I3' && `Áp dụng min_samples_split=5, leaf=1 giúp cây tự động cắt tỉa các lá đơn lẻ ở độ sâu ${treeStats.depth} (chỉ còn ${treeStats.leaves} lá), đạt độ chính xác cao nhất.`}
                           </>
                         ) : (
                           <>
                             {selectedModelId === 'B0' && `Unpruned baseline expands to depth ${treeStats.depth} with ${treeStats.leaves} leaves, producing noisy isolate splits and elevated overfitting variance.`}
                             {selectedModelId === 'C0' && `Scratch recursive implementation constructs a depth-${treeStats.depth} hierarchy with ${treeStats.leaves} terminal leaves.`}
-                            {selectedModelId === 'I1' && `Enforcing max_depth=3 restricts expansion to exactly ${treeStats.depth} levels (${treeStats.leaves} leaves), pruning idiosyncratic noise.`}
-                            {selectedModelId === 'I2' && `Entropy splitting criterion produces a depth-${treeStats.depth} tree (${treeStats.leaves} leaves) with sharp information gain bounds.`}
-                            {selectedModelId === 'I3' && `Configuring min_samples_split=4, leaf=2 prunes isolate leaves to ${treeStats.leaves} leaves at depth ${treeStats.depth}.`}
+                            {selectedModelId === 'I1' && `Enforcing max_depth=8 restricts expansion to ${treeStats.depth} levels (${treeStats.leaves} leaves), pruning idiosyncratic noise.`}
+                            {selectedModelId === 'I2' && `Evaluating Gini vs Entropy: Gini criterion selected via 5-Fold CV produces a depth-${treeStats.depth} tree (${treeStats.leaves} leaves).`}
+                            {selectedModelId === 'I3' && `Configuring min_samples_split=5, leaf=1 prunes isolate leaves down to ${treeStats.leaves} leaves at depth ${treeStats.depth}.`}
                           </>
                         )}
                       </p>
@@ -1046,11 +1052,11 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                     <p className="leading-relaxed">
                       {language === 'vi' ? (
                         <>
-                          Mô hình nhận diện chính xác <strong>{currentMatrix.tp} / 64 ca ác tính thực tế</strong> (Độ nhạy Recall = {((currentMatrix.tp / 64) * 100).toFixed(1)}%) và <strong>{currentMatrix.tn} / 107 ca lành tính</strong>.
+                          Mô hình nhận diện chính xác <strong>{currentMatrix.tp} / {currentMatrix.tp + currentMatrix.fn} ca ác tính thực tế</strong> (Độ nhạy Recall = {(((currentMatrix.tp) / (currentMatrix.tp + currentMatrix.fn || 1)) * 100).toFixed(1)}%) và <strong>{currentMatrix.tn} / {currentMatrix.tn + currentMatrix.fp} ca lành tính</strong>.
                         </>
                       ) : (
                         <>
-                          Correctly identified <strong>{currentMatrix.tp} / 64 malignant cases</strong> (Recall Sensitivity = {((currentMatrix.tp / 64) * 100).toFixed(1)}%) and <strong>{currentMatrix.tn} / 107 benign cases</strong>.
+                          Correctly identified <strong>{currentMatrix.tp} / {currentMatrix.tp + currentMatrix.fn} malignant cases</strong> (Recall Sensitivity = {(((currentMatrix.tp) / (currentMatrix.tp + currentMatrix.fn || 1)) * 100).toFixed(1)}%) and <strong>{currentMatrix.tn} / {currentMatrix.tn + currentMatrix.fp} benign cases</strong>.
                         </>
                       )}
                     </p>
