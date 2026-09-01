@@ -27,7 +27,7 @@ const CONFUSION_MATRIX_MAP: Record<
   { tn: number; fp: number; fn: number; tp: number; nameVi: string; nameEn: string }
 > = {
   B0: {
-    nameVi: 'Mô hình Gốc: Sklearn Baseline (Unpruned)',
+    nameVi: 'Mô hình Gốc: Sklearn Baseline - Unpruned',
     nameEn: 'Baseline Model: Sklearn Baseline',
     tn: 68,
     fp: 4,
@@ -43,24 +43,24 @@ const CONFUSION_MATRIX_MAP: Record<
     tp: 32,
   },
   I1: {
-    nameVi: 'Cải tiến 1: Giới hạn Độ sâu cây (max_depth=8)',
-    nameEn: 'Improvement 1: Max Depth Constraint (max_depth=8)',
+    nameVi: 'Cải tiến 1: Giới hạn Độ sâu cây - max_depth=8',
+    nameEn: 'Improvement 1: Max Depth Constraint - max_depth=8',
     tn: 68,
     fp: 4,
     fn: 4,
     tp: 38,
   },
   I2: {
-    nameVi: 'Cải tiến 2: Tiêu chuẩn phân hoạch (Gini vs Entropy)',
-    nameEn: 'Improvement 2: Splitting Criterion (Gini vs Entropy)',
+    nameVi: 'Cải tiến 2: Tiêu chuẩn phân hoạch - Gini vs Entropy',
+    nameEn: 'Improvement 2: Splitting Criterion - Gini vs Entropy',
     tn: 68,
     fp: 4,
     fn: 4,
     tp: 38,
   },
   I3: {
-    nameVi: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu (min_samples_split=5)',
-    nameEn: 'Improvement 3: Adjusting min_samples (min_split=5)',
+    nameVi: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu - min_samples_split=5',
+    nameEn: 'Improvement 3: Adjusting min_samples - min_split=5',
     tn: 69,
     fp: 3,
     fn: 4,
@@ -70,24 +70,24 @@ const CONFUSION_MATRIX_MAP: Record<
 
 const MODEL_TOOLTIP_MAP: Record<string, { vi: string; en: string }> = {
   B0: {
-    vi: 'B0: Mô hình Gốc - Sklearn Baseline (Unpruned Tree, max_depth=Không giới hạn)',
-    en: 'B0: Baseline Model - Sklearn Baseline (Unpruned Tree)',
+    vi: 'B0: Mô hình Gốc - Sklearn Baseline - Unpruned Tree, max_depth Không giới hạn',
+    en: 'B0: Baseline Model - Sklearn Baseline - Unpruned Tree',
   },
   C0: {
-    vi: 'C0: Cây Tự Lập Trình - Custom Decision Tree from Scratch (Phong)',
-    en: 'C0: Custom Decision Tree from Scratch (Phong)',
+    vi: 'C0: Cây Tự Lập Trình - Custom Decision Tree from Scratch - Phong',
+    en: 'C0: Custom Decision Tree from Scratch - Phong',
   },
   I1: {
-    vi: 'I1: Cải tiến 1 - Khống chế Chiều sâu cây (max_depth=8 qua Grid Search & 5-Fold CV) (Phong)',
-    en: 'I1: Improvement 1 - Constrain Maximum Depth (max_depth=8) (Phong)',
+    vi: 'I1: Cải tiến 1 - Khống chế Chiều sâu cây - max_depth=8 qua Grid Search & 5-Fold CV - Phong',
+    en: 'I1: Improvement 1 - Constrain Maximum Depth - max_depth=8 - Phong',
   },
   I2: {
-    vi: 'I2: Cải tiến 2 - Tiêu chuẩn phân hoạch (Gini vs Entropy, chọn Gini qua 5-Fold CV) (Ngọc)',
-    en: 'I2: Improvement 2 - Splitting Criterion (Gini vs Entropy, Gini selected) (Ngoc)',
+    vi: 'I2: Cải tiến 2 - Tiêu chuẩn phân hoạch - Gini vs Entropy, chọn Gini qua 5-Fold CV - Ngọc',
+    en: 'I2: Improvement 2 - Splitting Criterion - Gini vs Entropy, Gini selected - Ngoc',
   },
   I3: {
-    vi: 'I3: Cải tiến 3 - Điều chỉnh số mẫu tối thiểu (min_samples_split=5, leaf=1) ⭐ TỐT NHẤT (Hòa)',
-    en: 'I3: Improvement 3 - Minimum Sample Constraint (min_split=5, leaf=1) ⭐ BEST (Hoa)',
+    vi: 'I3: Cải tiến 3 - Điều chỉnh số mẫu tối thiểu - min_samples_split=5, leaf=1 ⭐ TỐT NHẤT - Hòa',
+    en: 'I3: Improvement 3 - Minimum Sample Constraint - min_split=5, leaf=1 ⭐ BEST - Hoa',
   },
 };
 
