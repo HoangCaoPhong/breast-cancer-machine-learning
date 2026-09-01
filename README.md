@@ -68,7 +68,8 @@ See the [data guide](data/README.md) for provenance and handling rules.
 | Decision Tree from scratch | Implemented and tested |
 | Scikit-learn baseline | Implemented and tested |
 | `max_depth` experiment on custom and sklearn trees | Implemented (D-007) |
-| Gini/Entropy and minimum-samples experiments | In progress / assigned |
+| Gini/Entropy experiment | Implemented (D-008) |
+| Minimum-samples experiment | In progress / assigned |
 | FastAPI backend and model-serving contract | Scaffolded, implementation pending |
 | Frontend prediction experience | Scaffolded, implementation pending |
 | Integrated website, report, and video | Pending |
@@ -249,7 +250,8 @@ Xem [hướng dẫn dữ liệu](data/README.md) để biết provenance và quy
 | Decision Tree tự cài đặt | Đã triển khai và kiểm thử |
 | Baseline sklearn | Đã triển khai và kiểm thử |
 | Thí nghiệm `max_depth` trên custom và sklearn tree | Đã triển khai (D-007) |
-| Gini/Entropy và minimum-samples | Đang thực hiện / đã phân công |
+| Thí nghiệm Gini/Entropy | Đã triển khai (D-008) |
+| Thí nghiệm minimum-samples | Đang thực hiện / đã phân công |
 | FastAPI backend và model-serving contract | Đã scaffold, chờ triển khai |
 | Giao diện dự đoán | Đã scaffold, chờ triển khai |
 | Website tích hợp, report và video | Chưa hoàn tất |

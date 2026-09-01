@@ -96,7 +96,20 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
   `i1-max-depth-v1`, và được expose từ `backend/app/ml/selected_models/` để backend
   sau này không hard-code lại.
 
+## D-008 - Dual-implementation Gini-versus-Entropy experiment
+
+- Date: 2026-09-01
+- Status: accepted
+- Decision: I2 so sánh `gini` và `entropy` trên cả custom và sklearn tree, giữ mọi
+  tham số khác theo B0 và chọn criterion riêng cho từng implementation bằng malignant
+  F2 trên stratified 5-fold training CV. Held-out test không tham gia selection.
+- Result: canonical run chọn `gini` cho cả custom và sklearn. Mean validation F2 lần
+  lượt là `0.9027` và `0.8948`; selected held-out F2 lần lượt là `0.8894` và `0.9048`.
+- Consequences: kết luận chỉ áp dụng cho hai criterion và protocol đã thử; không tuyên
+  bố Gini luôn tốt hơn Entropy. Runner, config, tests và report outputs của I2 được tích
+  hợp cùng I1 nhưng vẫn giữ implementation thuật toán tách biệt.
+
 ## Pending decisions
 
-- D-008: API request/response schema và model artifact metadata.
-- D-009: owner report/video, người đại diện và Group ID.
+- D-009: API request/response schema và model artifact metadata.
+- D-010: owner report/video, người đại diện và Group ID.

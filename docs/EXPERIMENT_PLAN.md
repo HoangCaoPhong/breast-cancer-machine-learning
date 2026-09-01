@@ -35,14 +35,18 @@ Tất cả model dùng cùng data version, feature order, split và seed.
 
 ### 2.1 Metric definitions
 
-Confusion matrix luôn dùng thứ tự nhãn `B`, `M`, với **row là ground truth** và
-**column là prediction**:
+Confusion matrix dùng row=true, column=predicted và label order `B`, `M`:
 
 ```text
               predicted B   predicted M
 actual B           TN            FP
 actual M           FN            TP
 ```
+
+Malignant F2 được tính bằng `5 * precision * recall / (4 * precision + recall)`.
+Các malignant metrics là binary class-specific metrics cho `M`, không dùng weighted
+averaging. Denominator bằng 0 trả về `0.0`. ROC-AUC chỉ báo khi model cung cấp
+positive-class probability hợp lệ.
 
 - Malignant precision: `TP / (TP + FP)`.
 - Malignant recall/sensitivity: `TP / (TP + FN)`.
@@ -75,6 +79,7 @@ cho cả `B` và `M`. Khi denominator bằng 0, code phải trả `0` và ghi r�
 F2 được chọn thay vì recall đơn độc vì recall có thể đạt tối đa bằng cách dự đoán mọi
 mẫu là `M`. F2 vẫn thể hiện chi phí bỏ sót malignant cao hơn, đồng thời phạt false
 positive. Accuracy được giữ vì đề bài yêu cầu nhưng không phải tiêu chí chọn model.
+
 ### 2.3 Canonical baseline B0
 
 ```text
@@ -97,7 +102,7 @@ track tương ứng.
 | C0 | Decision Tree from scratch | Phong | Minh họa cách impurity/split/stopping tạo cây | Pending |
 | B0 | Sklearn baseline | Nhóm/model integrator | Mốc so sánh cố định theo D-006 | Implemented |
 | I1 | Tune `max_depth` on custom + sklearn trees | Phong | Giảm overfitting bằng giới hạn độ sâu | Implemented |
-| I2 | Gini vs. Entropy | Ngọc; Kiên hỗ trợ setup tích hợp | Criterion khác có thể đổi split/complexity/performance | Pending |
+| I2 | Gini vs. Entropy | Ngọc; Kiên hỗ trợ setup tích hợp | So sánh criterion trên custom và sklearn tree, giữ các tham số khác cố định | Implemented |
 | I3 | Tune `min_samples_split`/`min_samples_leaf` | Hòa | Tránh nhánh quá đặc thù và giảm variance | Pending |
 
 Các giá trị thử phải được ghi trước trong config. Nếu tham khảo paper để chọn search
@@ -133,11 +138,14 @@ Nếu accuracy tăng nhưng
 malignant F2 hoặc recall giảm, báo trade-off; không gọi đó là cải thiện mặc định.
 Không tuyên bố hiệu quả lâm sàng từ kết quả trên dataset này.
 
-## 7. Reproduction command
+## 7. Reproduction commands
 
 ```bash
 python scripts/run_max_depth_experiment.py \
   --config experiments/configs/max_depth.json
+
+python scripts/run_gini_vs_entropy.py \
+  --config experiments/configs/criterion.json
 ```
 
 Runner chọn depth riêng cho custom và sklearn bằng cùng stratified training folds,

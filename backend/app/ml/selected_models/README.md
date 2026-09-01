@@ -7,7 +7,7 @@ model artifact hoặc code FastAPI.
 | Method | File | Status |
 | --- | --- | --- |
 | I1 - `max_depth` | `i1_max_depth.py` | Selected: depth 8 |
-| I2 - Gini/Entropy | `i2_criterion.py` (planned) | Add after the canonical selection is accepted |
+| I2 - Gini/Entropy | `i2_criterion.py` (planned) | Experiment integrated; serving preset pending |
 | I3 - minimum samples | `i3_min_samples.py` (planned) | Add after the canonical selection is accepted |
 
 Ví dụ dùng preset I1:
