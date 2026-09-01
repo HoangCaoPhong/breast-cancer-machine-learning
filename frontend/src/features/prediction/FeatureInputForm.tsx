@@ -9,7 +9,6 @@ import {
 import {
   FEATURE_METADATA_LIST,
   PRESET_SAMPLES,
-  INITIAL_DEFAULT_FEATURES,
   MODEL_OPTIONS,
   getRandomDatasetSample,
 } from '../../data/featureDefinitions';
@@ -35,7 +34,18 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
   isLoading,
 }) => {
   const [activeCategory, setActiveCategory] = useState<FeatureCategory>('mean');
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const { language, t } = useLanguage();
+
+  const missingOrInvalidFeatures = FEATURE_METADATA_LIST.filter((meta) => {
+    const val = features[meta.key];
+    return typeof val !== 'number' || isNaN(val) || val < 0;
+  });
+
+  const meanMissingCount = missingOrInvalidFeatures.filter((f) => f.category === 'mean').length;
+  const seMissingCount = missingOrInvalidFeatures.filter((f) => f.category === 'se').length;
+  const worstMissingCount = missingOrInvalidFeatures.filter((f) => f.category === 'worst').length;
 
   const handleInputChange = (key: FeatureKey, rawValue: string) => {
     if (rawValue.trim() === '') {
@@ -50,20 +60,49 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
       ...features,
       [key]: isNaN(parsed) ? '' : parsed,
     });
+    if (validationError) {
+      setValidationError(null);
+    }
   };
 
   const handleApplyPreset = (preset: PresetSample) => {
     onChange({ ...preset.features });
+    setHasAttemptedSubmit(false);
+    setValidationError(null);
   };
 
   const handleApplyRandom = () => {
     const randomFeatures = getRandomDatasetSample();
     onChange({ ...randomFeatures });
+    setHasAttemptedSubmit(false);
+    setValidationError(null);
   };
 
-  const handleReset = () => {
-    onChange({ ...INITIAL_DEFAULT_FEATURES });
+  const handleClear = () => {
+    const emptyFeatures = {} as BreastCancerFeatures;
+    FEATURE_METADATA_LIST.forEach((f) => {
+      emptyFeatures[f.key] = '';
+    });
+    onChange(emptyFeatures);
+    setHasAttemptedSubmit(false);
+    setValidationError(null);
     onReset?.();
+  };
+
+  const handleFormSubmit = () => {
+    setHasAttemptedSubmit(true);
+    if (missingOrInvalidFeatures.length > 0) {
+      const firstMissing = missingOrInvalidFeatures[0];
+      setActiveCategory(firstMissing.category);
+      setValidationError(
+        language === 'vi'
+          ? `Vui lòng nhập đầy đủ 30 chỉ số sinh thiết hợp lệ (≥ 0). Còn ${missingOrInvalidFeatures.length} chỉ số đang trống hoặc chưa hợp lệ!`
+          : `Please enter all 30 valid biopsy features (>= 0). ${missingOrInvalidFeatures.length} field(s) are missing or invalid!`
+      );
+      return;
+    }
+    setValidationError(null);
+    onSubmit();
   };
 
   const currentCategoryFeatures = FEATURE_METADATA_LIST.filter(
@@ -92,35 +131,50 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
         <button
           type="button"
           onClick={() => setActiveCategory('mean')}
-          className={`px-4 py-3 font-sans text-xs transition-colors ${
+          className={`px-4 py-3 font-sans text-xs transition-colors flex items-center gap-1.5 ${
             activeCategory === 'mean'
               ? 'text-primary border-b-2 border-primary font-bold'
               : 'text-on-surface-variant hover:text-primary'
           }`}
         >
-          1. {t.tabMean}
+          <span>1. {t.tabMean}</span>
+          {hasAttemptedSubmit && meanMissingCount > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full bg-error/15 text-error text-[10px] font-mono font-bold">
+              {meanMissingCount}
+            </span>
+          )}
         </button>
         <button
           type="button"
           onClick={() => setActiveCategory('se')}
-          className={`px-4 py-3 font-sans text-xs transition-colors ${
+          className={`px-4 py-3 font-sans text-xs transition-colors flex items-center gap-1.5 ${
             activeCategory === 'se'
               ? 'text-primary border-b-2 border-primary font-bold'
               : 'text-on-surface-variant hover:text-primary'
           }`}
         >
-          2. {t.tabSe}
+          <span>2. {t.tabSe}</span>
+          {hasAttemptedSubmit && seMissingCount > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full bg-error/15 text-error text-[10px] font-mono font-bold">
+              {seMissingCount}
+            </span>
+          )}
         </button>
         <button
           type="button"
           onClick={() => setActiveCategory('worst')}
-          className={`px-4 py-3 font-sans text-xs transition-colors ${
+          className={`px-4 py-3 font-sans text-xs transition-colors flex items-center gap-1.5 ${
             activeCategory === 'worst'
               ? 'text-primary border-b-2 border-primary font-bold'
               : 'text-on-surface-variant hover:text-primary'
           }`}
         >
-          3. {t.tabWorst}
+          <span>3. {t.tabWorst}</span>
+          {hasAttemptedSubmit && worstMissingCount > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full bg-error/15 text-error text-[10px] font-mono font-bold">
+              {worstMissingCount}
+            </span>
+          )}
         </button>
       </div>
 
@@ -129,7 +183,9 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
           {currentCategoryFeatures.map((meta) => {
             const val = features[meta.key];
-            const isInvalid = typeof val === 'number' && val < 0;
+            const isMissing = hasAttemptedSubmit && (typeof val !== 'number' || isNaN(val));
+            const isNegative = typeof val === 'number' && val < 0;
+            const hasError = isMissing || isNegative;
 
             return (
               <div key={meta.key} className="flex flex-col gap-1">
@@ -161,13 +217,19 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
                   min="0"
                   value={val === '' ? '' : val}
                   onChange={(e) => handleInputChange(meta.key, e.target.value)}
-                  className="border border-outline-variant rounded-lg p-2 font-mono text-xs focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors bg-white"
+                  className={`border rounded-lg p-2 font-mono text-xs outline-none transition-colors bg-white ${
+                    hasError
+                      ? 'border-error focus:border-error focus:ring-1 focus:ring-error bg-error/5 text-error font-medium'
+                      : 'border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary text-on-surface'
+                  }`}
                   placeholder="0.00"
                 />
-                {isInvalid && (
-                  <span className="text-error text-xs font-sans flex items-center gap-1 mt-0.5">
-                    <span className="material-symbols-outlined text-[14px]">error</span>{' '}
-                    {language === 'vi' ? 'Giá trị phải lớn hơn hoặc bằng 0' : 'Value must be >= 0'}
+                {hasError && (
+                  <span className="text-error text-[11px] font-sans flex items-center gap-1 mt-0.5">
+                    <span className="material-symbols-outlined text-[13px]">error</span>{' '}
+                    {isNegative
+                      ? (language === 'vi' ? 'Giá trị phải lớn hơn hoặc bằng 0' : 'Value must be >= 0')
+                      : (language === 'vi' ? 'Vui lòng nhập giá trị số' : 'Please enter a numeric value')}
                   </span>
                 )}
               </div>
@@ -210,6 +272,14 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
             </button>
           </div>
 
+          {/* Validation Alert */}
+          {validationError && (
+            <div className="p-3 rounded-lg bg-error/10 border border-error/40 text-error text-xs flex items-center gap-2">
+              <span className="material-symbols-outlined text-base shrink-0">report</span>
+              <span className="font-semibold">{validationError}</span>
+            </div>
+          )}
+
           {/* Bottom Execution Controls: Model Selector & Action Buttons */}
           <div className="p-3.5 bg-surface-container-low/70 rounded-xl border border-outline-variant/70 space-y-3">
             {/* Algorithm Selector Row */}
@@ -240,14 +310,14 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
             <div className="flex flex-wrap sm:flex-nowrap items-center justify-end gap-2 pt-2 border-t border-outline-variant/50">
               <button
                 type="button"
-                onClick={handleReset}
+                onClick={handleClear}
                 className="flex-1 sm:flex-none px-4 py-2 text-on-surface-variant hover:text-on-surface font-sans text-xs font-medium bg-surface-container-lowest hover:bg-surface-container-high rounded-lg transition-colors flex items-center justify-center gap-1.5 border border-outline-variant shadow-2xs"
               >
                 <span className="material-symbols-outlined text-sm">clear_all</span> {t.btnClear}
               </button>
               <button
                 type="button"
-                onClick={onSubmit}
+                onClick={handleFormSubmit}
                 disabled={isLoading}
                 className="flex-1 sm:flex-none px-5 py-2 bg-primary text-on-primary rounded-lg font-sans text-xs font-bold hover:bg-primary-container transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 hover:shadow"
               >
