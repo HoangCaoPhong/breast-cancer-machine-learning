@@ -118,7 +118,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
       className={`flex ${
         isHorizontal
           ? 'flex-row items-center gap-3 shrink-0'
-          : 'flex-col items-center flex-1 min-w-[130px] sm:min-w-[155px]'
+          : 'flex-col items-center shrink-0'
       } transition-all duration-300 ${
         isDimmed ? 'opacity-25 hover:opacity-90' : 'opacity-100'
       }`}
@@ -151,7 +151,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
         {/* Node Box */}
         <div
           className={`p-2 rounded-lg border text-center transition-all shadow-2xs ${
-            isHorizontal ? 'w-[185px] shrink-0' : 'w-full max-w-[175px]'
+            isHorizontal ? 'w-[185px] shrink-0' : 'w-[170px] shrink-0'
           } ${
             isTargetLeaf
               ? isMalignant
@@ -160,7 +160,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
               : isActivePath
               ? 'border-2 border-primary bg-primary/10 ring-2 ring-primary/20 shadow-md scale-[1.02]'
               : isRoot
-              ? 'bg-white border-2 border-primary'
+              ? 'bg-white border-2 border-primary shadow-xs'
               : isLeaf
               ? isMalignant
                 ? 'bg-error-container/30 border-error text-on-error-container font-semibold'
@@ -266,7 +266,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
             </div>
           ) : (
             /* Vertical (Top-to-Bottom) Branches */
-            <div className="w-full flex flex-col items-center">
+            <div className="flex flex-col items-center shrink-0">
               {/* Stem line coming down from parent node */}
               <div
                 className={`w-0.5 h-3 transition-colors ${
@@ -274,21 +274,24 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
                 }`}
               />
 
-              {/* Branch Split Grid with Solid Top Connector Bar */}
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2.5 relative pt-2">
-                {/* Horizontal crossbar connecting the two branches */}
-                <div
-                  className={`hidden md:block absolute top-0 left-1/4 right-1/4 h-0.5 transition-colors ${
-                    isActivePath ? 'bg-primary' : 'bg-slate-300'
-                  }`}
-                />
-
+              {/* Branch Container with Natural Tightly Joined Crossbars */}
+              <div className="flex items-start justify-center relative shrink-0">
                 {node.children.map((child, idx) => {
                   const isChildActivePath = isActivePath && idx === activeBranchIdx;
                   const isLeft = idx === 0;
 
                   return (
-                    <div key={child.id || idx} className="flex flex-col items-center relative">
+                    <div
+                      key={child.id || idx}
+                      className="flex flex-col items-center relative px-1 sm:px-2 shrink-0"
+                    >
+                      {/* Self-contained Horizontal Line Meeting at Center */}
+                      <div
+                        className={`hidden md:block absolute top-0 h-0.5 transition-colors ${
+                          isLeft ? 'right-0 w-1/2' : 'left-0 w-1/2'
+                        } ${isChildActivePath ? 'bg-primary z-10' : 'bg-slate-300'}`}
+                      />
+
                       {/* Vertical line down to branch badge */}
                       <div
                         className={`hidden md:block w-0.5 h-2.5 transition-colors ${
