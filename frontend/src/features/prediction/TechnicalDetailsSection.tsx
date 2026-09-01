@@ -52,7 +52,7 @@ const CONFUSION_MATRIX_MAP: Record<
     tp: 56,
   },
   I3: {
-    name: 'Cải tiến 3: Tối ưu Cắt tỉa nhánh (min_samples)',
+    name: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu cho phân nhánh hoặc nút lá (min_samples)',
     tn: 104,
     fp: 3,
     fn: 8,
@@ -1087,7 +1087,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <div className="font-bold text-sm text-primary flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-base">content_cut</span>
-                    Phương pháp 3: Tối ưu Cắt tỉa nhánh (min_samples_split / leaf) ⭐ [TỐT NHẤT]
+                    Phương pháp 3: Điều chỉnh số mẫu tối thiểu (Adjusting min_samples_split / leaf) ⭐ [TỐT NHẤT]
                   </div>
                   <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-primary text-white">
                     Accuracy: 93.86% · F1: 91.25% · Recall: 85.71%

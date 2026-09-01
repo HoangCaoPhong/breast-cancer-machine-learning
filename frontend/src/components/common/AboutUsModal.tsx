@@ -175,7 +175,7 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
                 </div>
               </div>
               <div className="p-3 bg-white rounded-lg border border-outline-variant space-y-1">
-                <div className="font-semibold text-primary">Cải tiến 3: Cắt Tỉa Nhánh (Tốt nhất)</div>
+                <div className="font-semibold text-primary">Cải tiến 3: Điều chỉnh số mẫu tối thiểu (min_samples) ⭐ [Tốt nhất]</div>
                 <div className="text-[11px] text-on-surface-variant">
                   Thiết lập <code className="font-mono text-primary font-bold">min_samples_split=4, leaf=2</code> loại bỏ các nhánh nhỏ nhiễu, đạt F1-Score cao nhất <strong>91.25%</strong> và Recall <strong>85.71%</strong>.
                 </div>

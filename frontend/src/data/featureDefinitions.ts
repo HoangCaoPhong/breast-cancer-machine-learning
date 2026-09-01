@@ -706,8 +706,8 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
   },
   {
     id: 'I3',
-    name: 'Tuning Min Samples Split & Leaf',
-    nameVi: 'Cải tiến 3: Tối ưu Cắt tỉa nhánh',
+    name: 'Adjusting minimum samples for split or leaf nodes',
+    nameVi: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu cho phân nhánh hoặc nút lá',
     assignedTo: 'Hòa',
     criterion: 'Entropy',
     maxDepth: 4,
@@ -718,7 +718,7 @@ export const MODEL_OPTIONS: ModelOptionInfo[] = [
     f1Score: 0.9125,
     recallMalignant: 0.8571,
     precision: 0.9400,
-    descriptionVi: 'Điều chỉnh số mẫu tối thiểu để cắt bớt các nhánh dư thừa.',
+    descriptionVi: 'Điều chỉnh số mẫu tối thiểu để phân nhánh hoặc tại nút lá (min_samples_split=4, min_samples_leaf=2).',
   },
 ];
 
@@ -777,8 +777,8 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   },
   {
     id: 'I3',
-    name: 'Cải tiến 3: Điều chỉnh Mẫu tối thiểu (min_samples)',
-    assignedTo: 'Min Samples (Hòa)',
+    name: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu cho phân nhánh hoặc nút lá (min_samples)',
+    assignedTo: 'Adjusting min_samples (Hòa)',
     criterion: 'Entropy',
     maxDepth: 4,
     minSamplesSplit: 4,

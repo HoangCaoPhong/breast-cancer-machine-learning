@@ -90,8 +90,8 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
     },
     {
         "id": "I3",
-        "name": "Tuning Min Samples Split & Leaf",
-        "name_vi": "Cải tiến 3: Tối ưu Cắt tỉa nhánh",
+        "name": "Adjusting minimum samples for split or leaf nodes",
+        "name_vi": "Cải tiến 3: Điều chỉnh số mẫu tối thiểu cho phân nhánh hoặc nút lá",
         "assigned_to": "Hòa",
         "criterion": "Entropy",
         "max_depth": 4,
@@ -102,7 +102,7 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
         "recall_malignant": 0.8571,
         "f1_score": 0.9125,
         "precision": 0.9400,
-        "description_vi": "Điều chỉnh số mẫu tối thiểu để cắt bớt các nhánh dư thừa.",
+        "description_vi": "Điều chỉnh số mẫu tối thiểu để phân nhánh hoặc tại nút lá (min_samples_split=4, min_samples_leaf=2).",
         "is_best": True,
     },
 ]
