@@ -88,6 +88,11 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
   confusion matrix, tree figure cho cả hai implementation và provenance đủ để viết
   report. Khác biệt do split tie-breaking phải được giải thích, không ép hai cây giống
   hệt nhau.
+- Result: canonical run chọn `max_depth=8` cho cả custom và sklearn tree. Depth 8
+  bằng candidate unlimited về held-out metrics và fitted complexity (8 levels, 24
+  leaves), nên đây là cấu hình hữu hạn tái lập được, không phải một cải thiện hiệu
+  năng hay giảm độ phức tạp trên split này. Preset tích hợp có model ID `I1`, version
+  `i1-max-depth-v1`, và được expose từ ML layer để backend sau này không hard-code lại.
 
 ## Pending decisions
 
