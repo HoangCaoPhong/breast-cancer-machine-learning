@@ -1,28 +1,47 @@
-"""Reusable scikit-learn experiment for tuning Decision Tree ``max_depth``."""
+"""Controlled max-depth experiment for custom and scikit-learn trees."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal, Protocol, cast
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import (
-    accuracy_score,
-    fbeta_score,
-    make_scorer,
-    precision_recall_fscore_support,
-    recall_score,
-)
-from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
+from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.tree import DecisionTreeClassifier
+
+from app.ml.custom_tree import DecisionTreeClassifierScratch
+from app.ml.evaluation import (
+    BinaryClassificationMetrics,
+    compute_binary_classification_metrics,
+)
+
+Implementation = Literal["custom", "sklearn"]
+SUPPORTED_IMPLEMENTATIONS: tuple[Implementation, ...] = ("custom", "sklearn")
+
+
+class _TreeModel(Protocol):
+    """Small common contract implemented by both compared classifiers."""
+
+    classes_: np.ndarray
+
+    def fit(self, X: object, y: object) -> _TreeModel: ...
+
+    def predict(self, X: object) -> np.ndarray: ...
+
+    def predict_proba(self, X: object) -> np.ndarray: ...
+
+    def get_depth(self) -> int: ...
+
+    def get_n_leaves(self) -> int: ...
 
 
 @dataclass(frozen=True, slots=True)
 class MaxDepthExperimentConfig:
-    """Validated settings shared by every candidate in a max-depth experiment."""
+    """Validated settings shared by every max-depth candidate."""
 
     depths: tuple[int | None, ...]
+    implementations: tuple[Implementation, ...] = SUPPORTED_IMPLEMENTATIONS
     test_size: float = 0.2
     random_seed: int = 42
     cv_folds: int = 5
@@ -30,6 +49,7 @@ class MaxDepthExperimentConfig:
     min_samples_split: int = 2
     min_samples_leaf: int = 1
     positive_class: str = "M"
+    negative_class: str = "B"
 
     def __post_init__(self) -> None:
         if not self.depths:
@@ -46,26 +66,36 @@ class MaxDepthExperimentConfig:
             raise ValueError("finite depths must be positive integers")
         if len(set(self.depths)) != len(self.depths):
             raise ValueError("depths must not contain duplicates")
+        if not self.implementations:
+            raise ValueError("implementations must contain at least one model")
+        if len(set(self.implementations)) != len(self.implementations):
+            raise ValueError("implementations must not contain duplicates")
+        unsupported = set(self.implementations) - set(SUPPORTED_IMPLEMENTATIONS)
+        if unsupported:
+            raise ValueError(f"Unsupported implementations: {sorted(unsupported)}")
         if not 0.0 < self.test_size < 1.0:
             raise ValueError("test_size must be between 0 and 1")
         if self.cv_folds < 2:
             raise ValueError("cv_folds must be at least 2")
-        if self.criterion not in {"gini", "entropy", "log_loss"}:
-            raise ValueError("criterion must be gini, entropy, or log_loss")
+        if self.criterion not in {"gini", "entropy"}:
+            raise ValueError("criterion must be gini or entropy for a fair comparison")
         if self.min_samples_split < 2:
             raise ValueError("min_samples_split must be at least 2")
         if self.min_samples_leaf < 1:
             raise ValueError("min_samples_leaf must be at least 1")
+        if self.positive_class == self.negative_class:
+            raise ValueError("positive_class and negative_class must be different")
 
     @classmethod
     def from_mapping(cls, values: dict[str, Any]) -> MaxDepthExperimentConfig:
         """Build a config from the experiment JSON representation."""
 
-        required = "depths"
-        if required not in values:
-            raise ValueError(f"Missing required config field: {required}")
+        if "depths" not in values:
+            raise ValueError("Missing required config field: depths")
+        raw_implementations = values.get("implementations", SUPPORTED_IMPLEMENTATIONS)
         return cls(
             depths=tuple(values["depths"]),
+            implementations=cast(tuple[Implementation, ...], tuple(raw_implementations)),
             test_size=float(values.get("test_size", 0.2)),
             random_seed=int(values.get("random_seed", 42)),
             cv_folds=int(values.get("cv_folds", 5)),
@@ -73,18 +103,19 @@ class MaxDepthExperimentConfig:
             min_samples_split=int(values.get("min_samples_split", 2)),
             min_samples_leaf=int(values.get("min_samples_leaf", 1)),
             positive_class=str(values.get("positive_class", "M")),
+            negative_class=str(values.get("negative_class", "B")),
         )
 
 
 @dataclass(slots=True)
 class MaxDepthExperimentResult:
-    """Tables and fitted models produced by one max-depth experiment."""
+    """Tables and fitted models produced by one dual-implementation experiment."""
 
     cv_results: pd.DataFrame
     final_comparison: pd.DataFrame
-    selected_depth: int
-    baseline_model: DecisionTreeClassifier
-    selected_model: DecisionTreeClassifier
+    selected_depths: dict[Implementation, int]
+    baseline_models: dict[Implementation, _TreeModel]
+    selected_models: dict[Implementation, _TreeModel]
     feature_names: tuple[str, ...]
     class_names: tuple[str, ...]
     train_size: int
@@ -96,14 +127,14 @@ def run_max_depth_experiment(
     target: pd.Series,
     config: MaxDepthExperimentConfig,
 ) -> MaxDepthExperimentResult:
-    """Tune finite depths with training CV, then compare baseline and selection on test.
+    """Select depth on training CV and evaluate both tree implementations once on test.
 
-    The held-out test split is not used to choose ``max_depth``. Every candidate uses
-    exactly the same stratified folds and model settings, so depth is the only changed
-    hyperparameter.
+    Both implementations receive the same training rows, validation folds, feature
+    order, labels, criterion, and stopping parameters. Only ``max_depth`` changes
+    within an implementation. The held-out test split is never used for selection.
     """
 
-    _validate_data(features, target, config.positive_class)
+    _validate_data(features, target, config)
     X_train, X_test, y_train, y_test = train_test_split(
         features,
         target,
@@ -116,64 +147,164 @@ def run_max_depth_experiment(
         shuffle=True,
         random_state=config.random_seed,
     )
-    malignant_f2_scorer = make_scorer(
-        fbeta_score,
-        beta=2,
-        pos_label=config.positive_class,
-        zero_division=0,
-    )
-    malignant_recall_scorer = make_scorer(
-        recall_score,
-        pos_label=config.positive_class,
-        zero_division=0,
-    )
+    folds = list(cv.split(X_train, y_train))
 
     rows: list[dict[str, Any]] = []
-    fitted_models: dict[int | None, DecisionTreeClassifier] = {}
-    for order, depth in enumerate(config.depths):
-        model = _new_model(config, depth)
-        scores = cross_validate(
-            model,
-            X_train,
-            y_train,
-            cv=cv,
-            scoring={
-                "accuracy": "accuracy",
-                "malignant_f2": malignant_f2_scorer,
-                "malignant_recall": malignant_recall_scorer,
-            },
-            return_train_score=True,
-            n_jobs=None,
-        )
-        model.fit(X_train, y_train)
-        fitted_models[depth] = model
-        validation_accuracy = float(np.mean(scores["test_accuracy"]))
-        validation_f2 = float(np.mean(scores["test_malignant_f2"]))
-        rows.append(
-            {
-                "candidate_order": order,
-                "max_depth": "unlimited" if depth is None else str(depth),
-                "max_depth_value": depth,
-                "fitted_depth": model.get_depth(),
-                "n_leaves": model.get_n_leaves(),
-                "train_accuracy_mean": float(np.mean(scores["train_accuracy"])),
-                "train_accuracy_std": float(np.std(scores["train_accuracy"])),
-                "train_malignant_f2_mean": float(np.mean(scores["train_malignant_f2"])),
-                "train_malignant_f2_std": float(np.std(scores["train_malignant_f2"])),
-                "validation_accuracy_mean": validation_accuracy,
-                "validation_accuracy_std": float(np.std(scores["test_accuracy"])),
-                "validation_error_rate": 1.0 - validation_accuracy,
-                "validation_malignant_f2_mean": validation_f2,
-                "validation_malignant_f2_std": float(np.std(scores["test_malignant_f2"])),
-                "validation_malignant_recall_mean": float(np.mean(scores["test_malignant_recall"])),
-                "validation_malignant_recall_std": float(np.std(scores["test_malignant_recall"])),
-            }
-        )
+    fitted_models: dict[tuple[Implementation, int | None], _TreeModel] = {}
+    for implementation in config.implementations:
+        for candidate_order, depth in enumerate(config.depths):
+            fold_results: list[tuple[BinaryClassificationMetrics, BinaryClassificationMetrics]] = []
+            for train_indices, validation_indices in folds:
+                model = _new_model(config, implementation, depth)
+                fold_X_train = X_train.iloc[train_indices]
+                fold_y_train = y_train.iloc[train_indices]
+                fold_X_validation = X_train.iloc[validation_indices]
+                fold_y_validation = y_train.iloc[validation_indices]
+                model.fit(fold_X_train, fold_y_train)
+                fold_results.append(
+                    (
+                        _evaluate(model, fold_X_train, fold_y_train, config),
+                        _evaluate(model, fold_X_validation, fold_y_validation, config),
+                    )
+                )
+
+            fitted_model = _new_model(config, implementation, depth)
+            fitted_model.fit(X_train, y_train)
+            fitted_models[(implementation, depth)] = fitted_model
+            rows.append(
+                _summarize_candidate(
+                    implementation,
+                    candidate_order,
+                    depth,
+                    fitted_model,
+                    fold_results,
+                )
+            )
 
     cv_results = pd.DataFrame(rows)
-    finite_results = cv_results[cv_results["max_depth_value"].notna()].copy()
-    finite_results["max_depth_value"] = finite_results["max_depth_value"].astype(int)
-    selected_row = finite_results.sort_values(
+    selected_depths = {
+        implementation: _select_depth(cv_results, implementation)
+        for implementation in config.implementations
+    }
+    baseline_models = {
+        implementation: fitted_models[(implementation, None)]
+        for implementation in config.implementations
+    }
+    selected_models = {
+        implementation: fitted_models[(implementation, selected_depths[implementation])]
+        for implementation in config.implementations
+    }
+
+    final_rows: list[dict[str, Any]] = []
+    for implementation in config.implementations:
+        final_rows.append(
+            _evaluate_final_model(
+                implementation,
+                "unlimited_baseline",
+                None,
+                baseline_models[implementation],
+                X_train,
+                X_test,
+                y_train,
+                y_test,
+                config,
+            )
+        )
+        selected_depth = selected_depths[implementation]
+        final_rows.append(
+            _evaluate_final_model(
+                implementation,
+                "selected_max_depth",
+                selected_depth,
+                selected_models[implementation],
+                X_train,
+                X_test,
+                y_train,
+                y_test,
+                config,
+            )
+        )
+
+    return MaxDepthExperimentResult(
+        cv_results=cv_results,
+        final_comparison=pd.DataFrame(final_rows),
+        selected_depths=selected_depths,
+        baseline_models=baseline_models,
+        selected_models=selected_models,
+        feature_names=tuple(features.columns),
+        class_names=(config.negative_class, config.positive_class),
+        train_size=len(X_train),
+        test_size=len(X_test),
+    )
+
+
+def _new_model(
+    config: MaxDepthExperimentConfig,
+    implementation: Implementation,
+    depth: int | None,
+) -> _TreeModel:
+    common_parameters = {
+        "criterion": config.criterion,
+        "max_depth": depth,
+        "min_samples_split": config.min_samples_split,
+        "min_samples_leaf": config.min_samples_leaf,
+    }
+    if implementation == "custom":
+        return cast(_TreeModel, DecisionTreeClassifierScratch(**common_parameters))
+    return cast(
+        _TreeModel,
+        DecisionTreeClassifier(random_state=config.random_seed, **common_parameters),
+    )
+
+
+def _evaluate(
+    model: _TreeModel,
+    features: pd.DataFrame,
+    target: pd.Series,
+    config: MaxDepthExperimentConfig,
+) -> BinaryClassificationMetrics:
+    positive_index = list(model.classes_).index(config.positive_class)
+    return compute_binary_classification_metrics(
+        target,
+        model.predict(features),
+        positive_class=config.positive_class,
+        negative_class=config.negative_class,
+        positive_scores=model.predict_proba(features)[:, positive_index],
+    )
+
+
+def _summarize_candidate(
+    implementation: Implementation,
+    candidate_order: int,
+    depth: int | None,
+    fitted_model: _TreeModel,
+    fold_results: list[tuple[BinaryClassificationMetrics, BinaryClassificationMetrics]],
+) -> dict[str, Any]:
+    row: dict[str, Any] = {
+        "implementation": implementation,
+        "candidate_order": candidate_order,
+        "max_depth": "unlimited" if depth is None else str(depth),
+        "max_depth_value": depth,
+        "fitted_depth": fitted_model.get_depth(),
+        "n_leaves": fitted_model.get_n_leaves(),
+    }
+    for split_name, position in (("train", 0), ("validation", 1)):
+        metric_names = fold_results[0][position].to_dict()
+        for metric_name in metric_names:
+            values = [result[position].to_dict()[metric_name] for result in fold_results]
+            numeric_values = np.asarray(values, dtype=float)
+            row[f"{split_name}_{metric_name}_mean"] = float(np.mean(numeric_values))
+            row[f"{split_name}_{metric_name}_std"] = float(np.std(numeric_values))
+    return row
+
+
+def _select_depth(cv_results: pd.DataFrame, implementation: Implementation) -> int:
+    finite_results = cv_results[
+        (cv_results["implementation"] == implementation) & cv_results["max_depth_value"].notna()
+    ].copy()
+    if finite_results.empty:
+        raise ValueError(f"No finite max_depth candidate for {implementation}")
+    selected = finite_results.sort_values(
         [
             "validation_malignant_f2_mean",
             "validation_malignant_recall_mean",
@@ -185,141 +316,47 @@ def run_max_depth_experiment(
         ascending=[False, False, True, True, True, True],
         kind="mergesort",
     ).iloc[0]
-    selected_depth = int(selected_row["max_depth_value"])
-
-    baseline_model = fitted_models[None]
-    selected_model = fitted_models[selected_depth]
-    final_comparison = pd.DataFrame(
-        [
-            _evaluate_final_model(
-                "Unlimited baseline",
-                None,
-                baseline_model,
-                X_train,
-                X_test,
-                y_train,
-                y_test,
-                config.positive_class,
-            ),
-            _evaluate_final_model(
-                "Selected max_depth",
-                selected_depth,
-                selected_model,
-                X_train,
-                X_test,
-                y_train,
-                y_test,
-                config.positive_class,
-            ),
-        ]
-    )
-
-    return MaxDepthExperimentResult(
-        cv_results=cv_results,
-        final_comparison=final_comparison,
-        selected_depth=selected_depth,
-        baseline_model=baseline_model,
-        selected_model=selected_model,
-        feature_names=tuple(features.columns),
-        class_names=tuple(str(label) for label in selected_model.classes_),
-        train_size=len(X_train),
-        test_size=len(X_test),
-    )
-
-
-def _new_model(config: MaxDepthExperimentConfig, depth: int | None) -> DecisionTreeClassifier:
-    return DecisionTreeClassifier(
-        criterion=config.criterion,
-        max_depth=depth,
-        min_samples_split=config.min_samples_split,
-        min_samples_leaf=config.min_samples_leaf,
-        random_state=config.random_seed,
-    )
+    return int(selected["max_depth_value"])
 
 
 def _evaluate_final_model(
-    model_name: str,
+    implementation: Implementation,
+    variant: str,
     max_depth: int | None,
-    model: DecisionTreeClassifier,
+    model: _TreeModel,
     X_train: pd.DataFrame,
     X_test: pd.DataFrame,
     y_train: pd.Series,
     y_test: pd.Series,
-    positive_class: str,
+    config: MaxDepthExperimentConfig,
 ) -> dict[str, Any]:
-    train_predictions = model.predict(X_train)
-    test_predictions = model.predict(X_test)
-    train_accuracy = float(accuracy_score(y_train, train_predictions))
-    test_accuracy = float(accuracy_score(y_test, test_predictions))
-    train_f2 = float(
-        fbeta_score(
-            y_train,
-            train_predictions,
-            beta=2,
-            pos_label=positive_class,
-            zero_division=0,
-        )
-    )
-    train_recall = float(
-        recall_score(
-            y_train,
-            train_predictions,
-            pos_label=positive_class,
-            zero_division=0,
-        )
-    )
-    precision, recall, f1, _ = precision_recall_fscore_support(
-        y_test,
-        test_predictions,
-        labels=[positive_class],
-        average=None,
-        zero_division=0,
-    )
-    malignant_f2 = float(
-        fbeta_score(
-            y_test,
-            test_predictions,
-            beta=2,
-            pos_label=positive_class,
-            zero_division=0,
-        )
-    )
-    actual_positive = np.asarray(y_test) == positive_class
-    predicted_positive = np.asarray(test_predictions) == positive_class
-    true_positives = int(np.sum(actual_positive & predicted_positive))
-    false_negatives = int(np.sum(actual_positive & ~predicted_positive))
-    false_positives = int(np.sum(~actual_positive & predicted_positive))
-    true_negatives = int(np.sum(~actual_positive & ~predicted_positive))
-    specificity_denominator = true_negatives + false_positives
-    specificity = true_negatives / specificity_denominator if specificity_denominator else 0.0
-    balanced_accuracy = (float(recall[0]) + specificity) / 2.0
-    return {
-        "model": model_name,
+    row: dict[str, Any] = {
+        "model_id": f"{implementation}_{variant}",
+        "implementation": implementation,
+        "variant": variant,
         "max_depth": "unlimited" if max_depth is None else str(max_depth),
         "fitted_depth": model.get_depth(),
         "n_leaves": model.get_n_leaves(),
-        "train_accuracy": train_accuracy,
-        "train_malignant_f2": train_f2,
-        "train_malignant_recall": train_recall,
-        "test_accuracy": test_accuracy,
-        "test_error_rate": 1.0 - test_accuracy,
-        "malignant_precision": float(precision[0]),
-        "malignant_recall": float(recall[0]),
-        "malignant_f1": float(f1[0]),
-        "malignant_f2": malignant_f2,
-        "benign_recall_specificity": specificity,
-        "balanced_accuracy": balanced_accuracy,
-        "benign_true_negatives": true_negatives,
-        "benign_false_positives": false_positives,
-        "malignant_false_negatives": false_negatives,
-        "malignant_true_positives": true_positives,
     }
+    row.update(
+        {
+            f"train_{key}": value
+            for key, value in _evaluate(model, X_train, y_train, config).to_dict().items()
+        }
+    )
+    row.update(
+        {
+            f"test_{key}": value
+            for key, value in _evaluate(model, X_test, y_test, config).to_dict().items()
+        }
+    )
+    return row
 
 
 def _validate_data(
     features: pd.DataFrame,
     target: pd.Series,
-    positive_class: str,
+    config: MaxDepthExperimentConfig,
 ) -> None:
     if not isinstance(features, pd.DataFrame):
         raise TypeError("features must be a pandas DataFrame")
@@ -331,7 +368,6 @@ def _validate_data(
         raise ValueError("features and target must contain the same number of samples")
     if features.isna().any().any() or target.isna().any():
         raise ValueError("features and target must not contain missing values")
-    if positive_class not in set(target):
-        raise ValueError(f"positive_class {positive_class!r} is not present in target")
-    if len(set(target)) != 2:
-        raise ValueError("target must contain exactly two classes")
+    expected_labels = {config.negative_class, config.positive_class}
+    if set(target) != expected_labels:
+        raise ValueError(f"target labels must be exactly {sorted(expected_labels)}")

@@ -64,9 +64,12 @@ See the [data guide](data/README.md) for provenance and handling rules.
 | Repository structure, collaboration rules, and GitHub CI | Scaffolded |
 | Dataset selection and official provenance | Confirmed |
 | Canonical feature order and evaluation metrics | Confirmed (D-005 and D-006) |
-| Target encoding, split, seed, and cross-validation protocol | Pending team decision |
-| Decision Tree from scratch | Planned / assigned |
-| Scikit-learn baseline and three improvement experiments | Planned / assigned |
+| Target labels, split, seed, and cross-validation protocol | Confirmed (D-006) |
+| Decision Tree from scratch | Implemented and tested |
+| Scikit-learn baseline | Implemented and tested |
+| `max_depth` experiment on custom and sklearn trees | Implemented (D-007) |
+| Gini/Entropy experiment | Implemented (D-008) |
+| Minimum-samples experiment | In progress / assigned |
 | FastAPI backend and model-serving contract | Scaffolded, implementation pending |
 | Frontend prediction experience | Scaffolded, implementation pending |
 | Integrated website, report, and video | Pending |
@@ -101,6 +104,7 @@ project2/
 │   └── app/ml/
 │       ├── custom_tree/     # Decision Tree implemented from scratch
 │       ├── sklearn_tree/    # Baseline and improvement experiments
+│       ├── selected_models/ # Versioned presets selected for later integration
 │       ├── preprocessing/   # Dataset schema, split, and preprocessing
 │       └── evaluation/      # Metrics, comparisons, and visualizations
 ├── frontend/                # Web prediction interface
@@ -242,9 +246,12 @@ Xem [hướng dẫn dữ liệu](data/README.md) để biết provenance và quy
 | Cấu trúc repository, quy tắc phối hợp và GitHub CI | Đã scaffold |
 | Dataset và nguồn chính thức | Đã chốt |
 | Thứ tự feature và bộ metrics đánh giá | Đã chốt (D-005 và D-006) |
-| Target encoding, split, seed và cross-validation protocol | Chờ nhóm chốt |
-| Decision Tree tự cài đặt | Đã phân công, chưa triển khai |
-| Baseline sklearn và ba thí nghiệm cải thiện | Đã phân công, chưa triển khai |
+| Nhãn target, split, seed và cross-validation protocol | Đã chốt (D-006) |
+| Decision Tree tự cài đặt | Đã triển khai và kiểm thử |
+| Baseline sklearn | Đã triển khai và kiểm thử |
+| Thí nghiệm `max_depth` trên custom và sklearn tree | Đã triển khai (D-007) |
+| Thí nghiệm Gini/Entropy | Đã triển khai (D-008) |
+| Thí nghiệm minimum-samples | Đang thực hiện / đã phân công |
 | FastAPI backend và model-serving contract | Đã scaffold, chờ triển khai |
 | Giao diện dự đoán | Đã scaffold, chờ triển khai |
 | Website tích hợp, report và video | Chưa hoàn tất |

@@ -25,6 +25,8 @@
 - `backend/app/services/`: orchestration, model registry/loading và use case prediction.
 - `backend/app/ml/custom_tree/`: thuật toán Decision Tree tự cài đặt.
 - `backend/app/ml/sklearn_tree/`: baseline và các biến thể sklearn.
+- `backend/app/ml/selected_models/`: preset có version đã được experiment chấp nhận;
+  không chứa thuật toán, tuning, HTTP logic hoặc model artifact.
 - `backend/app/ml/preprocessing/`: schema, target mapping và pipeline dữ liệu.
 - `backend/app/ml/evaluation/`: metric, bảng so sánh và visualization helpers.
 - `frontend/src/services/`: HTTP client; component không gọi `fetch` rải rác.
