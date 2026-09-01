@@ -1,8 +1,11 @@
 # Experiment configs
 
-Owner model thêm config sau khi canonical split/seed/metric được chốt. Tên gợi ý:
+Baseline, split, seed và metrics đã được chốt trong D-006. Config chính thức hiện có:
 
-- `baseline.yaml`
+- `baseline.json`
+
+Config cho improvement experiment cần thêm:
+
 - `max_depth.yaml`
 - `criterion.yaml`
 - `min_samples.yaml`

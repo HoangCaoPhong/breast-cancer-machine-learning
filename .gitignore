@@ -61,6 +61,9 @@ pnpm-debug.log*
 # Data: raw/derived files stay local; small samples may be tracked explicitly
 data/raw/**
 !data/raw/.gitkeep
+!data/raw/uci_wdbc/
+!data/raw/uci_wdbc/wdbc.data
+!data/raw/uci_wdbc/wdbc.names
 data/processed/**
 !data/processed/.gitkeep
 data/external/
