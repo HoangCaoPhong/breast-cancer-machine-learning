@@ -102,7 +102,10 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
         "recall_malignant": 0.8571,
         "f1_score": 0.9125,
         "precision": 0.9400,
-        "description_vi": "Điều chỉnh số mẫu tối thiểu để phân nhánh hoặc tại nút lá (min_samples_split=4, min_samples_leaf=2).",
+        "description_vi": (
+            "Điều chỉnh số mẫu tối thiểu để phân nhánh hoặc tại nút lá "
+            "(min_samples_split=4, min_samples_leaf=2)."
+        ),
         "is_best": True,
     },
 ]

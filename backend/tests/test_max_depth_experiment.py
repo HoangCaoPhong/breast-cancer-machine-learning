@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import pytest
 from app.ml.sklearn_tree import MaxDepthExperimentConfig, run_max_depth_experiment
-from sklearn.tree import DecisionTreeClassifier
+from app.ml.sklearn_tree.max_depth import _select_depth
 
 
-def test_max_depth_experiment_selects_from_cv_and_reports_final_metrics() -> None:
+def test_max_depth_experiment_compares_both_trees_and_reports_new_metrics() -> None:
     generator = np.random.default_rng(7)
     class_b = generator.normal(loc=-1.5, scale=0.7, size=(60, 3))
     class_m = generator.normal(loc=1.5, scale=0.7, size=(60, 3))
@@ -23,91 +23,124 @@ def test_max_depth_experiment_selects_from_cv_and_reports_final_metrics() -> Non
 
     result = run_max_depth_experiment(features, target, config)
 
-    assert result.selected_depth in {1, 2, 3}
+    assert set(result.selected_depths) == {"custom", "sklearn"}
+    assert set(result.selected_depths.values()) <= {1, 2, 3}
     assert result.train_size == 90
     assert result.test_size == 30
-    assert result.cv_results["max_depth"].tolist() == ["unlimited", "1", "2", "3"]
-    assert result.final_comparison["model"].tolist() == [
-        "Unlimited baseline",
-        "Selected max_depth",
+    assert len(result.cv_results) == 8
+    assert result.cv_results.groupby("implementation")["max_depth"].apply(list).to_dict() == {
+        "custom": ["unlimited", "1", "2", "3"],
+        "sklearn": ["unlimited", "1", "2", "3"],
+    }
+    assert result.final_comparison["model_id"].tolist() == [
+        "custom_unlimited_baseline",
+        "custom_selected_max_depth",
+        "sklearn_unlimited_baseline",
+        "sklearn_selected_max_depth",
     ]
+    required_cv_columns = {
+        "validation_accuracy_mean",
+        "validation_error_rate_mean",
+        "validation_malignant_precision_mean",
+        "validation_malignant_recall_mean",
+        "validation_malignant_f1_mean",
+        "validation_malignant_f2_mean",
+        "validation_benign_recall_specificity_mean",
+        "validation_balanced_accuracy_mean",
+        "validation_false_negatives_mean",
+        "validation_false_positives_mean",
+        "validation_roc_auc_mean",
+    }
+    assert required_cv_columns <= set(result.cv_results)
+    required_test_columns = {
+        "test_accuracy",
+        "test_error_rate",
+        "test_malignant_precision",
+        "test_malignant_recall",
+        "test_malignant_f1",
+        "test_malignant_f2",
+        "test_benign_recall_specificity",
+        "test_balanced_accuracy",
+        "test_false_negatives",
+        "test_false_positives",
+        "test_roc_auc",
+    }
+    assert required_test_columns <= set(result.final_comparison)
     assert np.allclose(
         result.final_comparison["test_error_rate"],
         1.0 - result.final_comparison["test_accuracy"],
     )
-    assert "validation_malignant_f2_mean" in result.cv_results
-    assert "validation_malignant_recall_mean" in result.cv_results
-    assert "malignant_f2" in result.final_comparison
-    assert "balanced_accuracy" in result.final_comparison
-    assert (result.final_comparison["malignant_f2"].between(0.0, 1.0)).all()
-    assert (result.final_comparison["balanced_accuracy"].between(0.0, 1.0)).all()
     assert (
         result.final_comparison[
             [
-                "benign_true_negatives",
-                "benign_false_positives",
-                "malignant_false_negatives",
-                "malignant_true_positives",
+                "test_true_negatives",
+                "test_false_positives",
+                "test_false_negatives",
+                "test_true_positives",
             ]
         ].sum(axis=1)
         == result.test_size
     ).all()
-    assert (result.final_comparison["malignant_false_negatives"] >= 0).all()
 
 
-def test_max_depth_selection_uses_malignant_f2_instead_of_accuracy(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    features = pd.DataFrame(
-        {
-            "radius": np.arange(20, dtype=float),
-            "texture": np.tile([0.0, 1.0], 10),
-        }
+def test_max_depth_selection_uses_f2_before_accuracy_and_is_per_implementation() -> None:
+    rows = pd.DataFrame(
+        [
+            {
+                "implementation": "custom",
+                "max_depth_value": 1,
+                "candidate_order": 1,
+                "validation_accuracy_mean": 0.95,
+                "validation_malignant_f2_mean": 0.70,
+                "validation_malignant_recall_mean": 0.80,
+                "validation_malignant_f2_std": 0.01,
+                "n_leaves": 2,
+                "fitted_depth": 1,
+            },
+            {
+                "implementation": "custom",
+                "max_depth_value": 2,
+                "candidate_order": 2,
+                "validation_accuracy_mean": 0.90,
+                "validation_malignant_f2_mean": 0.80,
+                "validation_malignant_recall_mean": 0.85,
+                "validation_malignant_f2_std": 0.02,
+                "n_leaves": 4,
+                "fitted_depth": 2,
+            },
+            {
+                "implementation": "sklearn",
+                "max_depth_value": 1,
+                "candidate_order": 1,
+                "validation_accuracy_mean": 0.91,
+                "validation_malignant_f2_mean": 0.82,
+                "validation_malignant_recall_mean": 0.86,
+                "validation_malignant_f2_std": 0.01,
+                "n_leaves": 2,
+                "fitted_depth": 1,
+            },
+        ]
     )
-    target = pd.Series(["B", "M"] * 10)
-    config = MaxDepthExperimentConfig(
-        depths=(None, 1, 2),
-        test_size=0.2,
-        random_seed=3,
-        cv_folds=2,
-    )
 
-    def fake_cross_validate(
-        model: DecisionTreeClassifier, *_args: object, **_kwargs: object
-    ) -> dict[str, np.ndarray]:
-        depth = model.max_depth
-        validation_accuracy = 0.95 if depth == 1 else 0.90
-        validation_f2 = 0.70 if depth == 1 else 0.80
-        validation_recall = 0.65 if depth == 1 else 0.85
-        return {
-            "train_accuracy": np.array([0.98, 0.98]),
-            "train_malignant_f2": np.array([0.96, 0.96]),
-            "test_accuracy": np.array([validation_accuracy, validation_accuracy]),
-            "test_malignant_f2": np.array([validation_f2, validation_f2]),
-            "test_malignant_recall": np.array([validation_recall, validation_recall]),
-        }
-
-    monkeypatch.setattr(
-        "app.ml.sklearn_tree.max_depth.cross_validate",
-        fake_cross_validate,
-    )
-
-    result = run_max_depth_experiment(features, target, config)
-
-    assert result.selected_depth == 2
+    assert _select_depth(rows, "custom") == 2
+    assert _select_depth(rows, "sklearn") == 1
 
 
 @pytest.mark.parametrize(
-    ("depths", "message"),
+    ("kwargs", "message"),
     [
-        ((1, 2), "unlimited baseline"),
-        ((None,), "finite candidate"),
-        ((None, 0, 1), "positive integers"),
-        ((None, 1, 1), "duplicates"),
+        ({"depths": (1, 2)}, "unlimited baseline"),
+        ({"depths": (None,)}, "finite candidate"),
+        ({"depths": (None, 0, 1)}, "positive integers"),
+        ({"depths": (None, 1, 1)}, "duplicates"),
+        (
+            {"depths": (None, 1), "implementations": ("custom", "xgboost")},
+            "Unsupported implementations",
+        ),
     ],
 )
 def test_max_depth_config_rejects_invalid_search_space(
-    depths: tuple[int | None, ...], message: str
+    kwargs: dict[str, object], message: str
 ) -> None:
     with pytest.raises(ValueError, match=message):
-        MaxDepthExperimentConfig(depths=depths)
+        MaxDepthExperimentConfig(**kwargs)  # type: ignore[arg-type]
