@@ -25,6 +25,7 @@ from app.schemas.prediction import (
 )
 
 CANONICAL_DATA_PATH = Path(__file__).resolve().parents[3] / "data/raw/uci_wdbc/wdbc.data"
+MAX_DEPTH_DESCRIPTION_PREFIX_VI = "Giới hạn độ sâu tối ưu theo phương pháp kiểm thử chéo"
 
 MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
     {
@@ -69,7 +70,8 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
         "id": "I1",
         "name": f"Tuning Max Depth (depth={SELECTED_MAX_DEPTH_CONFIG.max_depth})",
         "name_vi": (
-            f"Cải tiến 1: Giới hạn Độ sâu cây (max_depth={SELECTED_MAX_DEPTH_CONFIG.max_depth})"
+            "Cải tiến 1: Giới hạn Độ sâu cây "
+            + f"(max_depth={SELECTED_MAX_DEPTH_CONFIG.max_depth})"
         ),
         "assigned_to": "Phong",
         "criterion": SELECTED_MAX_DEPTH_CONFIG.criterion.capitalize(),
@@ -83,9 +85,7 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
         "recall_malignant": 0.7812,
         "f1_score": 0.8772,
         "precision": 0.9250,
-        "description_vi": (
-            "Giới hạn độ sâu tối ưu theo phương pháp kiểm thử chéo (Cross-Validation)."
-        ),
+        "description_vi": f"{MAX_DEPTH_DESCRIPTION_PREFIX_VI} (Cross-Validation).",
         "is_best": False,
     },
     {
@@ -129,15 +129,13 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
         "min_samples_split": SELECTED_MIN_SAMPLES_CONFIG.min_samples_split,
         "min_samples_leaf": SELECTED_MIN_SAMPLES_CONFIG.min_samples_leaf,
         "accuracy": SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_accuracy,
-        "error_rate": round(
-            1.0 - SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_accuracy, 4
-        ),
+        "error_rate": round(1.0 - SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_accuracy, 4),
         "recall_malignant": SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_recall,
         "f1_score": 0.9125,
         "precision": 0.9400,
         "description_vi": (
-            f"Điều chỉnh số mẫu tối thiểu (min_samples_split="
-            f"{SELECTED_MIN_SAMPLES_CONFIG.min_samples_split}, "
+            "Điều chỉnh số mẫu tối thiểu "
+            f"(min_samples_split={SELECTED_MIN_SAMPLES_CONFIG.min_samples_split}, "
             f"min_samples_leaf={SELECTED_MIN_SAMPLES_CONFIG.min_samples_leaf})."
         ),
         "is_best": True,
@@ -179,7 +177,6 @@ class ModelManager:
             self.fitted_custom_trees["I3"] = build_selected_min_samples_model("custom").fit(X, y)
         except Exception as e:
             print(f"Warning: could not pre-fit models: {e}")
-
 
     def predict(
         self, features: BreastCancerFeaturesSchema, model_id: str | None = None

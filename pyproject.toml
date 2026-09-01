@@ -1,6 +1,6 @@
 [tool.pytest.ini_options]
 addopts = "-q --basetemp=.pytest_tmp"
-pythonpath = ["backend"]
+pythonpath = [".", "backend"]
 testpaths = ["backend/tests"]
 
 
