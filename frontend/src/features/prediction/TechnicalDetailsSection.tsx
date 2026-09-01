@@ -393,19 +393,19 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
 
   const [matrixModelId, setMatrixModelId] = useState<string>('I3');
 
-  const selectedModelId = result?.selectedModelId?.toUpperCase() || currentModelId.toUpperCase() || matrixModelId;
+  const selectedModelId = currentModelId ? currentModelId.toUpperCase() : (result?.selectedModelId?.toUpperCase() || matrixModelId || 'I3');
   const currentMatrix =
     CONFUSION_MATRIX_MAP[matrixModelId] || CONFUSION_MATRIX_MAP[selectedModelId] || CONFUSION_MATRIX_MAP['I3'];
 
-  // Sync matrixModelId when result or currentModelId changes
+  // Sync matrixModelId when currentModelId or result changes
   useEffect(() => {
-    if (result?.selectedModelId) {
-      setMatrixModelId(result.selectedModelId.toUpperCase());
-    } else if (currentModelId) {
+    if (currentModelId) {
       setMatrixModelId(currentModelId.toUpperCase());
       setPanOffset({ x: 0, y: 0 });
+    } else if (result?.selectedModelId) {
+      setMatrixModelId(result.selectedModelId.toUpperCase());
     }
-  }, [result?.selectedModelId, currentModelId]);
+  }, [currentModelId, result?.selectedModelId]);
 
   useEffect(() => {
     PredictionService.getExperiments().then((data) => {
@@ -418,7 +418,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
   useEffect(() => {
     if (activeTab === 'tree') {
       setLoadingTree(true);
-      const modelId = result?.selectedModelId || currentModelId || 'I3';
+      const modelId = ((currentModelId || result?.selectedModelId || 'I3') as string).toUpperCase() as ModelOptionId;
       PredictionService.getTreeStructure(modelId)
         .then((data) => {
           setTreeData(data);
@@ -427,7 +427,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
           setLoadingTree(false);
         });
     }
-  }, [activeTab, result?.selectedModelId, currentModelId]);
+  }, [activeTab, currentModelId, result?.selectedModelId]);
 
   // Non-passive wheel event listener for smooth zooming on canvas
   useEffect(() => {

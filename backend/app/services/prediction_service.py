@@ -5,7 +5,7 @@ import numpy as np
 
 from app.core.config import settings
 from app.ml.custom_tree import DecisionTreeClassifierScratch
-from app.ml.preprocessing import load_breast_cancer_dataset
+from app.ml.preprocessing.loader import get_train_test_split
 from app.ml.preprocessing.pipeline import CANONICAL_FEATURE_NAMES, FEATURE_NAME_VI_MAP
 from app.ml.selected_models import (
     SELECTED_CRITERION_CONFIG,
@@ -136,49 +136,31 @@ class ModelManager:
 
     def _initialize_models(self) -> None:
         """Fit models on the canonical dataset using selected_models presets."""
-        data_path = None
-        possible_paths = [
-            CANONICAL_DATA_PATH,
-            Path.cwd() / "data/raw/uci_wdbc/wdbc.data",
-            Path.cwd().parent / "data/raw/uci_wdbc/wdbc.data",
-            Path(__file__).resolve().parents[2] / "data/raw/uci_wdbc/wdbc.data",
-            Path(__file__).resolve().parents[1] / "data/raw/uci_wdbc/wdbc.data",
-        ]
-        for p in possible_paths:
-            if p.exists():
-                data_path = p
-                break
-
         try:
-            if data_path is not None:
-                dataset = load_breast_cancer_dataset(data_path)
-                X = dataset.features.to_numpy(dtype=float)
-                y = dataset.target.to_numpy()
-            else:
-                from sklearn.datasets import load_breast_cancer
-                sc_data = load_breast_cancer()
-                X = sc_data.data
-                # In sklearn default: 0 = malignant, 1 = benign. Map to 1 = malignant, 0 = benign:
-                y = np.where(sc_data.target == 0, 1, 0)
+            split = get_train_test_split()
+            X = split.X_train
+            y = split.y_train
 
-            # C0: Custom Tree from scratch (baseline)
+            # B0: Baseline Unpruned Tree (max_depth=None, min_samples_split=2, min_samples_leaf=1, Gini)
+            self.fitted_custom_trees["B0"] = DecisionTreeClassifierScratch(
+                criterion="gini", max_depth=None, min_samples_split=2, min_samples_leaf=1
+            ).fit(X, y)
+
+            # C0: Custom Tree from scratch (max_depth=5, min_samples_split=2, min_samples_leaf=2, Gini)
             self.fitted_custom_trees["C0"] = DecisionTreeClassifierScratch(
                 criterion="gini", max_depth=5, min_samples_split=2, min_samples_leaf=2
             ).fit(X, y)
 
-            # I1: Selected Max Depth Model from selected_models
+            # I1: Selected Max Depth Model (max_depth=8, min_samples_split=2, min_samples_leaf=1, Gini)
             self.fitted_custom_trees["I1"] = build_selected_max_depth_model("custom").fit(X, y)
 
-            # I2: Selected Criterion Model from selected_models
-            self.fitted_custom_trees["I2"] = build_selected_criterion_model("custom").fit(X, y)
-
-            # I3: Selected Min Samples Model from selected_models
-            self.fitted_custom_trees["I3"] = build_selected_min_samples_model("custom").fit(X, y)
-
-            # B0: Baseline Unpruned Tree
-            self.fitted_custom_trees["B0"] = DecisionTreeClassifierScratch(
-                criterion="gini", max_depth=8, min_samples_split=2, min_samples_leaf=1
+            # I2: Selected Criterion Model (Entropy criterion vs Gini)
+            self.fitted_custom_trees["I2"] = DecisionTreeClassifierScratch(
+                criterion="entropy", max_depth=None, min_samples_split=2, min_samples_leaf=1
             ).fit(X, y)
+
+            # I3: Selected Min Samples Model (min_samples_split=5, min_samples_leaf=1, Gini)
+            self.fitted_custom_trees["I3"] = build_selected_min_samples_model("custom").fit(X, y)
         except Exception as e:
             print(f"Warning: could not pre-fit models: {e}")
 
