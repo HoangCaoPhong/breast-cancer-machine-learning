@@ -2,9 +2,11 @@
 
 ```text
 reports/
-├── drafts/   # outline và source bản nháp
-├── figures/  # cây, confusion matrix và chart so sánh đã chọn
-└── tables/   # dataset/model/metric tables đã chọn
+├── drafts/
+│   └── report_f_g_h_i.md                # Bản nháp báo cáo mục F, G, H, I (Tối ưu I3: MSS=5, MSL=1)
+├── figures/
+│   └── min_samples_comparison.png       # Biểu đồ so sánh 4-trong-1 cho Thí nghiệm I3 (300 DPI)
+└── tables/                              # dataset/model/metric tables đã chọn
 ```
 
 Report cuối theo đề:

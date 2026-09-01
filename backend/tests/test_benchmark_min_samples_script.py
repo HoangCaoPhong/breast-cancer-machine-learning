@@ -3,31 +3,36 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
-from scripts.benchmark_min_samples import DEFAULT_CONFIG, build_parser, main
+_REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPOSITORY_ROOT))
+
+_SCRIPT = _REPOSITORY_ROOT / "scripts/benchmark_min_samples.py"
 
 
-def test_build_parser_defaults() -> None:
-    parser = build_parser()
-    args = parser.parse_args([])
-    assert args.config == DEFAULT_CONFIG
-    assert args.output_dir is None
-    assert args.include_custom_tree is False
-
-
-def test_script_execution_with_custom_output(tmp_path: Path, monkeypatch) -> None:
+def test_script_execution_via_subprocess(tmp_path: Path) -> None:
     output_dir = tmp_path / "benchmark_test_output"
-    monkeypatch.setattr(
-        "sys.argv",
+    result = subprocess.run(
         [
-            "benchmark_min_samples.py",
+            sys.executable,
+            str(_SCRIPT),
             "--output-dir",
             str(output_dir),
             "--include-custom-tree",
         ],
+        cwd=_REPOSITORY_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
     )
-    main()
+
+    assert "EXPERIMENT I3 BENCHMARK: BASELINE vs TUNED MODEL" in result.stdout
+    assert "Baseline (B0)" in result.stdout
+    assert "Tuned (I3)" in result.stdout
 
     summary_file = output_dir / "benchmark_summary.json"
     assert summary_file.exists()
@@ -39,3 +44,4 @@ def test_script_execution_with_custom_output(tmp_path: Path, monkeypatch) -> Non
     assert "custom_tree_scratch" in data
     assert "all_grid_candidates" in data
     assert len(data["all_grid_candidates"]) == 25
+

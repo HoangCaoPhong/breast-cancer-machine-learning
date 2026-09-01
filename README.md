@@ -61,14 +61,40 @@ See the [data guide](data/README.md) for provenance and handling rules.
 
 | Area | Status |
 | --- | --- |
-| Repository structure, collaboration rules, and GitHub CI | Scaffolded |
+| Repository structure, collaboration rules, and GitHub CI | Scaffolded / In Progress |
 | Dataset selection and official provenance | Confirmed |
-| Canonical feature order, target mapping, split, seed, and primary metric | Pending team decision |
-| Decision Tree from scratch | Planned / assigned |
-| Scikit-learn baseline and three improvement experiments | Planned / assigned |
-| FastAPI backend and model-serving contract | Scaffolded, implementation pending |
-| Frontend prediction experience | Scaffolded, implementation pending |
-| Integrated website, report, and video | Pending |
+| Canonical feature order, target mapping, split, seed, and primary metric | Defined (Stratified 80/20, Seed 42, Positive: M) |
+| Decision Tree from scratch | Implemented |
+| Scikit-learn baseline (B0) | Implemented |
+| Experiment I3: `min_samples_split` & `min_samples_leaf` (Hòa) | **Completed & Benchmarked (Best: MSS=5, MSL=1)** |
+| FastAPI backend and model-serving contract | Scaffolded, implementation in progress |
+| Frontend prediction experience | Scaffolded, implementation in progress |
+| Integrated website, report, and video | In progress |
+
+### Experiment I3: Min-Samples Tuning (`min_samples_split` & `min_samples_leaf`)
+
+**Owner:** Huỳnh Thái Hòa (24127374)
+
+Experiment I3 applies pre-pruning regularization by tuning sample split thresholds (`min_samples_split`) and minimum leaf size (`min_samples_leaf`) over a 5x5 grid space evaluated with 5-Fold Stratified Cross-Validation on the training set.
+
+- **Best Model Configuration:** `min_samples_split = 5`, `min_samples_leaf = 1`
+- **Key Results vs Baseline B0:**
+  - **5-Fold CV Malignant Recall:** **0.9000 ± 0.0576** (highest among all 25 candidates, up from 0.8941)
+  - **Test Accuracy:** **93.86%** (+0.88% vs Baseline 92.98%)
+  - **Test Error Rate:** **6.14%** (-0.88% vs Baseline 7.02%)
+  - **Malignant Precision:** **92.68%** (+2.20% vs Baseline 90.48%)
+  - **Malignant F1-Score:** **0.9157** (+0.0109 vs Baseline 0.9048)
+  - **Malignant F2-Score:** **0.9091** (+0.0043 vs Baseline 0.9048)
+  - **Benign Specificity:** **95.83%** (False Positives reduced from 4 to 3)
+  - **Tree Complexity:** Leaves reduced from **24 to 20** (-16.7% redundant leaves pruned)
+
+```bash
+# Run Experiment I3 Benchmark suite
+python scripts/benchmark_min_samples.py --include-custom-tree
+
+# Generate publication-quality 4-in-1 comparison figure
+python scripts/plot_min_samples_comparison.py
+```
 
 The internal target is to finish the report, video, and final package by
 **23:00 on September 1, 2026**, ahead of the official September 2 deadline. See
@@ -238,14 +264,40 @@ Xem [hướng dẫn dữ liệu](data/README.md) để biết provenance và quy
 
 | Hạng mục | Trạng thái |
 | --- | --- |
-| Cấu trúc repository, quy tắc phối hợp và GitHub CI | Đã scaffold |
-| Dataset và nguồn chính thức | Đã chốt |
-| Thứ tự feature, target mapping, split, seed và metric chính | Chờ nhóm chốt |
-| Decision Tree tự cài đặt | Đã phân công, chưa triển khai |
-| Baseline sklearn và ba thí nghiệm cải thiện | Đã phân công, chưa triển khai |
-| FastAPI backend và model-serving contract | Đã scaffold, chờ triển khai |
-| Giao diện dự đoán | Đã scaffold, chờ triển khai |
-| Website tích hợp, report và video | Chưa hoàn tất |
+| Cấu trúc repository, quy tắc phối hợp và GitHub CI | Đang phát triển / Scaffolded |
+| Dataset và nguồn chính thức | Đã chốt (UCI WDBC, 569 mẫu, 30 đặc trưng) |
+| Thứ tự feature, target mapping, split, seed và metric chính | Đã chốt (Stratified 80/20, Seed 42, Positive: M) |
+| Decision Tree tự cài đặt (Phong) | Đã hoàn tất |
+| Baseline sklearn (B0) | Đã hoàn tất |
+| Thí nghiệm I3: `min_samples_split` & `min_samples_leaf` (Hòa) | **Đã hoàn thành & Benchmark (Tối ưu: MSS=5, MSL=1)** |
+| FastAPI backend và model-serving contract | Đang triển khai |
+| Giao diện dự đoán web | Đang triển khai |
+| Website tích hợp, report và video | Đang hoàn thiện |
+
+### Thí nghiệm I3: Tinh chỉnh `min_samples_split` & `min_samples_leaf` (Pre-pruning)
+
+**Người phụ trách:** Huỳnh Thái Hòa (24127374)
+
+Thí nghiệm $I_3$ áp dụng cơ chế tiền cắt tỉa nhằm kiểm soát hiện tượng quá khớp (overfitting) và giảm phương sai của mô hình Decision Tree thông qua việc dò lưới trên $25$ tổ hợp siêu tham số $\text{MSS} \in \{2, 5, 10, 20, 50\}$ và $\text{MSL} \in \{1, 2, 5, 10, 20\}$, đánh giá bằng 5-Fold Stratified Cross-Validation trên tập huấn luyện.
+
+- **Cấu hình tối ưu được chứng minh:** `min_samples_split = 5`, `min_samples_leaf = 1`
+- **Kết quả nổi bật so với Baseline B0:**
+  - **5-Fold CV Malignant Recall:** **$90.00\% \pm 0.0576$** (cao nhất trong toàn bộ 25 cấu hình thử nghiệm, tăng từ $89.41\%$).
+  - **Độ chính xác kiểm thử (Test Accuracy):** **$93.86\%$** (tăng $+0.88\%$ so với Baseline $92.98\%$).
+  - **Tỷ lệ lỗi kiểm thử (Test Error Rate):** **$6.14\%$** (giảm $-0.88\%$ so với Baseline $7.02\%$).
+  - **Malignant Precision:** **$92.68\%$** (tăng $+2.20\%$ so với Baseline $90.48\%$).
+  - **Malignant F1-Score:** **$0.9157$** (tăng $+0.0109$ so với Baseline $0.9048$).
+  - **Malignant F2-Score:** **$0.9091$** (tăng $+0.0043$ so với Baseline $0.9048$).
+  - **Độ đặc hiệu lành tính (Specificity):** **$95.83\%$** (giảm số ca dương tính giả từ $4$ xuống $3$).
+  - **Độ phức tạp của cây:** Giảm số nút lá từ **$24$ xuống còn $20$ lá** (cắt tỉa bớt $16.7\%$ số lá dư thừa gây nhiễu).
+
+```bash
+# Chạy bộ benchmark và xuất file tổng kết JSON cho I3
+python scripts/benchmark_min_samples.py --include-custom-tree
+
+# Sinh biểu đồ so sánh chất lượng cao 4-trong-1
+python scripts/plot_min_samples_comparison.py
+```
 
 Hạn nội bộ để hoàn thành report, video và toàn bộ gói nộp là **23:00 ngày
 01/09/2026**, trước hạn chính thức ngày 02/09. Xem [timeline nội bộ](docs/TIMELINE.md).
