@@ -114,14 +114,31 @@ class ModelManager:
         self._initialize_models()
 
     def _initialize_models(self) -> None:
-        """Fit models on the canonical dataset if available."""
-        if not CANONICAL_DATA_PATH.exists():
-            return
+        """Fit models on the canonical dataset if available, with robust fallback."""
+        data_path = None
+        possible_paths = [
+            CANONICAL_DATA_PATH,
+            Path.cwd() / "data/raw/uci_wdbc/wdbc.data",
+            Path.cwd().parent / "data/raw/uci_wdbc/wdbc.data",
+            Path(__file__).resolve().parents[2] / "data/raw/uci_wdbc/wdbc.data",
+            Path(__file__).resolve().parents[1] / "data/raw/uci_wdbc/wdbc.data",
+        ]
+        for p in possible_paths:
+            if p.exists():
+                data_path = p
+                break
 
         try:
-            dataset = load_breast_cancer_dataset(CANONICAL_DATA_PATH)
-            X = dataset.features.to_numpy(dtype=float)
-            y = dataset.target.to_numpy()
+            if data_path is not None:
+                dataset = load_breast_cancer_dataset(data_path)
+                X = dataset.features.to_numpy(dtype=float)
+                y = dataset.target.to_numpy()
+            else:
+                from sklearn.datasets import load_breast_cancer
+                sc_data = load_breast_cancer()
+                X = sc_data.data
+                # In sklearn default: 0 = malignant, 1 = benign. Map to 1 = malignant, 0 = benign:
+                y = np.where(sc_data.target == 0, 1, 0)
 
             # Fit Custom Tree variants
             self.fitted_custom_trees["C0"] = DecisionTreeClassifierScratch(
