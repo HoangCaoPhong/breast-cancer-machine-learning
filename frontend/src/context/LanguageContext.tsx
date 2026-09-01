@@ -155,10 +155,12 @@ export interface Translations {
   aboutUsSubtitle: string;
   aboutUsObjectives: string;
   aboutUsTeamTableTitle: string;
+  colNo: string;
   colFullName: string;
-  colGmail: string;
+  colStudentId: string;
   colRole: string;
   colContribution: string;
+  colShare: string;
   aboutUsImprovementsTitle: string;
   apiDocsTitle: string;
   apiDocsSubtitle: string;
@@ -324,10 +326,12 @@ export const translations: Record<Language, Translations> = {
     aboutUsSubtitle: 'Phân loại Chẩn đoán Ung thư Vú bằng Thuật toán Cây Quyết định (Decision Tree Learning)',
     aboutUsObjectives: 'Mục Tiêu Đề Tài:',
     aboutUsTeamTableTitle: 'Danh Sách Thành Viên & Bảng Phân Công Nhiệm Vụ:',
+    colNo: 'STT',
     colFullName: 'Họ và Tên',
-    colGmail: 'Gmail',
-    colRole: 'Nhiệm Vụ Đảm Nhận Chính',
-    colContribution: 'Đóng Góp',
+    colStudentId: 'MSSV',
+    colRole: 'Vai Trò Đảm Nhiệm',
+    colContribution: 'Nhiệm vụ đảm nhận chính',
+    colShare: 'Tỷ Lệ',
     aboutUsImprovementsTitle: 'Tóm Tắt 3 Hướng Cải Tiến Mô Hình:',
     apiDocsTitle: 'Tài Liệu RESTful API Backend (FastAPI)',
     apiDocsSubtitle: 'Tra cứu trực tiếp tài liệu OpenAPI Swagger UI và ReDoc của máy chủ',
@@ -491,11 +495,13 @@ export const translations: Record<Language, Translations> = {
     aboutUsTitle: 'About Research Team & Project',
     aboutUsSubtitle: 'Breast Cancer Diagnostic Classification using Decision Tree Learning Paradigms',
     aboutUsObjectives: 'Core Academic Objectives:',
-    aboutUsTeamTableTitle: 'Team Member Roster & Assigned Responsibilities:',
+    aboutUsTeamTableTitle: 'Team Member Roster & Verified Contributions:',
+    colNo: 'No.',
     colFullName: 'Full Name',
-    colGmail: 'Gmail Contact',
-    colRole: 'Assigned Responsibility',
-    colContribution: 'Contribution',
+    colStudentId: 'Student ID',
+    colRole: 'Role',
+    colContribution: 'Verified Contribution',
+    colShare: 'Share',
     aboutUsImprovementsTitle: 'Summary of 3 Model Improvement Methodologies:',
     apiDocsTitle: 'Backend RESTful API Reference (FastAPI)',
     apiDocsSubtitle: 'Live OpenAPI Swagger UI and ReDoc interface documentation for backend endpoints',

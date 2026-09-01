@@ -6,6 +6,76 @@ interface AboutUsModalProps {
   onClose: () => void;
 }
 
+interface TeamMember {
+  no: number;
+  fullName: string;
+  fullNameEn: string;
+  studentId: string;
+  role: string;
+  roleVi: string;
+  contribution: string;
+  contributionVi: string;
+  share: string;
+}
+
+const TEAM_MEMBERS: TeamMember[] = [
+  {
+    no: 1,
+    fullName: 'Hoàng Cao Phong',
+    fullNameEn: 'Hoang Cao Phong',
+    studentId: '24127486',
+    role: 'Tech Lead / ML Engineer',
+    roleVi: 'Tech Lead / ML Engineer',
+    contribution: 'Repository, custom tree, max_depth experiment, integration and review',
+    contributionVi: 'Khởi tạo repository, cài đặt Cây quyết định từ đầu (Custom Tree), thực nghiệm max_depth, tích hợp và kiểm duyệt code',
+    share: '20%',
+  },
+  {
+    no: 2,
+    fullName: 'Võ Mỹ Ngọc',
+    fullNameEn: 'Vo My Ngoc',
+    studentId: '24127294',
+    role: 'Frontend / ML Researcher',
+    roleVi: 'Frontend / ML Researcher',
+    contribution: 'Prediction UI; Gini-versus-Entropy research and experiment',
+    contributionVi: 'Giao diện dự đoán chẩn đoán (Prediction UI); Nghiên cứu và thực nghiệm tiêu chuẩn Gini vs Entropy',
+    share: '20%',
+  },
+  {
+    no: 3,
+    fullName: 'Nguyễn Trung Kiên',
+    fullNameEn: 'Nguyen Trung Kien',
+    studentId: '24127068',
+    role: 'Full Stack Developer',
+    roleVi: 'Full Stack Developer',
+    contribution: 'FastAPI, API-model integration, deployment and frontend contract support',
+    contributionVi: 'FastAPI backend, tích hợp API với mô hình ML, triển khai hệ thống và hỗ trợ kết nối frontend',
+    share: '20%',
+  },
+  {
+    no: 4,
+    fullName: 'Huỳnh Thái Hòa',
+    fullNameEn: 'Huynh Thai Hoa',
+    studentId: '24127374',
+    role: 'Data Engineer',
+    roleVi: 'Data Engineer',
+    contribution: 'min_samples_split and min_samples_leaf experiment',
+    contributionVi: 'Thực nghiệm tham số số mẫu tối thiểu (min_samples_split & min_samples_leaf)',
+    share: '20%',
+  },
+  {
+    no: 5,
+    fullName: 'Lương Thiện Nhân',
+    fullNameEn: 'Luong Thien Nhan',
+    studentId: '24127475',
+    role: 'Data Scientist',
+    roleVi: 'Data Scientist',
+    contribution: 'Data validation, metric definitions, evaluation and result tables',
+    contributionVi: 'Kiểm định & làm sạch dữ liệu, định nghĩa hệ chỉ số đánh giá, thực nghiệm và tổng hợp bảng kết quả',
+    share: '20%',
+  },
+];
+
 export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) => {
   const { language, t } = useLanguage();
   if (!isOpen) return null;
@@ -13,7 +83,7 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
       <div
-        className="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+        className="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden"
         role="dialog"
         aria-modal="true"
       >
@@ -43,104 +113,55 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
 
         {/* Modal Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-5 font-sans text-xs text-on-surface leading-relaxed">
-          {/* Section 1: Group Members & Contribution (5 Member Slots) */}
+          {/* Section 1: Group Members & Contribution (5 Members) */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="font-bold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-base">badge</span>
                 {t.aboutUsTeamTableTitle}
               </h4>
-              <span className="text-[11px] px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-mono">
-                {language === 'vi' ? 'Quy mô: 5 Thành viên' : 'Size: 5 Members'}
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-semibold font-mono">
+                {language === 'vi' ? 'Quy mô: 5 Thành viên' : '5 Core Members'}
               </span>
             </div>
 
-            <div className="overflow-x-auto border border-outline-variant rounded-xl shadow-sm">
+            <div className="overflow-x-auto border border-outline-variant rounded-xl shadow-sm bg-white">
               <table className="w-full text-left font-sans text-xs border-collapse">
                 <thead className="bg-surface-bright text-on-surface font-semibold border-b border-outline-variant">
                   <tr>
-                    <th className="p-3 text-center w-12">{language === 'vi' ? 'STT' : 'No.'}</th>
-                    <th className="p-3 w-44">{t.colFullName}</th>
-                    <th className="p-3 w-40">{t.colGmail}</th>
-                    <th className="p-3">{t.colRole}</th>
-                    <th className="p-3 text-center w-24">{t.colContribution} (%)</th>
+                    <th className="p-3 text-center w-12">{t.colNo}</th>
+                    <th className="p-3 w-40">{t.colFullName}</th>
+                    <th className="p-3 w-28 text-center">{t.colStudentId}</th>
+                    <th className="p-3 w-44">{t.colRole}</th>
+                    <th className="p-3">{t.colContribution}</th>
+                    <th className="p-3 text-center w-20">{t.colShare}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant">
-                  {/* Member 1 */}
-                  <tr className="hover:bg-surface-container-low transition-colors">
-                    <td className="p-3 text-center font-bold text-primary">1</td>
-                    <td className="p-3 font-semibold text-on-surface">
-                      {language === 'vi' ? 'Thành viên 1' : 'Member 1'}
-                    </td>
-                    <td className="p-3 font-mono text-on-surface-variant">
-                      .....................
-                    </td>
-                    <td className="p-3 text-on-surface-variant font-mono">
-                      ----
-                    </td>
-                    <td className="p-3 text-center font-bold text-primary">--</td>
-                  </tr>
-
-                  {/* Member 2 */}
-                  <tr className="hover:bg-surface-container-low transition-colors">
-                    <td className="p-3 text-center font-bold text-primary">2</td>
-                    <td className="p-3 font-semibold text-on-surface">
-                      {language === 'vi' ? 'Thành viên 2' : 'Member 2'}
-                    </td>
-                    <td className="p-3 font-mono text-on-surface-variant">
-                      .....................
-                    </td>
-                    <td className="p-3 text-on-surface-variant font-mono">
-                      ----
-                    </td>
-                    <td className="p-3 text-center font-bold text-primary">--</td>
-                  </tr>
-
-                  {/* Member 3 */}
-                  <tr className="hover:bg-surface-container-low transition-colors">
-                    <td className="p-3 text-center font-bold text-primary">3</td>
-                    <td className="p-3 font-semibold text-on-surface">
-                      {language === 'vi' ? 'Thành viên 3' : 'Member 3'}
-                    </td>
-                    <td className="p-3 font-mono text-on-surface-variant">
-                      .....................
-                    </td>
-                    <td className="p-3 text-on-surface-variant font-mono">
-                      ----
-                    </td>
-                    <td className="p-3 text-center font-bold text-primary">--</td>
-                  </tr>
-
-                  {/* Member 4 */}
-                  <tr className="hover:bg-surface-container-low transition-colors">
-                    <td className="p-3 text-center font-bold text-primary">4</td>
-                    <td className="p-3 font-semibold text-on-surface">
-                      {language === 'vi' ? 'Thành viên 4' : 'Member 4'}
-                    </td>
-                    <td className="p-3 font-mono text-on-surface-variant">
-                      .....................
-                    </td>
-                    <td className="p-3 text-on-surface-variant font-mono">
-                      ----
-                    </td>
-                    <td className="p-3 text-center font-bold text-primary">--</td>
-                  </tr>
-
-                  {/* Member 5 */}
-                  <tr className="hover:bg-surface-container-low transition-colors">
-                    <td className="p-3 text-center font-bold text-primary">5</td>
-                    <td className="p-3 font-semibold text-on-surface">
-                      {language === 'vi' ? 'Thành viên 5' : 'Member 5'}
-                    </td>
-                    <td className="p-3 font-mono text-on-surface-variant">
-                      .....................
-                    </td>
-                    <td className="p-3 text-on-surface-variant font-mono">
-                      ----
-                    </td>
-                    <td className="p-3 text-center font-bold text-primary">--</td>
-                  </tr>
+                  {TEAM_MEMBERS.map((member) => (
+                    <tr key={member.studentId} className="hover:bg-surface-container-low/60 transition-colors">
+                      <td className="p-3 text-center font-bold text-primary">{member.no}</td>
+                      <td className="p-3 font-semibold text-on-surface whitespace-nowrap">
+                        {language === 'vi' ? member.fullName : member.fullNameEn}
+                      </td>
+                      <td className="p-3 text-center font-mono font-bold text-primary">
+                        <span className="px-2 py-0.5 rounded bg-surface-container-high border border-outline-variant/60">
+                          {member.studentId}
+                        </span>
+                      </td>
+                      <td className="p-3 font-medium text-on-surface-variant whitespace-nowrap">
+                        {language === 'vi' ? member.roleVi : member.role}
+                      </td>
+                      <td className="p-3 text-on-surface-variant leading-relaxed">
+                        {language === 'vi' ? member.contributionVi : member.contribution}
+                      </td>
+                      <td className="p-3 text-center">
+                        <span className="px-2.5 py-0.5 bg-primary/10 text-primary font-bold rounded-full text-[11px]">
+                          {member.share}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
