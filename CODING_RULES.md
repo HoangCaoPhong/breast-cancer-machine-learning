@@ -65,7 +65,8 @@
 - Ghi rõ positive class và averaging; ROC-AUC chỉ dùng khi có score/probability hợp lệ.
 - Error rate phải tính nhất quán: `1 - accuracy`.
 - Báo train và validation/test để có bằng chứng overfit/underfit.
-- Với bối cảnh này phải trình bày riêng malignant recall/false-negative count, nhưng primary metric cuối do owner metrics đề xuất và nhóm ghi vào decision log.
+- Với bối cảnh này, positive class là `M` và primary selection metric là malignant F2
+  (`beta=2`) theo D-006; phải trình bày riêng malignant recall/false-negative count.
 - Mọi tree figure/rule phải khớp feature names sau preprocessing và đủ đọc được.
 
 ## 8. FastAPI
