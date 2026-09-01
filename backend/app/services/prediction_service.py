@@ -107,7 +107,7 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
     {
         "id": "I3",
         "name": "Adjusting minimum samples for split or leaf nodes",
-        "name_vi": "Cải tiến 3: Điều chỉnh số mẫu tối thiểu cho phân nhánh hoặc nút lá",
+        "name_vi": "Cải tiến 3: Điều chỉnh số mẫu tối thiểu (min_samples_split=5)",
         "assigned_to": "Hòa",
         "criterion": SELECTED_MIN_SAMPLES_CONFIG.criterion.capitalize(),
         "max_depth": "None" if SELECTED_MIN_SAMPLES_CONFIG.max_depth is None else SELECTED_MIN_SAMPLES_CONFIG.max_depth,

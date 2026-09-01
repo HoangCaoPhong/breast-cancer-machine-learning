@@ -1008,13 +1008,17 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                           : 'hover:bg-surface-container-low'
                       }`}
                     >
-                      <td className="p-3 text-on-surface font-sans font-medium">
-                        {language === 'vi' ? exp.name : `${exp.id}: ${exp.assignedTo || exp.name}`}
-                        {exp.isBest && (
-                          <span className="ml-2 text-[10px] bg-primary text-white px-2 py-0.5 rounded-full uppercase">
-                            {t.bestBadge}
+                      <td className="p-3 text-on-surface font-sans font-medium whitespace-nowrap">
+                        <div className="flex items-center gap-2 flex-nowrap whitespace-nowrap">
+                          <span className="whitespace-nowrap">
+                            {language === 'vi' ? exp.name : `${exp.id}: ${exp.assignedTo || exp.name}`}
                           </span>
-                        )}
+                          {exp.isBest && (
+                            <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full uppercase font-bold whitespace-nowrap inline-flex items-center gap-1 shrink-0 shadow-2xs">
+                              {t.bestBadge}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="p-3 text-on-surface font-sans">{exp.criterion}</td>
                       <td className="p-3 text-on-surface font-mono">{exp.maxDepth}</td>

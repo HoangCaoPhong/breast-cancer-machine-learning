@@ -210,33 +210,38 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
             </button>
           </div>
 
-          {/* Bottom Execution Controls: Model Selector on Left, Buttons on Right */}
-          <div className="flex flex-wrap gap-3 items-center justify-between pt-1">
-            {/* Algorithm Selector */}
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-sans text-on-surface-variant whitespace-nowrap font-bold flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm text-primary">psychology</span>
-                {t.selectModelLabel}:
+          {/* Bottom Execution Controls: Model Selector & Action Buttons */}
+          <div className="p-3.5 bg-surface-container-low/70 rounded-xl border border-outline-variant/70 space-y-3">
+            {/* Algorithm Selector Row */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <label className="text-xs font-sans text-on-surface font-semibold flex items-center gap-1.5 shrink-0">
+                <span className="material-symbols-outlined text-base text-primary">psychology</span>
+                <span>{t.selectModelLabel}:</span>
               </label>
-              <select
-                value={selectedModelId}
-                onChange={(e) => onModelChange(e.target.value as ModelOptionId)}
-                className="border border-outline-variant rounded-lg px-3 py-2 font-sans text-xs text-on-surface bg-surface-container-low focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors font-medium shadow-sm"
-              >
-                {MODEL_OPTIONS.map((opt) => (
-                  <option key={opt.id} value={opt.id}>
-                    {language === 'vi' ? opt.nameVi : `${opt.id}: ${opt.name}`}
-                  </option>
-                ))}
-              </select>
+              <div className="relative flex-1 min-w-0">
+                <select
+                  value={selectedModelId}
+                  onChange={(e) => onModelChange(e.target.value as ModelOptionId)}
+                  className="w-full truncate border border-outline-variant rounded-lg pl-3 pr-8 py-2 font-sans text-xs text-on-surface bg-surface-container-lowest hover:border-primary/50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors font-medium shadow-2xs cursor-pointer appearance-none"
+                >
+                  {MODEL_OPTIONS.map((opt) => (
+                    <option key={opt.id} value={opt.id} className="py-1">
+                      {language === 'vi' ? `[${opt.id}] ${opt.nameVi}` : `[${opt.id}] ${opt.name}`}
+                    </option>
+                  ))}
+                </select>
+                <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant pointer-events-none">
+                  unfold_more
+                </span>
+              </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-2">
+            {/* Action Buttons Row */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center justify-end gap-2 pt-2 border-t border-outline-variant/50">
               <button
                 type="button"
                 onClick={handleReset}
-                className="px-3.5 py-2 text-on-surface-variant font-sans text-xs hover:bg-surface-container-highest rounded-lg transition-colors flex items-center gap-1.5 border border-outline-variant"
+                className="flex-1 sm:flex-none px-4 py-2 text-on-surface-variant hover:text-on-surface font-sans text-xs font-medium bg-surface-container-lowest hover:bg-surface-container-high rounded-lg transition-colors flex items-center justify-center gap-1.5 border border-outline-variant shadow-2xs"
               >
                 <span className="material-symbols-outlined text-sm">clear_all</span> {t.btnClear}
               </button>
@@ -244,7 +249,7 @@ export const FeatureInputForm: React.FC<FeatureInputFormProps> = ({
                 type="button"
                 onClick={onSubmit}
                 disabled={isLoading}
-                className="px-5 py-2 bg-primary text-on-primary rounded-lg font-sans text-xs font-bold hover:bg-primary-container transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
+                className="flex-1 sm:flex-none px-5 py-2 bg-primary text-on-primary rounded-lg font-sans text-xs font-bold hover:bg-primary-container transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 hover:shadow"
               >
                 <span className="material-symbols-outlined text-sm">play_arrow</span>
                 {isLoading ? t.btnSubmitting : t.btnSubmit}
