@@ -68,6 +68,29 @@ const CONFUSION_MATRIX_MAP: Record<
   },
 };
 
+const MODEL_TOOLTIP_MAP: Record<string, { vi: string; en: string }> = {
+  B0: {
+    vi: 'B0: Mô hình Gốc - Sklearn Baseline (Unpruned Tree, max_depth=Không giới hạn)',
+    en: 'B0: Baseline Model - Sklearn Baseline (Unpruned Tree)',
+  },
+  C0: {
+    vi: 'C0: Cây Tự Lập Trình - Custom Decision Tree from Scratch (Phong)',
+    en: 'C0: Custom Decision Tree from Scratch (Phong)',
+  },
+  I1: {
+    vi: 'I1: Cải tiến 1 - Khống chế Chiều sâu cây (max_depth=8 qua Grid Search & 5-Fold CV) (Phong)',
+    en: 'I1: Improvement 1 - Constrain Maximum Depth (max_depth=8) (Phong)',
+  },
+  I2: {
+    vi: 'I2: Cải tiến 2 - Tiêu chuẩn phân hoạch (Gini vs Entropy, chọn Gini qua 5-Fold CV) (Ngọc)',
+    en: 'I2: Improvement 2 - Splitting Criterion (Gini vs Entropy, Gini selected) (Ngoc)',
+  },
+  I3: {
+    vi: 'I3: Cải tiến 3 - Điều chỉnh số mẫu tối thiểu (min_samples_split=5, leaf=1) ⭐ TỐT NHẤT (Hòa)',
+    en: 'I3: Improvement 3 - Minimum Sample Constraint (min_split=5, leaf=1) ⭐ BEST (Hoa)',
+  },
+};
+
 // Recursive Dynamic Tree Node Renderer with Live Decision Path, Orientation & Enhanced Branch Lines
 interface DynamicTreeNodeViewProps {
   node: TreeNodeData;
@@ -622,8 +645,24 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-sans text-on-surface-variant">
-                    {t.treeModelLabel}: <strong className="text-primary">{selectedModelId}</strong>
+                    {t.treeModelLabel}:
                   </span>
+                  <div className="relative group inline-flex items-center">
+                    <strong className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded border border-primary/20 cursor-help font-mono text-xs shadow-2xs">
+                      {selectedModelId}
+                    </strong>
+                    {/* Instant Tooltip (0ms delay) */}
+                    <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center z-50 animate-fade-in whitespace-nowrap">
+                      <div className="bg-slate-900/95 backdrop-blur-sm text-white text-[11px] font-sans font-medium px-2.5 py-1 rounded-md shadow-lg border border-slate-700 text-center">
+                        {MODEL_TOOLTIP_MAP[selectedModelId]
+                          ? language === 'vi'
+                            ? MODEL_TOOLTIP_MAP[selectedModelId].vi
+                            : MODEL_TOOLTIP_MAP[selectedModelId].en
+                          : selectedModelId}
+                      </div>
+                      <div className="w-2 h-2 bg-slate-900/95 rotate-45 -mt-1 border-r border-b border-slate-700" />
+                    </div>
+                  </div>
                   <span className="text-outline text-xs">|</span>
                   <div className="flex items-center gap-2 text-xs font-sans">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-highest text-tertiary-container font-semibold text-[11px]">
@@ -1013,22 +1052,39 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                   </h4>
                 </div>
 
-                {/* Direct Model Switcher for Confusion Matrix */}
+                {/* Direct Model Switcher for Confusion Matrix with Instant Tooltip */}
                 <div className="flex items-center gap-1 bg-surface-bright p-1 rounded-lg border border-outline-variant flex-wrap">
-                  {(['B0', 'C0', 'I1', 'I2', 'I3'] as const).map((mId) => (
-                    <button
-                      key={mId}
-                      type="button"
-                      onClick={() => setMatrixModelId(mId)}
-                      className={`px-2.5 py-1 text-[11px] rounded font-mono font-bold transition-all ${
-                        matrixModelId === mId
-                          ? 'bg-primary text-white shadow-xs scale-105'
-                          : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'
-                      }`}
-                    >
-                      {mId}
-                    </button>
-                  ))}
+                  {(['B0', 'C0', 'I1', 'I2', 'I3'] as const).map((mId) => {
+                    const tooltipInfo = MODEL_TOOLTIP_MAP[mId];
+                    const tooltipText = tooltipInfo
+                      ? language === 'vi'
+                        ? tooltipInfo.vi
+                        : tooltipInfo.en
+                      : mId;
+
+                    return (
+                      <div key={mId} className="relative group inline-flex items-center">
+                        <button
+                          type="button"
+                          onClick={() => setMatrixModelId(mId)}
+                          className={`px-2.5 py-1 text-[11px] rounded font-mono font-bold transition-all ${
+                            matrixModelId === mId
+                              ? 'bg-primary text-white shadow-xs scale-105'
+                              : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'
+                          }`}
+                        >
+                          {mId}
+                        </button>
+                        {/* Instant Hover Tooltip (0ms delay) */}
+                        <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center z-50 animate-fade-in whitespace-nowrap">
+                          <div className="bg-slate-900/95 backdrop-blur-sm text-white text-[11px] font-sans font-medium px-2.5 py-1 rounded-md shadow-lg border border-slate-700 text-center">
+                            {tooltipText}
+                          </div>
+                          <div className="w-2 h-2 bg-slate-900/95 rotate-45 -mt-1 border-r border-b border-slate-700" />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
