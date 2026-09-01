@@ -15,8 +15,9 @@ import {
   TechnicalDetailsSection,
   DetailTab,
 } from './features/prediction/TechnicalDetailsSection';
+import { LanguageProvider } from './context/LanguageContext';
 
-export const App: React.FC = () => {
+const MainApp: React.FC = () => {
   const [features, setFeatures] = useState<BreastCancerFeatures>({
     ...INITIAL_DEFAULT_FEATURES,
   });
@@ -62,7 +63,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="bg-background text-on-surface font-body-md min-h-screen flex flex-col">
-      {/* Top Navbar (Horizontal) */}
+      {/* Top Navbar (Horizontal with Language Switcher) */}
       <TopNavbar
         onResetFeatures={handleResetFeatures}
         onNavigateSection={handleNavigateSection}
@@ -107,4 +108,13 @@ export const App: React.FC = () => {
   );
 };
 
+export const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <MainApp />
+    </LanguageProvider>
+  );
+};
+
 export default App;
+

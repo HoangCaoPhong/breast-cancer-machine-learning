@@ -7,6 +7,7 @@ import {
 } from '../../types/prediction';
 import { EXPERIMENT_COMPARISON_DATA } from '../../data/featureDefinitions';
 import { PredictionService } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 
 export type DetailTab = 'tree' | 'experiments' | 'improvements' | 'dataset';
 export type TreeOrientation = 'vertical' | 'horizontal';
@@ -21,38 +22,43 @@ interface TechnicalDetailsSectionProps {
 // Confusion matrix data for each model based on test set (171 samples: 107 Benign, 64 Malignant)
 const CONFUSION_MATRIX_MAP: Record<
   string,
-  { tn: number; fp: number; fn: number; tp: number; name: string }
+  { tn: number; fp: number; fn: number; tp: number; nameVi: string; nameEn: string }
 > = {
   B0: {
-    name: 'Mô hình Gốc: Sklearn Baseline (Unpruned)',
+    nameVi: 'Mô hình Gốc: Sklearn Baseline (Unpruned)',
+    nameEn: 'Baseline Model: Sklearn Unpruned Tree',
     tn: 101,
     fp: 6,
     fn: 6,
     tp: 58,
   },
   C0: {
-    name: 'Cây Tự Lập Trình: Custom Tree',
+    nameVi: 'Cây Tự Lập Trình: Custom Tree',
+    nameEn: 'Custom Decision Tree from Scratch',
     tn: 104,
     fp: 3,
     fn: 14,
     tp: 50,
   },
   I1: {
-    name: 'Cải tiến 1: Giới hạn Độ sâu cây (max_depth=3)',
+    nameVi: 'Cải tiến 1: Giới hạn Độ sâu cây (max_depth=3)',
+    nameEn: 'Improvement 1: Max Depth Constraint (depth=3)',
     tn: 103,
     fp: 4,
     fn: 10,
     tp: 54,
   },
   I2: {
-    name: 'Cải tiến 2: Dùng Tiêu chuẩn Entropy',
+    nameVi: 'Cải tiến 2: Dùng Tiêu chuẩn Entropy',
+    nameEn: 'Improvement 2: Splitting Criterion (Entropy)',
     tn: 103,
     fp: 4,
     fn: 8,
     tp: 56,
   },
   I3: {
-    name: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu cho phân nhánh hoặc nút lá (min_samples)',
+    nameVi: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu (min_samples)',
+    nameEn: 'Improvement 3: Adjusting min_samples for split / leaf nodes',
     tn: 104,
     fp: 3,
     fn: 8,
@@ -82,6 +88,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
   orientation = 'vertical',
   viewMode = 'full',
 }) => {
+  const { language, t } = useLanguage();
   const isLeaf = node.isLeaf || !node.children || node.children.length === 0;
   const isMalignant =
     node.predictedClass === 'Malignant' ||
@@ -118,8 +125,8 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
         {isActivePath && !isLeaf && currentStep && (
           <div className="inline-flex items-center gap-1 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 shadow-sm animate-fade-in whitespace-nowrap">
             <span className="material-symbols-outlined text-[12px]">route</span>
-            Bước {depth + 1}: {currentStep.actualValue} ≤ {currentStep.threshold} ➔{' '}
-            {currentStep.isSatisfied ? 'ĐÚNG' : 'SAI'}
+            {t.stepPrefix} {depth + 1}: {currentStep.actualValue} ≤ {currentStep.threshold} ➔{' '}
+            {currentStep.isSatisfied ? t.stepTrue : t.stepFalse}
           </div>
         )}
 
@@ -133,7 +140,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
             <span className="material-symbols-outlined text-[12px]">
               {isMalignant ? 'warning' : 'verified'}
             </span>
-            🎯 ĐÍCH ĐẾN: {isMalignant ? 'Ác tính (Malignant)' : 'Lành tính (Benign)'}
+            {t.leafTargetBanner} {isMalignant ? t.diagnosisMalignant : t.diagnosisBenign}
           </div>
         )}
 
@@ -170,7 +177,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
           >
             {node.name ||
               (isLeaf
-                ? `Nút Lá: ${node.predictedClass}`
+                ? `${language === 'vi' ? 'Nút Lá' : 'Leaf'}: ${node.predictedClass}`
                 : `${node.feature} ≤ ${node.threshold}`)}
           </div>
 
@@ -182,7 +189,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
 
           {node.samples !== undefined && (
             <div className="text-[11px] text-on-surface-variant mt-0.5">
-              Tổng số mẫu: <strong>{node.samples}</strong>
+              {t.totalSamples}: <strong>{node.samples}</strong>
             </div>
           )}
 
@@ -193,8 +200,12 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
 
             return (
               <div className="text-[11px] text-outline mt-1 flex justify-center gap-2 font-mono flex-wrap">
-                <span className="text-tertiary-container font-medium">Lành: {node.values[0]} ({benignPct}%)</span>
-                <span className="text-error font-medium">Ác: {node.values[1]} ({malignantPct}%)</span>
+                <span className="text-tertiary-container font-medium">
+                  {language === 'vi' ? 'Lành' : 'Benign'}: {node.values[0]} ({benignPct}%)
+                </span>
+                <span className="text-error font-medium">
+                  {language === 'vi' ? 'Ác' : 'Malignant'}: {node.values[1]} ({malignantPct}%)
+                </span>
               </div>
             );
           })()}
@@ -232,7 +243,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
                         <span className="material-symbols-outlined text-[11px]">
                           {isLeft ? 'check_circle' : 'cancel'}
                         </span>
-                        {isLeft ? '≤ Đúng' : '> Sai'}
+                        {isLeft ? t.branchLeftShort : t.branchRightShort}
                         {isChildActivePath && ' ✓'}
                       </span>
                       <DynamicTreeNodeView
@@ -294,7 +305,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
                         <span className="material-symbols-outlined text-[12px]">
                           {isLeft ? 'check_circle' : 'cancel'}
                         </span>
-                        {isLeft ? 'Nhánh Trái (Đúng: ≤ Ngưỡng)' : 'Nhánh Phải (Sai: > Ngưỡng)'}
+                        {isLeft ? t.branchLeftTrue : t.branchRightFalse}
                         {isChildActivePath && ' ✓'}
                       </span>
 
@@ -330,6 +341,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
   activeTab,
   onTabChange,
 }) => {
+  const { language, t } = useLanguage();
   const [experiments, setExperiments] = useState<ModelExperiment[]>(
     EXPERIMENT_COMPARISON_DATA
   );
@@ -476,10 +488,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
           <span className="material-symbols-outlined text-primary">schema</span>
           <div>
             <h3 className="font-headline-md text-headline-md text-on-surface">
-              Cơ sở Phân tích &amp; Báo cáo Thực nghiệm
+              {t.treeSectionTitle}
             </h3>
             <p className="text-xs font-sans text-on-surface-variant">
-              Trực quan hóa cấu trúc cây và đường suy luận, ma trận nhầm lẫn, bảng so sánh đối chuẩn và phân tích 3 phương pháp cải tiến
+              {t.treeSectionSubtitle}
             </p>
           </div>
         </div>
@@ -496,7 +508,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
             }`}
           >
             <span className="material-symbols-outlined text-sm">account_tree</span>
-            Cấu trúc Cây &amp; Suy luận
+            {t.tabTreeTitle}
           </button>
           <button
             type="button"
@@ -508,7 +520,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
             }`}
           >
             <span className="material-symbols-outlined text-sm">table_chart</span>
-            So sánh &amp; Ma trận Nhầm lẫn
+            {t.tabExperimentsTitle}
           </button>
           <button
             type="button"
@@ -520,7 +532,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
             }`}
           >
             <span className="material-symbols-outlined text-sm">auto_fix_high</span>
-            Phân tích 3 Cải tiến
+            {t.tabImprovementsTitle}
           </button>
           <button
             type="button"
@@ -532,7 +544,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
             }`}
           >
             <span className="material-symbols-outlined text-sm">description</span>
-            Hồ sơ Dữ liệu
+            {t.tabDatasetTitle}
           </button>
         </div>
       </div>
@@ -546,17 +558,17 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
               <div className="p-3 bg-primary/10 border border-primary/30 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-sans">
                 <div className="flex items-center gap-2 text-primary font-bold">
                   <span className="material-symbols-outlined text-base animate-spin text-primary">navigation</span>
-                  <span>Đang hiển thị Đường đi Suy luận (Decision Trajectory) của mẫu hiện tại:</span>
+                  <span>{t.trajectoryBannerTitle}</span>
                 </div>
                 <div className="flex items-center gap-2 font-mono text-[11px] text-on-surface">
-                  <span>Trải qua {decisionPath.length} phép thử phân tách</span>
+                  <span>{t.trajectoryStepsCount.replace('{count}', String(decisionPath.length))}</span>
                   <span>➔</span>
                   <span
                     className={`px-2.5 py-0.5 rounded text-white font-bold ${
                       result.prediction === 'M' ? 'bg-error' : 'bg-tertiary-container'
                     }`}
                   >
-                    {result.diagnosisLabelVi} ({formatPercent(result.confidence)})
+                    {language === 'vi' ? result.diagnosisLabelVi : result.diagnosisLabel} ({formatPercent(result.confidence)})
                   </span>
                 </div>
               </div>
@@ -564,7 +576,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
               <div className="p-3 bg-surface-container-low border border-outline-variant rounded-xl flex items-center justify-between gap-2 text-xs font-sans text-on-surface-variant">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-base text-primary">lightbulb</span>
-                  <span>Nhập thông số hoặc chọn mẫu ca bệnh ở trên rồi bấm <strong>"Thực hiện chẩn đoán"</strong> để xem vệt sáng minh họa đường suy luận từng bước trên cây!</span>
+                  <span>{t.trajectoryPrompt}</span>
                 </div>
               </div>
             )}
@@ -574,20 +586,20 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-sans text-on-surface-variant">
-                    Mô hình: <strong className="text-primary">{selectedModelId}</strong>
+                    {t.treeModelLabel}: <strong className="text-primary">{selectedModelId}</strong>
                   </span>
                   <span className="text-outline text-xs">|</span>
                   <div className="flex items-center gap-2 text-xs font-sans">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-highest text-tertiary-container font-semibold text-[11px]">
-                      ● Lành tính
+                      {t.legendBenign}
                     </span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-error-container text-error font-semibold text-[11px]">
-                      ● Ác tính
+                      {t.legendMalignant}
                     </span>
                   </div>
                 </div>
 
-                {/* View Scope Toggle: Toàn bộ cây vs Nhánh suy luận (làm mờ nhánh phụ) */}
+                {/* View Scope Toggle: Toàn bộ cây vs Nhánh suy luận */}
                 <div className="flex items-center bg-surface-container-low p-0.5 rounded-lg border border-outline-variant">
                   <button
                     type="button"
@@ -600,10 +612,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                         ? 'bg-white text-primary font-bold shadow-sm'
                         : 'text-on-surface-variant hover:text-primary'
                     }`}
-                    title="Hiển thị tất cả nhánh rõ 100% không làm mờ"
+                    title="Hiển thị tất cả nhánh rõ 100%"
                   >
                     <span className="material-symbols-outlined text-sm">nature</span>
-                    Toàn bộ cây
+                    {t.viewModeFull}
                   </button>
                   <button
                     type="button"
@@ -616,10 +628,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                         ? 'bg-white text-primary font-bold shadow-sm'
                         : 'text-on-surface-variant hover:text-primary'
                     }`}
-                    title="Làm nổi bật nhánh suy luận và làm mờ các nhánh không liên quan"
+                    title="Làm nổi bật nhánh suy luận"
                   >
                     <span className="material-symbols-outlined text-sm">timeline</span>
-                    Chỉ nhánh suy luận
+                    {t.viewModePath}
                   </button>
                 </div>
               </div>
@@ -639,10 +651,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                         ? 'bg-white text-primary font-bold shadow-sm'
                         : 'text-on-surface-variant hover:text-primary'
                     }`}
-                    title="Xem cây theo chiều dọc (Từ trên xuống dưới)"
+                    title="Xem dọc"
                   >
                     <span className="material-symbols-outlined text-sm">align_vertical_top</span>
-                    Xem Dọc
+                    {t.orientationVertical}
                   </button>
                   <button
                     type="button"
@@ -655,10 +667,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                         ? 'bg-white text-primary font-bold shadow-sm'
                         : 'text-on-surface-variant hover:text-primary'
                     }`}
-                    title="Xem cây theo chiều ngang (Từ trái sang phải)"
+                    title="Xem ngang"
                   >
                     <span className="material-symbols-outlined text-sm">align_horizontal_left</span>
-                    Xem Ngang
+                    {t.orientationHorizontal}
                   </button>
                 </div>
 
@@ -687,15 +699,15 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                     type="button"
                     onClick={handleResetZoom}
                     className="px-2 py-1 text-[11px] text-on-surface-variant hover:text-primary rounded hover:bg-white transition-colors border-l border-outline-variant font-sans"
-                    title="Đặt lại vị trí &amp; kích thước mặc định"
+                    title="Đặt lại kích thước mặc định"
                   >
-                    ↺ Đặt lại
+                    {t.zoomReset}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Dynamic Hierarchical Tree Canvas with Centered Root, Drag-and-Pan & Scroll Wheel Zoom */}
+            {/* Dynamic Hierarchical Tree Canvas */}
             <div
               ref={containerRef}
               className={`relative overflow-hidden bg-surface-container-low border border-outline-variant rounded-xl p-4 font-sans text-xs min-h-[500px] max-h-[720px] select-none flex ${
@@ -710,18 +722,18 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
               <div className="absolute bottom-3 right-3 z-10 bg-white/95 backdrop-blur-sm border border-outline-variant rounded-md px-2.5 py-1 text-[10px] text-on-surface-variant flex items-center gap-2 shadow-sm pointer-events-none">
                 <span className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-[13px] text-primary">drag_pan</span>
-                  <span>Kéo chuột để di chuyển</span>
+                  <span>{t.canvasDragHelper}</span>
                 </span>
                 <span className="text-outline">·</span>
                 <span className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-[13px] text-primary">mouse</span>
-                  <span>Lăn chuột để Phóng to / Thu nhỏ</span>
+                  <span>{t.canvasWheelHelper}</span>
                 </span>
               </div>
 
               {loadingTree ? (
                 <div className="text-center py-16 text-on-surface-variant">
-                  Đang nạp cấu trúc cây quyết định từ máy chủ...
+                  {t.loadingTree}
                 </div>
               ) : treeData ? (
                 <div
@@ -748,12 +760,12 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                 </div>
               ) : (
                 <div className="text-center py-16 text-on-surface-variant">
-                  Chưa có dữ liệu cấu trúc cây cho mô hình này.
+                  {t.noTreeData}
                 </div>
               )}
             </div>
 
-            {/* Dynamic Tree Analysis & Overfitting Insights based on current treeData and model */}
+            {/* Dynamic Tree Analysis & Overfitting Insights */}
             {(() => {
               const calculateStats = (node: TreeNodeData | null): { depth: number; leaves: number; totalNodes: number } => {
                 if (!node) return { depth: 0, leaves: 0, totalNodes: 0 };
@@ -778,10 +790,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                     <h4 className="font-bold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5">
                       <span className="material-symbols-outlined text-sm">insights</span>
-                      Nhận Xét Động: Cấu Trúc Cây &amp; Hiện Tượng Quá Khớp ({selectedModelId})
+                      {t.insightsTitle} ({selectedModelId})
                     </h4>
                     <span className="text-[11px] font-mono text-on-surface-variant">
-                      Độ sâu thực tế: <strong>{treeStats.depth}</strong> · Tổng nút lá: <strong>{treeStats.leaves}</strong> · Tổng số nút: <strong>{treeStats.totalNodes}</strong>
+                      {t.insightsDepth}: <strong>{treeStats.depth}</strong> · {t.insightsLeaves}: <strong>{treeStats.leaves}</strong> · {t.insightsNodes}: <strong>{treeStats.totalNodes}</strong>
                     </span>
                   </div>
 
@@ -790,10 +802,18 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                     <div className="bg-white p-3 rounded-lg border border-outline-variant space-y-1">
                       <div className="font-semibold text-primary flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm text-primary">alt_route</span>
-                        1. Phân tách then chốt tại nút gốc
+                        {t.insightRootTitle}
                       </div>
                       <p className="text-on-surface-variant leading-relaxed">
-                        Mô hình <strong>{selectedModelId}</strong> chọn thuộc tính <code className="font-mono bg-surface-container-low px-1 py-0.5 rounded font-bold text-primary">{rootFeature} ≤ {rootThreshold}</code> làm nút gốc để phân loại ban đầu trên <strong>{rootSamples} mẫu</strong>, tối ưu hóa mức giảm tạp chất lớn nhất.
+                        {language === 'vi' ? (
+                          <>
+                            Mô hình <strong>{selectedModelId}</strong> chọn thuộc tính <code className="font-mono bg-surface-container-low px-1 py-0.5 rounded font-bold text-primary">{rootFeature} ≤ {rootThreshold}</code> làm nút gốc để phân loại ban đầu trên <strong>{rootSamples} mẫu</strong>, tối ưu hóa mức giảm tạp chất lớn nhất.
+                          </>
+                        ) : (
+                          <>
+                            Model <strong>{selectedModelId}</strong> selects <code className="font-mono bg-surface-container-low px-1 py-0.5 rounded font-bold text-primary">{rootFeature} ≤ {rootThreshold}</code> as primary root split over <strong>{rootSamples} samples</strong>, maximizing information purity reduction.
+                          </>
+                        )}
                       </p>
                     </div>
 
@@ -801,33 +821,25 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                     <div className="bg-white p-3 rounded-lg border border-outline-variant space-y-1">
                       <div className="font-semibold text-error flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm text-error">account_tree</span>
-                        2. Cấu trúc tầng &amp; Nguy cơ quá khớp
+                        {t.insightStructureTitle}
                       </div>
                       <p className="text-on-surface-variant leading-relaxed">
-                        {selectedModelId === 'B0' && (
-                          <span>
-                            Cây gốc không giới hạn (Unpruned) phát triển tới <strong>độ sâu {treeStats.depth}</strong> với <strong>{treeStats.leaves} nút lá</strong>, sinh ra nhiều lá nhỏ chứa ít mẫu, làm tăng phương sai và nguy cơ Overfitting.
-                          </span>
-                        )}
-                        {selectedModelId === 'C0' && (
-                          <span>
-                            Cây tự viết từ đầu (From Scratch) đạt <strong>độ sâu {treeStats.depth}</strong> với <strong>{treeStats.leaves} nút lá</strong>, thể hiện thuật toán đệ quy tự code hoạt động đồng nhất với cấu trúc cây chuẩn.
-                          </span>
-                        )}
-                        {selectedModelId === 'I1' && (
-                          <span>
-                            Khống chế <strong>max_depth=3</strong> giới hạn cây ở <strong>{treeStats.depth} tầng</strong> ({treeStats.leaves} lá), đơn giản hóa tối đa cấu trúc cây, loại bỏ hoàn toàn các nhánh phức tạp dư thừa.
-                          </span>
-                        )}
-                        {selectedModelId === 'I2' && (
-                          <span>
-                            Sử dụng tiêu chuẩn <strong>Entropy</strong> tạo cây có <strong>độ sâu {treeStats.depth}</strong> ({treeStats.leaves} lá), các ngưỡng cắt có độ phân hóa mạnh mẽ theo thước đo Độ lợi thông tin.
-                          </span>
-                        )}
-                        {selectedModelId === 'I3' && (
-                          <span>
-                            Áp dụng <strong>min_samples_split=4, leaf=2</strong> giúp cây dừng sớm ở <strong>độ sâu {treeStats.depth}</strong> ({treeStats.leaves} lá), ngăn chặn việc hình thành các lá đơn lẻ (1 mẫu).
-                          </span>
+                        {language === 'vi' ? (
+                          <>
+                            {selectedModelId === 'B0' && `Cây gốc không giới hạn (Unpruned) phát triển tới độ sâu ${treeStats.depth} với ${treeStats.leaves} nút lá, sinh ra nhiều lá nhỏ chứa ít mẫu, làm tăng phương sai và nguy cơ Overfitting.`}
+                            {selectedModelId === 'C0' && `Cây tự viết từ đầu (From Scratch) đạt độ sâu ${treeStats.depth} với ${treeStats.leaves} nút lá, thể hiện thuật toán đệ quy tự code hoạt động đồng nhất với cấu trúc cây chuẩn.`}
+                            {selectedModelId === 'I1' && `Khống chế max_depth=3 giới hạn cây ở ${treeStats.depth} tầng (${treeStats.leaves} lá), đơn giản hóa tối đa cấu trúc cây, loại bỏ hoàn toàn các nhánh phức tạp dư thừa.`}
+                            {selectedModelId === 'I2' && `Sử dụng tiêu chuẩn Entropy tạo cây có độ sâu ${treeStats.depth} (${treeStats.leaves} lá), các ngưỡng cắt có độ phân hóa mạnh mẽ theo thước đo Độ lợi thông tin.`}
+                            {selectedModelId === 'I3' && `Áp dụng min_samples_split=4, leaf=2 giúp cây dừng sớm ở độ sâu ${treeStats.depth} (${treeStats.leaves} lá), ngăn chặn việc hình thành các lá đơn lẻ (1 mẫu).`}
+                          </>
+                        ) : (
+                          <>
+                            {selectedModelId === 'B0' && `Unpruned baseline expands to depth ${treeStats.depth} with ${treeStats.leaves} leaves, producing noisy isolate splits and elevated overfitting variance.`}
+                            {selectedModelId === 'C0' && `Scratch recursive implementation constructs a depth-${treeStats.depth} hierarchy with ${treeStats.leaves} terminal leaves.`}
+                            {selectedModelId === 'I1' && `Enforcing max_depth=3 restricts expansion to exactly ${treeStats.depth} levels (${treeStats.leaves} leaves), pruning idiosyncratic noise.`}
+                            {selectedModelId === 'I2' && `Entropy splitting criterion produces a depth-${treeStats.depth} tree (${treeStats.leaves} leaves) with sharp information gain bounds.`}
+                            {selectedModelId === 'I3' && `Configuring min_samples_split=4, leaf=2 prunes isolate leaves to ${treeStats.leaves} leaves at depth ${treeStats.depth}.`}
+                          </>
                         )}
                       </p>
                     </div>
@@ -836,17 +848,29 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                     <div className="bg-white p-3 rounded-lg border border-outline-variant space-y-1">
                       <div className="font-semibold text-primary flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm text-primary">verified</span>
-                        3. Đánh giá tổng quát hóa (Test Set)
+                        {t.insightGeneralizationTitle}
                       </div>
                       <p className="text-on-surface-variant leading-relaxed">
-                        {selectedModelId === 'I3' ? (
-                          <span>
-                            Mô hình đạt điểm số tốt nhất: <strong>Độ chính xác {accuracy}</strong>, <strong>Recall Ác tính {recall}</strong> và <strong>F1 {f1}</strong>, chứng minh việc cắt tỉa mẫu tối thiểu giúp cây khái quát hóa tối ưu nhất.
-                          </span>
+                        {language === 'vi' ? (
+                          selectedModelId === 'I3' ? (
+                            <span>
+                              Mô hình đạt điểm số tốt nhất: <strong>Độ chính xác {accuracy}</strong>, <strong>Recall Ác tính {recall}</strong> và <strong>F1 {f1}</strong>, chứng minh việc cắt tỉa mẫu tối thiểu giúp cây khái quát hóa tối ưu nhất.
+                            </span>
+                          ) : (
+                            <span>
+                              Mô hình đạt <strong>Độ chính xác {accuracy}</strong> với <strong>tỷ lệ lỗi {errorRate}</strong> và <strong>F1 {f1}</strong> trên tập kiểm thử độc lập.
+                            </span>
+                          )
                         ) : (
-                          <span>
-                            Mô hình đạt <strong>Độ chính xác {accuracy}</strong> với <strong>tỷ lệ lỗi {errorRate}</strong> và <strong>F1 {f1}</strong> trên tập kiểm thử độc lập.
-                          </span>
+                          selectedModelId === 'I3' ? (
+                            <span>
+                              Achieves peak performance: <strong>Accuracy {accuracy}</strong>, <strong>Malignant Recall {recall}</strong>, and <strong>F1-Score {f1}</strong> on held-out test cohort.
+                            </span>
+                          ) : (
+                            <span>
+                              Evaluated at <strong>Accuracy {accuracy}</strong> with <strong>Error Rate {errorRate}</strong> and <strong>F1-Score {f1}</strong> on test partition.
+                            </span>
+                          )
                         )}
                       </p>
                     </div>
@@ -863,19 +887,19 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
             {/* Quick KPI Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
-                <div className="font-sans text-xs text-on-surface-variant font-medium">Độ chính xác toàn cục</div>
+                <div className="font-sans text-xs text-on-surface-variant font-medium">{t.matrixAccuracyCard}</div>
                 <div className="font-mono text-lg font-bold text-primary mt-1">{accuracy}</div>
               </div>
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
-                <div className="font-sans text-xs text-on-surface-variant font-medium">Tỷ lệ phân loại sai (Error Rate)</div>
+                <div className="font-sans text-xs text-on-surface-variant font-medium">{t.matrixErrorCard}</div>
                 <div className="font-mono text-lg font-bold text-error mt-1">{errorRate}</div>
               </div>
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
-                <div className="font-sans text-xs text-on-surface-variant font-medium">Độ nhạy Ác tính (Recall)</div>
+                <div className="font-sans text-xs text-on-surface-variant font-medium">{t.matrixRecallCard}</div>
                 <div className="font-mono text-lg font-bold text-primary mt-1">{recall}</div>
               </div>
               <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant text-center">
-                <div className="font-sans text-xs text-on-surface-variant font-medium">Điểm tổng hòa F1-Score</div>
+                <div className="font-sans text-xs text-on-surface-variant font-medium">{t.matrixF1Card}</div>
                 <div className="font-mono text-lg font-bold text-primary mt-1">{f1}</div>
               </div>
             </div>
@@ -885,13 +909,13 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
               <table className="w-full text-left font-sans text-xs border-collapse">
                 <thead className="bg-surface-bright text-on-surface font-semibold border-b border-outline-variant">
                   <tr>
-                    <th className="p-3">Phương pháp / Mô hình</th>
-                    <th className="p-3">Tiêu chuẩn phân hoạch</th>
-                    <th className="p-3">Độ sâu tối đa</th>
-                    <th className="p-3 text-primary">Độ chính xác (Accuracy)</th>
-                    <th className="p-3 text-error">Tỷ lệ lỗi (Error Rate)</th>
-                    <th className="p-3">Độ nhạy Ác tính (Recall)</th>
-                    <th className="p-3">F1-Score</th>
+                    <th className="p-3">{t.colModelName}</th>
+                    <th className="p-3">{t.colCriterion}</th>
+                    <th className="p-3">{t.colDepth}</th>
+                    <th className="p-3 text-primary">{t.colAccuracy}</th>
+                    <th className="p-3 text-error">{t.colError}</th>
+                    <th className="p-3">{t.colRecall}</th>
+                    <th className="p-3">{t.colF1}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant font-mono">
@@ -905,10 +929,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                       }`}
                     >
                       <td className="p-3 text-on-surface font-sans font-medium">
-                        {exp.name}
+                        {language === 'vi' ? exp.name : `${exp.id}: ${exp.assignedTo || exp.name}`}
                         {exp.isBest && (
                           <span className="ml-2 text-[10px] bg-primary text-white px-2 py-0.5 rounded-full uppercase">
-                            Tốt nhất
+                            {t.bestBadge}
                           </span>
                         )}
                       </td>
@@ -938,7 +962,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                 <div className="flex items-center gap-2">
                   <h4 className="font-bold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-sm">grid_view</span>
-                    Ma Trận Nhầm Lẫn (Confusion Matrix: {currentMatrix.name})
+                    {t.confusionMatrixTitle} ({language === 'vi' ? currentMatrix.nameVi : currentMatrix.nameEn})
                   </h4>
                 </div>
 
@@ -966,17 +990,19 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                 <div className="bg-white rounded-xl border border-outline-variant p-3 shadow-sm">
                   <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
                     {/* Header */}
-                    <div className="p-2 text-[11px] font-bold text-on-surface-variant">Thực tế \ Dự đoán</div>
+                    <div className="p-2 text-[11px] font-bold text-on-surface-variant">
+                      {language === 'vi' ? 'Thực tế \\ Dự đoán' : 'Actual \\ Pred'}
+                    </div>
                     <div className="p-2 font-bold bg-surface-container-low rounded text-tertiary-container">
-                      Dự đoán Lành tính (B)
+                      {t.predBenign}
                     </div>
                     <div className="p-2 font-bold bg-surface-container-low rounded text-error">
-                      Dự đoán Ác tính (M)
+                      {t.predMalignant}
                     </div>
 
                     {/* Row 1: Actual Benign */}
                     <div className="p-2.5 font-bold bg-surface-container-low rounded flex items-center justify-center text-on-surface">
-                      Thực tế: Lành tính (B)
+                      {t.actualBenign}
                     </div>
                     <div className="p-3 bg-surface-container-highest/60 border border-tertiary-container/30 rounded-lg text-center">
                       <div className="font-mono text-base font-bold text-tertiary-container">{currentMatrix.tn}</div>
@@ -989,7 +1015,7 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
 
                     {/* Row 2: Actual Malignant */}
                     <div className="p-2.5 font-bold bg-surface-container-low rounded flex items-center justify-center text-on-surface">
-                      Thực tế: Ác tính (M)
+                      {t.actualMalignant}
                     </div>
                     <div className="p-3 bg-error-container/40 border border-error rounded-lg text-center">
                       <div className="font-mono text-base font-bold text-error">{currentMatrix.fn}</div>
@@ -1007,20 +1033,36 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                   <div className="p-3 bg-white rounded-lg border border-outline-variant space-y-1">
                     <strong className="text-on-surface font-semibold flex items-center gap-1">
                       <span className="material-symbols-outlined text-sm text-tertiary-container">verified</span>
-                      Khả năng phát hiện khối u chính xác:
+                      {t.clinicalInterpretationTitle}
                     </strong>
                     <p className="leading-relaxed">
-                      Mô hình nhận diện chính xác <strong>{currentMatrix.tp} / 64 ca ác tính thực tế</strong> (Độ nhạy Recall = {((currentMatrix.tp / 64) * 100).toFixed(1)}%) và <strong>{currentMatrix.tn} / 107 ca lành tính</strong>.
+                      {language === 'vi' ? (
+                        <>
+                          Mô hình nhận diện chính xác <strong>{currentMatrix.tp} / 64 ca ác tính thực tế</strong> (Độ nhạy Recall = {((currentMatrix.tp / 64) * 100).toFixed(1)}%) và <strong>{currentMatrix.tn} / 107 ca lành tính</strong>.
+                        </>
+                      ) : (
+                        <>
+                          Correctly identified <strong>{currentMatrix.tp} / 64 malignant cases</strong> (Recall Sensitivity = {((currentMatrix.tp / 64) * 100).toFixed(1)}%) and <strong>{currentMatrix.tn} / 107 benign cases</strong>.
+                        </>
+                      )}
                     </p>
                   </div>
 
                   <div className="p-3 bg-white rounded-lg border border-outline-variant space-y-1">
                     <strong className="text-error font-semibold flex items-center gap-1">
                       <span className="material-symbols-outlined text-sm">warning</span>
-                      Ý nghĩa an toàn y khoa (False Negatives - Bỏ sót ác tính):
+                      {t.clinicalSafetyTitle}
                     </strong>
                     <p className="leading-relaxed">
-                      Trong chẩn đoán ung thư, mục tiêu tối thượng là giảm thiểu <strong>FN ({currentMatrix.fn} ca)</strong> vì bỏ sót ca ác tính nguy hiểm hơn rất nhiều so với chẩn đoán nhầm ca lành tính.
+                      {language === 'vi' ? (
+                        <>
+                          Trong chẩn đoán ung thư, mục tiêu tối thượng là giảm thiểu <strong>FN ({currentMatrix.fn} ca)</strong> vì bỏ sót ca ác tính nguy hiểm hơn rất nhiều so với chẩn đoán nhầm ca lành tính.
+                        </>
+                      ) : (
+                        <>
+                          In oncological screening, minimizing <strong>False Negatives (FN = {currentMatrix.fn})</strong> is critical because delayed malignant intervention poses severe medical hazards.
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -1035,10 +1077,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
             <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-3">
               <h4 className="font-bold text-sm text-primary flex items-center gap-2">
                 <span className="material-symbols-outlined text-base">auto_fix_high</span>
-                Phân Tích Chuyên Sâu 3 Phương Pháp Cải Tiến Mô Hình
+                {t.improvementsTitle}
               </h4>
               <p className="text-on-surface-variant leading-relaxed">
-                Chi tiết nguyên lý toán học, cấu hình tham số thực nghiệm và giải thích nguyên nhân tại sao các phương pháp cải tiến giúp tăng hiệu năng tổng quát hóa trên tập dữ liệu Wisconsin:
+                {t.improvementsSubtitle}
               </p>
             </div>
 
@@ -1049,17 +1091,17 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <div className="font-bold text-sm text-primary flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-base">height</span>
-                    Phương pháp 1: Khống chế Chiều sâu cây (max_depth)
+                    {t.imp1Title}
                   </div>
                   <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-surface-container-low text-primary">
                     Accuracy: 91.81% · Error: 8.19%
                   </span>
                 </div>
                 <p className="text-on-surface-variant leading-relaxed">
-                  <strong>Mô tả phương pháp:</strong> Giới hạn độ sâu tối đa của cây ở mức <code className="font-mono bg-surface-container-low px-1 rounded">max_depth = 3</code> thay vì phát triển vô hạn (None).
+                  <strong>{language === 'vi' ? 'Mô tả phương pháp:' : 'Methodology:'}</strong> {t.imp1Desc}
                 </p>
                 <div className="p-2.5 bg-surface-container-low rounded-lg text-on-surface leading-relaxed">
-                  <strong>💡 Tại sao cải tiến này giúp tăng hiệu năng / giảm lỗi:</strong> Giúp ngăn chặn hiện tượng quá khớp (Overfitting), giảm phương sai (Variance) của mô hình. Cây quyết định dừng sớm ở các quy tắc tổng quát thay vì cố gắng phân tách từng điểm nhiễu ngoại lai.
+                  {t.imp1Why}
                 </div>
               </div>
 
@@ -1068,17 +1110,17 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <div className="font-bold text-sm text-primary flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-base">functions</span>
-                    Phương pháp 2: Tiêu chuẩn phân hoạch (Gini vs Entropy)
+                    {t.imp2Title}
                   </div>
                   <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-surface-container-low text-primary">
                     Accuracy: 92.98% · Error: 7.02%
                   </span>
                 </div>
                 <p className="text-on-surface-variant leading-relaxed">
-                  <strong>Mô tả phương pháp:</strong> Thay đổi hàm tính toán độ tinh khiết phân tách từ <code className="font-mono bg-surface-container-low px-1 rounded">Gini Impurity</code> sang <code className="font-mono bg-surface-container-low px-1 rounded">Information Gain (Entropy)</code>.
+                  <strong>{language === 'vi' ? 'Mô tả phương pháp:' : 'Methodology:'}</strong> {t.imp2Desc}
                 </p>
                 <div className="p-2.5 bg-surface-container-low rounded-lg text-on-surface leading-relaxed">
-                  <strong>💡 Tại sao cải tiến này giúp tăng hiệu năng / giảm lỗi:</strong> Thước đo Entropy có hàm logarit nên nhạy cảm hơn với sự mất cân bằng phân phối xác suất tại các nhánh ranh giới, giúp lựa chọn các điểm cắt (thresholds) tối ưu hơn trên các đặc trưng tế bào liên tục.
+                  {t.imp2Why}
                 </div>
               </div>
 
@@ -1087,17 +1129,17 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <div className="font-bold text-sm text-primary flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-base">content_cut</span>
-                    Phương pháp 3: Điều chỉnh số mẫu tối thiểu (Adjusting min_samples_split / leaf) ⭐ [TỐT NHẤT]
+                    {t.imp3Title}
                   </div>
                   <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-primary text-white">
                     Accuracy: 93.86% · F1: 91.25% · Recall: 85.71%
                   </span>
                 </div>
                 <p className="text-on-surface-variant leading-relaxed">
-                  <strong>Mô tả phương pháp:</strong> Thiết lập điều kiện cắt tỉa sớm (Pre-pruning) với <code className="font-mono bg-surface-container-low px-1 rounded">min_samples_split = 4</code> và <code className="font-mono bg-surface-container-low px-1 rounded">min_samples_leaf = 2</code> kết hợp độ sâu <code className="font-mono bg-surface-container-low px-1 rounded">max_depth = 4</code>.
+                  <strong>{language === 'vi' ? 'Mô tả phương pháp:' : 'Methodology:'}</strong> {t.imp3Desc}
                 </p>
                 <div className="p-2.5 bg-primary/10 rounded-lg text-on-surface leading-relaxed">
-                  <strong>💡 Tại sao cải tiến này đạt kết quả tốt nhất:</strong> Bằng cách không cho phép sinh ra các nút lá đơn lẻ (≤ 1 mẫu), mô hình loại bỏ hoàn toàn các nhánh con rác, nâng cao độ bền vững khi gặp dữ liệu mới và đạt điểm F1-score cũng như Recall ác tính cao nhất trong toàn bộ các thí nghiệm.
+                  {t.imp3Why}
                 </div>
               </div>
             </div>
@@ -1110,33 +1152,32 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
             <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-3">
               <h4 className="font-bold text-sm text-primary flex items-center gap-2">
                 <span className="material-symbols-outlined text-base">storage</span>
-                Bộ Dữ Liệu UCI Breast Cancer Wisconsin (Diagnostic)
+                {t.datasetTitle}
               </h4>
               <p className="text-on-surface-variant leading-relaxed">
-                Được công bố bởi <strong>Dr. William H. Wolberg, W. Nick Street và Olvi L. Mangasarian</strong> (Đại học Wisconsin, 1995).
-                Bộ dữ liệu bao gồm <strong>569 mẫu sinh thiết</strong> với <strong>30 thuộc tính số thực</strong> đo lường đặc điểm hình học của nhân tế bào ung thư vú.
+                {t.datasetSubtitle}
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-sans text-xs">
                 <div className="bg-white p-3 rounded-lg border border-outline-variant">
-                  <div className="text-on-surface-variant text-[11px] font-medium">Quy mô mẫu</div>
-                  <div className="font-bold text-primary text-sm mt-0.5">569 trường hợp</div>
-                  <div className="text-[11px] text-outline mt-0.5">357 Lành tính (B) · 212 Ác tính (M)</div>
+                  <div className="text-on-surface-variant text-[11px] font-medium">{t.datasetSampleSizeTitle}</div>
+                  <div className="font-bold text-primary text-sm mt-0.5">{t.datasetSampleSizeValue}</div>
+                  <div className="text-[11px] text-outline mt-0.5">{t.datasetSampleSizeSub}</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg border border-outline-variant">
-                  <div className="text-on-surface-variant text-[11px] font-medium">Không gian đặc trưng</div>
-                  <div className="font-bold text-primary text-sm mt-0.5">30 thuộc tính liên tục</div>
-                  <div className="text-[11px] text-outline mt-0.5">10 Giá trị trung bình · 10 Sai số · 10 Cực đại</div>
+                  <div className="text-on-surface-variant text-[11px] font-medium">{t.datasetFeatureSpaceTitle}</div>
+                  <div className="font-bold text-primary text-sm mt-0.5">{t.datasetFeatureSpaceValue}</div>
+                  <div className="text-[11px] text-outline mt-0.5">{t.datasetFeatureSpaceSub}</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg border border-outline-variant">
-                  <div className="text-on-surface-variant text-[11px] font-medium">Nguồn gốc &amp; Bản quyền</div>
+                  <div className="text-on-surface-variant text-[11px] font-medium">{t.datasetProvenanceTitle}</div>
                   <div className="font-bold text-primary text-sm mt-0.5">UCI ID: #17</div>
-                  <div className="text-[11px] text-outline mt-0.5">Giấy phép mở: CC BY 4.0</div>
+                  <div className="text-[11px] text-outline mt-0.5">CC BY 4.0 License</div>
                 </div>
               </div>
 
               <div className="p-3 bg-white rounded-lg border border-outline-variant text-[11px] font-sans text-on-surface-variant">
-                <strong>Trích dẫn khoa học:</strong> Wolberg, W., Street, W., &amp; Mangasarian, O. (1995). Breast Cancer Wisconsin (Diagnostic). UCI Machine Learning Repository. https://doi.org/10.24432/C5DW2B.
+                <strong>{t.datasetCitationTitle}</strong> Wolberg, W., Street, W., &amp; Mangasarian, O. (1995). Breast Cancer Wisconsin (Diagnostic). UCI Machine Learning Repository. https://doi.org/10.24432/C5DW2B.
               </div>
             </div>
           </div>
@@ -1147,3 +1188,4 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
 };
 
 export default TechnicalDetailsSection;
+
