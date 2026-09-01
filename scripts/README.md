@@ -55,3 +55,16 @@ shuffled stratified 80/20 split, seed và baseline parameters đã chốt trong 
 Chỉ `criterion` thay đổi giữa Gini và Entropy trong từng family. Model được chọn bằng
 malignant F2 trên stratified 5-fold CV; test set chỉ được dùng sau khi chọn. Output gồm
 `cv_results.csv`, `summary.json`, `criterion_comparison.png` và `selected_trees.png`.
+
+## Run the max-depth experiment
+
+```bash
+python scripts/run_max_depth_experiment.py \
+  --config experiments/configs/max_depth.json
+```
+
+Experiment chỉ dùng cross-validation trên training split để chọn độ sâu, sau đó so sánh
+baseline không giới hạn với model đã chọn trên held-out test set. Primary selection
+metric là malignant F2 (`beta=2`) theo D-006; accuracy vẫn được báo như secondary
+metric. Bảng CSV, summary JSON, accuracy/F2 plots và selected-tree plot được ghi vào
+`experiments/results/max_depth/`.

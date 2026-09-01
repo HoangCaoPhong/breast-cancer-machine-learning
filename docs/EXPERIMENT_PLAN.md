@@ -26,6 +26,7 @@
 | Canonical random seed | `42` |
 | Cross-validation for tuning | Stratified 5-fold CV on training set |
 | Primary selection metric | Malignant F2 (`beta=2`) on validation/CV |
+| Selection tie-breakers | Higher malignant recall, then lower F2 standard deviation, then simpler tree |
 | Required metrics | Malignant precision/recall/F1/F2, benign recall (specificity), balanced accuracy, accuracy, error rate, TN/FP/FN/TP |
 | Supplementary metric | ROC-AUC when valid positive-class probabilities are available |
 
@@ -59,6 +60,38 @@ B0 là cây cơ bản không regularization để làm mốc. Dấu hiệu train
 sâu phải được báo như bằng chứng overfitting tiềm năng, không được âm thầm chỉnh tham
 số baseline. Các thay đổi depth, criterion hoặc minimum samples thuộc improvement
 track tương ứng.
+
+- Malignant precision: `TP / (TP + FP)`.
+- Malignant recall/sensitivity: `TP / (TP + FN)`.
+- Malignant F1: harmonic mean of malignant precision and recall.
+- **Malignant F2 (primary):** `5 * precision * recall / (4 * precision + recall)`;
+  equivalently `(5 * TP) / (5 * TP + 4 * FN + FP)`. This weights recall twice as
+  strongly as precision while still penalizing false positives.
+- Benign recall/specificity: `TN / (TN + FP)`.
+- Balanced accuracy: `(malignant recall + specificity) / 2`.
+- Accuracy: `(TP + TN) / (TP + TN + FP + FN)`; error rate: `1 - accuracy`.
+
+Các metric precision/recall/F1/F2 ở trên là **binary, class-specific metrics for
+`M`**, không dùng weighted averaging. Classification report vẫn xuất metric riêng
+cho cả `B` và `M`. Khi denominator bằng 0, code phải trả `0` và ghi rõ
+`zero_division=0` thay vì phát sinh `NaN` hoặc warning không kiểm soát.
+
+### 2.2 Model-selection rule
+
+1. Tính mean và standard deviation của malignant F2 trên các validation folds của
+   training set; chọn mean cao nhất.
+2. Nếu candidate bằng nhau ở độ chính xác số được lưu, ưu tiên malignant recall cao
+   hơn, rồi F2 standard deviation thấp hơn, rồi cây đơn giản hơn (ít leaf hơn, sau đó
+   depth thấp hơn). Candidate order đã khai báo trong config là tie-break cuối để bảo
+   đảm deterministic.
+3. Không dùng test set để chọn model hoặc threshold. Sau khi chốt candidate, đánh giá
+   đúng một lần trên held-out test set và báo toàn bộ required metrics cùng raw FN/FP.
+4. Accuracy cao hơn nhưng malignant F2 hoặc recall thấp hơn phải được trình bày như
+   một trade-off, không tự động gọi là cải thiện.
+
+F2 được chọn thay vì recall đơn độc vì recall có thể đạt tối đa bằng cách dự đoán mọi
+mẫu là `M`. F2 vẫn thể hiện chi phí bỏ sót malignant cao hơn, đồng thời phạt false
+positive. Accuracy được giữ vì đề bài yêu cầu nhưng không phải tiêu chí chọn model.
 
 ## 3. Model matrix
 

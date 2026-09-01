@@ -35,16 +35,37 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
 - Decision: README, frontend, report và video phải ghi rõ đây không phải chẩn đoán y khoa.
 - Consequences: không thu thập patient-identifiable data và không tuyên bố clinical readiness.
 
-## D-005 - Dataset retrieval and canonical feature order
+## D-005 - Canonical raw dataset retrieval and feature order
 
 - Date: 2026-08-30
 - Status: accepted
-- Decision: track the official UCI `wdbc.data` and `wdbc.names` files; validate their
-  checksums and load the 30 predictive columns in the order declared by
-  `backend/app/ml/preprocessing/breast_cancer.py`. The `id` field is validated but never
-  passed to a model. Diagnosis remains `B`/`M` until the shared encoding decision is made.
-- Consequences: tests and local experiments use one immutable dataset copy without a
-  network call; feature names/order are stored by the fitted custom tree.
+- Decision: load directly from the canonical official UCI archive files
+  `data/raw/uci_wdbc/wdbc.data` and `wdbc.names`. Validate shape (569, 32) and
+  ensure no missing values. The `id` column (column 0) is excluded. Feature names
+  and order match the 30 UCI WDBC attributes. Fallback to `sklearn.datasets.load_breast_cancer`
+  is supported for environments where the raw file is not present.
+- Consequences: preprocessing code reads directly from the canonical raw file;
+  all experiments share the exact same immutable raw data.
+
+## D-006 - Evaluation metrics and model-selection rule
+
+- Date: 2026-08-30
+- Status: accepted
+- Context: dataset có 357 mẫu benign và 212 mẫu malignant. Accuracy đơn độc có thể
+  che khuất false negative; malignant recall đơn độc lại có thể được tối đa hóa bằng
+  cách dự đoán mọi mẫu là malignant.
+- Decision: `M` (malignant) là positive class. Primary selection metric là
+  malignant-class F2 (`beta = 2`) tính trên validation/CV của training set. Tie-break
+  theo malignant recall cao hơn, F2 standard deviation thấp hơn, rồi cây ít leaf/depth
+  hơn. Required report metrics gồm malignant precision/recall/F1/F2, benign recall
+  (specificity), balanced accuracy, accuracy, error rate, confusion matrix theo label
+  order `B`, `M`, và raw FN/FP counts. ROC-AUC chỉ là supplementary khi score/probability
+  giữa các model hợp lệ và so sánh được.
+- Consequences: mọi experiment phải đổi model selection từ accuracy sang malignant F2,
+  giữ test set hoàn toàn ngoài tuning, dùng class-specific binary metrics cho `M` và
+  lưu averaging/label order trong config hoặc metadata. Accuracy vẫn phải báo theo đề
+  bài nhưng không quyết định model thắng. Kết quả hiện có tạo bằng selection metric khác
+  phải chạy lại trước khi đưa vào report.
 
 ## D-006 - Canonical baseline and evaluation metrics
 

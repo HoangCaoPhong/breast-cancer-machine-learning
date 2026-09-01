@@ -110,3 +110,4 @@ def compute_binary_classification_metrics(
 
 def _safe_divide(numerator: float, denominator: float) -> float:
     return float(numerator / denominator) if denominator else 0.0
+

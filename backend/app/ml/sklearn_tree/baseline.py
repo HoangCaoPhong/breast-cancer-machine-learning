@@ -1,10 +1,11 @@
-"""Fixed scikit-learn Decision Tree baseline."""
+"""Fixed scikit-learn Decision Tree baseline and helper constructors."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
 
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
@@ -13,6 +14,14 @@ from app.ml.evaluation import (
     BinaryClassificationMetrics,
     compute_binary_classification_metrics,
 )
+
+BASELINE_PARAMS: dict[str, Any] = {
+    "criterion": "gini",
+    "max_depth": None,
+    "min_samples_split": 2,
+    "min_samples_leaf": 1,
+    "random_state": 42,
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -73,6 +82,21 @@ class BaselineResult:
     class_names: tuple[str, ...]
     train_size: int
     test_size: int
+
+
+def build_baseline() -> DecisionTreeClassifier:
+    """Return an unfitted sklearn DecisionTreeClassifier using canonical B0 settings."""
+    return DecisionTreeClassifier(**BASELINE_PARAMS)
+
+
+def fit_baseline(
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+) -> DecisionTreeClassifier:
+    """Fit and return the baseline model on training data."""
+    clf = build_baseline()
+    clf.fit(X_train, y_train)
+    return clf
 
 
 def run_sklearn_baseline(
@@ -146,3 +170,4 @@ def _validate_data(
     expected_labels = {config.negative_class, config.positive_class}
     if set(target) != expected_labels:
         raise ValueError(f"target labels must be exactly {sorted(expected_labels)}")
+
