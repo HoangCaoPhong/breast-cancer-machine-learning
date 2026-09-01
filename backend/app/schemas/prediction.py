@@ -1,7 +1,6 @@
 """Pydantic request and response schemas for breast cancer prediction."""
 
-from typing import List, Optional, Union
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class BreastCancerFeaturesSchema(BaseModel):
@@ -14,8 +13,12 @@ class BreastCancerFeaturesSchema(BaseModel):
     area_mean: float = Field(..., ge=0.0, description="Mean area of cell nuclei (mm²)")
     smoothness_mean: float = Field(..., ge=0.0, description="Local variation in radius lengths")
     compactness_mean: float = Field(..., ge=0.0, description="Perimeter² / area - 1.0")
-    concavity_mean: float = Field(..., ge=0.0, description="Severity of concave portions of the contour")
-    concave_points_mean: float = Field(..., ge=0.0, description="Number of concave portions of the contour")
+    concavity_mean: float = Field(
+        ..., ge=0.0, description="Severity of concave portions of the contour"
+    )
+    concave_points_mean: float = Field(
+        ..., ge=0.0, description="Number of concave portions of the contour"
+    )
     symmetry_mean: float = Field(..., ge=0.0, description="Symmetry of cell nuclei")
     fractal_dimension_mean: float = Field(..., ge=0.0, description="Coastline approximation - 1")
 
@@ -29,7 +32,9 @@ class BreastCancerFeaturesSchema(BaseModel):
     concavity_se: float = Field(..., ge=0.0, description="Standard error of concavity")
     concave_points_se: float = Field(..., ge=0.0, description="Standard error of concave points")
     symmetry_se: float = Field(..., ge=0.0, description="Standard error of symmetry")
-    fractal_dimension_se: float = Field(..., ge=0.0, description="Standard error of fractal dimension")
+    fractal_dimension_se: float = Field(
+        ..., ge=0.0, description="Standard error of fractal dimension"
+    )
 
     # 10 Worst / Largest Features
     radius_worst: float = Field(..., ge=0.0, description="Worst or largest radius")
@@ -41,7 +46,9 @@ class BreastCancerFeaturesSchema(BaseModel):
     concavity_worst: float = Field(..., ge=0.0, description="Worst or largest concavity")
     concave_points_worst: float = Field(..., ge=0.0, description="Worst or largest concave points")
     symmetry_worst: float = Field(..., ge=0.0, description="Worst or largest symmetry")
-    fractal_dimension_worst: float = Field(..., ge=0.0, description="Worst or largest fractal dimension")
+    fractal_dimension_worst: float = Field(
+        ..., ge=0.0, description="Worst or largest fractal dimension"
+    )
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -86,7 +93,7 @@ class DecisionStepSchema(BaseModel):
     """Represents a single decision node evaluation in the tree traversal."""
 
     feature: str
-    feature_name_vi: Optional[str] = None
+    feature_name_vi: str | None = None
     threshold: float
     operator: str
     value: float
@@ -97,7 +104,7 @@ class FeatureImportanceSchema(BaseModel):
     """Feature importance score."""
 
     feature: str
-    feature_name_vi: Optional[str] = None
+    feature_name_vi: str | None = None
     importance: float
 
 
@@ -117,8 +124,8 @@ class PredictionResponseSchema(BaseModel):
     f1_score: float
 
     selected_model_id: str
-    decision_path: List[DecisionStepSchema] = []
-    top_features: List[FeatureImportanceSchema] = []
+    decision_path: list[DecisionStepSchema] = []
+    top_features: list[FeatureImportanceSchema] = []
     disclaimer: str
 
 
@@ -130,14 +137,14 @@ class ModelOptionInfoSchema(BaseModel):
     name_vi: str
     assigned_to: str
     criterion: str
-    max_depth: Union[int, str]
+    max_depth: int | str
     min_samples_split: int
     min_samples_leaf: int
-    accuracy: Optional[float] = None
-    error_rate: Optional[float] = None
-    recall_malignant: Optional[float] = None
-    f1_score: Optional[float] = None
-    precision: Optional[float] = None
+    accuracy: float | None = None
+    error_rate: float | None = None
+    recall_malignant: float | None = None
+    f1_score: float | None = None
+    precision: float | None = None
     description_vi: str
 
 
@@ -148,7 +155,7 @@ class ExperimentMetricSchema(BaseModel):
     name: str
     assigned_to: str
     criterion: str
-    max_depth: Union[int, str]
+    max_depth: int | str
     min_samples_split: int
     min_samples_leaf: int
     accuracy: float
@@ -163,14 +170,14 @@ class TreeNodeSchema(BaseModel):
 
     id: str
     name: str
-    feature: Optional[str] = None
-    threshold: Optional[float] = None
-    criterion: Optional[str] = None
+    feature: str | None = None
+    threshold: float | None = None
+    criterion: str | None = None
     samples: int
-    values: List[int]
+    values: list[int]
     is_leaf: bool = False
-    predicted_class: Optional[str] = None
-    children: List["TreeNodeSchema"] = []
+    predicted_class: str | None = None
+    children: list["TreeNodeSchema"] = []
 
 
 TreeNodeSchema.model_rebuild()

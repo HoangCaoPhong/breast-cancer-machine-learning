@@ -1,9 +1,7 @@
 """Unit and integration tests for FastAPI backend endpoints."""
 
-import pytest
-from fastapi.testclient import TestClient
-
 from app.main import app
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 

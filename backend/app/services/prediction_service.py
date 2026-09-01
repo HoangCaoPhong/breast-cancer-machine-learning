@@ -1,25 +1,25 @@
-from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
+from typing import Any
+
 import numpy as np
 
 from app.core.config import settings
+from app.ml.custom_tree import DecisionTreeClassifierScratch
+from app.ml.preprocessing import load_breast_cancer_dataset
+from app.ml.preprocessing.pipeline import CANONICAL_FEATURE_NAMES, FEATURE_NAME_VI_MAP
 from app.schemas.prediction import (
     BreastCancerFeaturesSchema,
-    PredictionResponseSchema,
     DecisionStepSchema,
+    ExperimentMetricSchema,
     FeatureImportanceSchema,
     ModelOptionInfoSchema,
-    ExperimentMetricSchema,
+    PredictionResponseSchema,
     TreeNodeSchema,
 )
-from app.ml.preprocessing.pipeline import CANONICAL_FEATURE_NAMES, FEATURE_NAME_VI_MAP
-from app.ml.preprocessing import load_breast_cancer_dataset
-from app.ml.custom_tree import DecisionTreeClassifierScratch
-from app.ml.sklearn_tree.baseline import build_baseline
 
 CANONICAL_DATA_PATH = Path(__file__).resolve().parents[3] / "data/raw/uci_wdbc/wdbc.data"
 
-MODEL_METADATA_DEFINITIONS: List[Dict[str, Any]] = [
+MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
     {
         "id": "B0",
         "name": "Sklearn Baseline Model (Unpruned Tree)",
@@ -110,7 +110,7 @@ MODEL_METADATA_DEFINITIONS: List[Dict[str, Any]] = [
 
 class ModelManager:
     def __init__(self) -> None:
-        self.fitted_custom_trees: Dict[str, DecisionTreeClassifierScratch] = {}
+        self.fitted_custom_trees: dict[str, DecisionTreeClassifierScratch] = {}
         self._initialize_models()
 
     def _initialize_models(self) -> None:
@@ -147,19 +147,27 @@ class ModelManager:
             print(f"Warning: could not pre-fit models: {e}")
 
     def predict(
-        self, features: BreastCancerFeaturesSchema, model_id: Optional[str] = None
+        self, features: BreastCancerFeaturesSchema, model_id: str | None = None
     ) -> PredictionResponseSchema:
         m_id = (model_id or "I3").upper()
         if m_id not in self.fitted_custom_trees:
-            m_id = "I3" if "I3" in self.fitted_custom_trees else (list(self.fitted_custom_trees.keys())[0] if self.fitted_custom_trees else "I3")
+            m_id = (
+                "I3"
+                if "I3" in self.fitted_custom_trees
+                else (
+                    list(self.fitted_custom_trees.keys())[0] if self.fitted_custom_trees else "I3"
+                )
+            )
 
         feat_dict = features.model_dump()
-        feature_vector = np.array([[float(feat_dict.get(col, 0.0)) for col in CANONICAL_FEATURE_NAMES]])
+        feature_vector = np.array(
+            [[float(feat_dict.get(col, 0.0)) for col in CANONICAL_FEATURE_NAMES]]
+        )
 
         model = self.fitted_custom_trees.get(m_id)
         if model is not None and model.tree_ is not None:
             # Traversal along real tree
-            decision_steps: List[DecisionStepSchema] = []
+            decision_steps: list[DecisionStepSchema] = []
             curr_node = model.tree_
             row = feature_vector[0]
 
@@ -222,7 +230,9 @@ class ModelManager:
             ),
             FeatureImportanceSchema(
                 feature="concave_points_worst",
-                feature_name_vi=FEATURE_NAME_VI_MAP.get("concave_points_worst", "concave_points_worst"),
+                feature_name_vi=FEATURE_NAME_VI_MAP.get(
+                    "concave_points_worst", "concave_points_worst"
+                ),
                 importance=0.182,
             ),
             FeatureImportanceSchema(
@@ -232,7 +242,10 @@ class ModelManager:
             ),
         ]
 
-        meta = next((m for m in MODEL_METADATA_DEFINITIONS if m["id"] == m_id), MODEL_METADATA_DEFINITIONS[0])
+        meta = next(
+            (m for m in MODEL_METADATA_DEFINITIONS if m["id"] == m_id),
+            MODEL_METADATA_DEFINITIONS[0],
+        )
 
         return PredictionResponseSchema(
             prediction="Malignant" if is_malignant else "Benign",
@@ -250,7 +263,7 @@ class ModelManager:
             disclaimer=settings.MEDICAL_DISCLAIMER,
         )
 
-    def get_model_options(self) -> List[ModelOptionInfoSchema]:
+    def get_model_options(self) -> list[ModelOptionInfoSchema]:
         return [
             ModelOptionInfoSchema(
                 id=meta["id"],
@@ -271,7 +284,7 @@ class ModelManager:
             for meta in MODEL_METADATA_DEFINITIONS
         ]
 
-    def get_experiments(self) -> List[ExperimentMetricSchema]:
+    def get_experiments(self) -> list[ExperimentMetricSchema]:
         return [
             ExperimentMetricSchema(
                 id=meta["id"],
@@ -290,12 +303,14 @@ class ModelManager:
             for meta in MODEL_METADATA_DEFINITIONS
         ]
 
-    def get_tree_structure(self, model_id: Optional[str] = None) -> TreeNodeSchema:
+    def get_tree_structure(self, model_id: str | None = None) -> TreeNodeSchema:
         m_id = (model_id or "I3").upper()
         model = self.fitted_custom_trees.get(m_id)
         if model is not None and model.tree_ is not None:
             crit_name = getattr(model, "criterion", "gini").lower()
-            return self._build_node_schema(model.tree_, node_id="root", depth=0, criterion_name=crit_name)
+            return self._build_node_schema(
+                model.tree_, node_id="root", depth=0, criterion_name=crit_name
+            )
 
         # Default fallback tree schema
         return TreeNodeSchema(
@@ -371,7 +386,9 @@ class ModelManager:
             ],
         )
 
-    def _build_node_schema(self, node: Any, node_id: str, depth: int, criterion_name: str = "gini") -> TreeNodeSchema:
+    def _build_node_schema(
+        self, node: Any, node_id: str, depth: int, criterion_name: str = "gini"
+    ) -> TreeNodeSchema:
         counts = [int(c) for c in node.class_counts] if hasattr(node, "class_counts") else [0, 0]
         benign_count = counts[0] if len(counts) > 0 else 0
         malignant_count = counts[1] if len(counts) > 1 else 0
@@ -391,12 +408,24 @@ class ModelManager:
                 children=[],
             )
 
-        f_name = CANONICAL_FEATURE_NAMES[node.feature_index] if node.feature_index is not None else "feature"
+        f_name = (
+            CANONICAL_FEATURE_NAMES[node.feature_index]
+            if node.feature_index is not None
+            else "feature"
+        )
         f_name_vi = FEATURE_NAME_VI_MAP.get(f_name, f_name)
         thresh = float(node.threshold) if node.threshold is not None else 0.0
 
-        left_child = self._build_node_schema(node.left, f"{node_id}_L", depth + 1, criterion_name) if node.left else None
-        right_child = self._build_node_schema(node.right, f"{node_id}_R", depth + 1, criterion_name) if node.right else None
+        left_child = (
+            self._build_node_schema(node.left, f"{node_id}_L", depth + 1, criterion_name)
+            if node.left
+            else None
+        )
+        right_child = (
+            self._build_node_schema(node.right, f"{node_id}_R", depth + 1, criterion_name)
+            if node.right
+            else None
+        )
 
         children = [c for c in [left_child, right_child] if c is not None]
 

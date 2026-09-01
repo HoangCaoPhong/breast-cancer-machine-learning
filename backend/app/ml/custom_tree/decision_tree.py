@@ -1,4 +1,3 @@
-from typing import Optional
 import numpy as np
 
 
@@ -6,7 +5,7 @@ class CustomDecisionTreeClassifier:
     def __init__(
         self,
         criterion: str = "gini",
-        max_depth: Optional[int] = None,
+        max_depth: int | None = None,
         min_samples_split: int = 2,
         min_samples_leaf: int = 1,
     ):

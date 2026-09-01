@@ -1,14 +1,12 @@
 """Data loading, feature definition, and preprocessing pipeline."""
 
-from typing import Dict, List, Tuple
 import numpy as np
 import pandas as pd
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 
-
 # 30 Canonical Feature Names in strict order
-CANONICAL_FEATURE_NAMES: List[str] = [
+CANONICAL_FEATURE_NAMES: list[str] = [
     # 10 Mean Features
     "radius_mean",
     "texture_mean",
@@ -45,7 +43,7 @@ CANONICAL_FEATURE_NAMES: List[str] = [
 ]
 
 # Vietnamese labels for all 30 features
-FEATURE_NAME_VI_MAP: Dict[str, str] = {
+FEATURE_NAME_VI_MAP: dict[str, str] = {
     "radius_mean": "Bán kính trung bình",
     "texture_mean": "Độ nhám trung bình",
     "perimeter_mean": "Chu vi trung bình",
@@ -79,7 +77,7 @@ FEATURE_NAME_VI_MAP: Dict[str, str] = {
 }
 
 
-def load_canonical_data() -> Tuple[pd.DataFrame, pd.Series]:
+def load_canonical_data() -> tuple[pd.DataFrame, pd.Series]:
     """Load the UCI Breast Cancer Wisconsin (Diagnostic) dataset.
 
     Returns:
@@ -136,7 +134,7 @@ def load_canonical_data() -> Tuple[pd.DataFrame, pd.Series]:
 def get_canonical_train_test_split(
     random_seed: int = 42,
     train_ratio: float = 0.70,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Return deterministic Stratified Train/Test split (70/30)."""
     X, y = load_canonical_data()
     X_train, X_test, y_train, y_test = train_test_split(
