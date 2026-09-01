@@ -11,7 +11,6 @@ from app.ml.selected_models import (
     SELECTED_CRITERION_CONFIG,
     SELECTED_MAX_DEPTH_CONFIG,
     SELECTED_MIN_SAMPLES_CONFIG,
-    build_selected_criterion_model,
     build_selected_max_depth_model,
     build_selected_min_samples_model,
 )
@@ -69,7 +68,9 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
     {
         "id": "I1",
         "name": f"Tuning Max Depth (depth={SELECTED_MAX_DEPTH_CONFIG.max_depth})",
-        "name_vi": f"Cải tiến 1: Giới hạn Độ sâu cây (max_depth={SELECTED_MAX_DEPTH_CONFIG.max_depth})",
+        "name_vi": (
+            f"Cải tiến 1: Giới hạn Độ sâu cây (max_depth={SELECTED_MAX_DEPTH_CONFIG.max_depth})"
+        ),
         "assigned_to": "Phong",
         "criterion": SELECTED_MAX_DEPTH_CONFIG.criterion.capitalize(),
         "max_depth": SELECTED_MAX_DEPTH_CONFIG.max_depth,
@@ -82,7 +83,9 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
         "recall_malignant": 0.7812,
         "f1_score": 0.8772,
         "precision": 0.9250,
-        "description_vi": "Giới hạn độ sâu tối ưu theo phương pháp kiểm thử chéo (Cross-Validation).",
+        "description_vi": (
+            "Giới hạn độ sâu tối ưu theo phương pháp kiểm thử chéo (Cross-Validation)."
+        ),
         "is_best": False,
     },
     {
@@ -91,13 +94,19 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
         "name_vi": "Cải tiến 2: Tiêu chuẩn phân hoạch (Gini vs Entropy)",
         "assigned_to": "Ngọc",
         "criterion": SELECTED_CRITERION_CONFIG.custom_result.selected_criterion.capitalize(),
-        "max_depth": "None" if SELECTED_CRITERION_CONFIG.max_depth is None else SELECTED_CRITERION_CONFIG.max_depth,
+        "max_depth": (
+            "None"
+            if SELECTED_CRITERION_CONFIG.max_depth is None
+            else SELECTED_CRITERION_CONFIG.max_depth
+        ),
         "fitted_depth": SELECTED_CRITERION_CONFIG.custom_result.fitted_depth,
         "leaf_count": SELECTED_CRITERION_CONFIG.custom_result.leaf_count,
         "min_samples_split": SELECTED_CRITERION_CONFIG.min_samples_split,
         "min_samples_leaf": SELECTED_CRITERION_CONFIG.min_samples_leaf,
         "accuracy": SELECTED_CRITERION_CONFIG.custom_result.selected_test_accuracy,
-        "error_rate": round(1.0 - SELECTED_CRITERION_CONFIG.custom_result.selected_test_accuracy, 4),
+        "error_rate": round(
+            1.0 - SELECTED_CRITERION_CONFIG.custom_result.selected_test_accuracy, 4
+        ),
         "recall_malignant": SELECTED_CRITERION_CONFIG.custom_result.selected_test_recall,
         "f1_score": 0.8983,
         "precision": 0.9320,
@@ -110,18 +119,25 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
         "name_vi": "Cải tiến 3: Điều chỉnh số mẫu tối thiểu (min_samples_split=5)",
         "assigned_to": "Hòa",
         "criterion": SELECTED_MIN_SAMPLES_CONFIG.criterion.capitalize(),
-        "max_depth": "None" if SELECTED_MIN_SAMPLES_CONFIG.max_depth is None else SELECTED_MIN_SAMPLES_CONFIG.max_depth,
+        "max_depth": (
+            "None"
+            if SELECTED_MIN_SAMPLES_CONFIG.max_depth is None
+            else SELECTED_MIN_SAMPLES_CONFIG.max_depth
+        ),
         "fitted_depth": SELECTED_MIN_SAMPLES_CONFIG.result.fitted_depth,
         "leaf_count": SELECTED_MIN_SAMPLES_CONFIG.result.leaf_count,
         "min_samples_split": SELECTED_MIN_SAMPLES_CONFIG.min_samples_split,
         "min_samples_leaf": SELECTED_MIN_SAMPLES_CONFIG.min_samples_leaf,
         "accuracy": SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_accuracy,
-        "error_rate": round(1.0 - SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_accuracy, 4),
+        "error_rate": round(
+            1.0 - SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_accuracy, 4
+        ),
         "recall_malignant": SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_recall,
         "f1_score": 0.9125,
         "precision": 0.9400,
         "description_vi": (
-            f"Điều chỉnh số mẫu tối thiểu (min_samples_split={SELECTED_MIN_SAMPLES_CONFIG.min_samples_split}, "
+            f"Điều chỉnh số mẫu tối thiểu (min_samples_split="
+            f"{SELECTED_MIN_SAMPLES_CONFIG.min_samples_split}, "
             f"min_samples_leaf={SELECTED_MIN_SAMPLES_CONFIG.min_samples_leaf})."
         ),
         "is_best": True,
@@ -141,17 +157,17 @@ class ModelManager:
             X = split.X_train
             y = split.y_train
 
-            # B0: Baseline Unpruned Tree (max_depth=None, min_samples_split=2, min_samples_leaf=1, Gini)
+            # B0: Baseline Unpruned Tree (max_depth=None, min_samples_split=2, leaf=1, Gini)
             self.fitted_custom_trees["B0"] = DecisionTreeClassifierScratch(
                 criterion="gini", max_depth=None, min_samples_split=2, min_samples_leaf=1
             ).fit(X, y)
 
-            # C0: Custom Tree from scratch (max_depth=5, min_samples_split=2, min_samples_leaf=2, Gini)
+            # C0: Custom Tree from scratch (max_depth=5, min_samples_split=2, leaf=2, Gini)
             self.fitted_custom_trees["C0"] = DecisionTreeClassifierScratch(
                 criterion="gini", max_depth=5, min_samples_split=2, min_samples_leaf=2
             ).fit(X, y)
 
-            # I1: Selected Max Depth Model (max_depth=8, min_samples_split=2, min_samples_leaf=1, Gini)
+            # I1: Selected Max Depth Model (max_depth=8, min_samples_split=2, leaf=1, Gini)
             self.fitted_custom_trees["I1"] = build_selected_max_depth_model("custom").fit(X, y)
 
             # I2: Selected Criterion Model (Entropy criterion vs Gini)
