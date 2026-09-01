@@ -99,11 +99,11 @@ track tương ứng.
 
 | ID | Model/change | Owner | Giả thuyết chính | Status |
 | --- | --- | --- | --- | --- |
-| C0 | Decision Tree from scratch | Phong | Minh họa cách impurity/split/stopping tạo cây | Pending |
+| C0 | Decision Tree from scratch | Phong | Minh họa cách impurity/split/stopping tạo cây | Implemented |
 | B0 | Sklearn baseline | Nhóm/model integrator | Mốc so sánh cố định theo D-006 | Implemented |
 | I1 | Tune `max_depth` on custom + sklearn trees | Phong | Giảm overfitting bằng giới hạn độ sâu | Implemented |
 | I2 | Gini vs. Entropy | Ngọc; Kiên hỗ trợ setup tích hợp | So sánh criterion trên custom và sklearn tree, giữ các tham số khác cố định | Implemented |
-| I3 | Tune `min_samples_split`/`min_samples_leaf` | Hòa | Tránh nhánh quá đặc thù và giảm variance | Pending |
+| I3 | Tune `min_samples_split`/`min_samples_leaf` | Hòa | Tránh nhánh quá đặc thù và giảm variance | Implemented |
 
 Các giá trị thử phải được ghi trước trong config. Nếu tham khảo paper để chọn search
 space, lưu citation và không dùng test set để chọn ngưỡng.
@@ -139,13 +139,28 @@ malignant F2 hoặc recall giảm, báo trade-off; không gọi đó là cải t
 Không tuyên bố hiệu quả lâm sàng từ kết quả trên dataset này.
 
 ## 7. Reproduction commands
+Lệnh chạy tái lập chính thức cho từng track:
 
 ```bash
+# 1. Chạy Baseline B0 (Nhóm)
+python scripts/run_baseline.py
+
+# 2. Chạy Custom Decision Tree (Phong)
+python scripts/run_custom_tree.py
+
+# 3. Chạy thí nghiệm I1 max_depth (Phong)
 python scripts/run_max_depth_experiment.py \
   --config experiments/configs/max_depth.json
 
+# 4. Chạy thí nghiệm I2 Gini-vs-Entropy (Ngọc; Kiên hỗ trợ setup)
 python scripts/run_gini_vs_entropy.py \
   --config experiments/configs/criterion.json
+
+# 5. Chạy thí nghiệm I3 min_samples và benchmark (Hòa)
+python scripts/benchmark_min_samples.py --include-custom-tree
+
+# 6. Sinh biểu đồ so sánh cho I3 (Hòa)
+python scripts/plot_min_samples_comparison.py
 ```
 
 Runner chọn depth riêng cho custom và sklearn bằng cùng stratified training folds,

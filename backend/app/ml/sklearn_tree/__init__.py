@@ -23,6 +23,12 @@ from app.ml.sklearn_tree.max_depth import (
     MaxDepthExperimentResult,
     run_max_depth_experiment,
 )
+from app.ml.sklearn_tree.min_samples import (
+    GridCandidateResult,
+    MinSamplesConfig,
+    MinSamplesExperimentResult,
+    run_min_samples_tuning,
+)
 from app.ml.sklearn_tree.min_samples_experiment import (
     ExperimentResult,
     SingleRunMetrics,
@@ -52,4 +58,8 @@ __all__ = [
     "SingleRunMetrics",
     "run_min_samples_experiment",
     "run_single_config",
+    "MinSamplesConfig",
+    "GridCandidateResult",
+    "MinSamplesExperimentResult",
+    "run_min_samples_tuning",
 ]

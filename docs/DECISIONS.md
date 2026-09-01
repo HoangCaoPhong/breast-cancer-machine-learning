@@ -111,7 +111,21 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
   model ID `I2`, version `i2-criterion-v1`, và được expose từ
   `backend/app/ml/selected_models/`.
 
+## D-009 - Sklearn minimum-samples selection
+
+- Date: 2026-09-01
+- Status: accepted
+- Decision: I3 thử grid `min_samples_split=(2, 5, 10, 20, 50)` và
+  `min_samples_leaf=(1, 2, 5, 10, 20)` trên sklearn tree theo D-006. Model được chọn
+  bằng malignant F2 trên stratified 5-fold training CV; test set không tham gia chọn.
+- Result: canonical run chọn `min_samples_split=5`, `min_samples_leaf=1`. Mean CV F2
+  là `0.8974` (std `0.0486`), held-out F2 là `0.9091`, recall `0.9048`, accuracy
+  `0.9386`, fitted depth `8` và `20` leaves.
+- Consequences: preset `i3-min-samples-v1` được expose từ `selected_models`. Có thể
+  dựng custom tree với cùng tham số để integration so sánh, nhưng kết quả selection
+  chính thức của I3 chỉ đại diện cho sklearn family.
+
 ## Pending decisions
 
-- D-009: API request/response schema và model artifact metadata.
-- D-010: owner report/video, người đại diện và Group ID.
+- D-010: API request/response schema và model artifact metadata.
+- D-011: owner report/video, người đại diện và Group ID.
