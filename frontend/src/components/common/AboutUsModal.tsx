@@ -130,35 +130,23 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
                 <thead className="bg-surface-bright text-on-surface font-semibold border-b border-outline-variant">
                   <tr>
                     <th className="p-3 text-center w-12">{t.colNo}</th>
-                    <th className="p-3 w-40">{t.colFullName}</th>
-                    <th className="p-3 w-28 text-center">{t.colStudentId}</th>
-                    <th className="p-3 w-44">{t.colRole}</th>
+                    <th className="p-3 w-48">{t.colFullName}</th>
+                    <th className="p-3 w-52">{t.colRole}</th>
                     <th className="p-3">{t.colContribution}</th>
-                    <th className="p-3 text-center w-20">{t.colShare}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant">
                   {TEAM_MEMBERS.map((member) => (
-                    <tr key={member.studentId} className="hover:bg-surface-container-low/60 transition-colors">
+                    <tr key={member.fullNameEn} className="hover:bg-surface-container-low/60 transition-colors">
                       <td className="p-3 text-center font-bold text-primary">{member.no}</td>
                       <td className="p-3 font-semibold text-on-surface whitespace-nowrap">
                         {language === 'vi' ? member.fullName : member.fullNameEn}
-                      </td>
-                      <td className="p-3 text-center font-mono font-bold text-primary">
-                        <span className="px-2 py-0.5 rounded bg-surface-container-high border border-outline-variant/60">
-                          {member.studentId}
-                        </span>
                       </td>
                       <td className="p-3 font-medium text-on-surface-variant whitespace-nowrap">
                         {language === 'vi' ? member.roleVi : member.role}
                       </td>
                       <td className="p-3 text-on-surface-variant leading-relaxed">
                         {language === 'vi' ? member.contributionVi : member.contribution}
-                      </td>
-                      <td className="p-3 text-center">
-                        <span className="px-2.5 py-0.5 bg-primary/10 text-primary font-bold rounded-full text-[11px]">
-                          {member.share}
-                        </span>
                       </td>
                     </tr>
                   ))}
