@@ -107,7 +107,9 @@ Không xóa quyết định cũ; nếu đổi, thêm quyết định mới và g
   lượt là `0.9027` và `0.8948`; selected held-out F2 lần lượt là `0.8894` và `0.9048`.
 - Consequences: kết luận chỉ áp dụng cho hai criterion và protocol đã thử; không tuyên
   bố Gini luôn tốt hơn Entropy. Runner, config, tests và report outputs của I2 được tích
-  hợp cùng I1 nhưng vẫn giữ implementation thuật toán tách biệt.
+  hợp cùng I1 nhưng vẫn giữ implementation thuật toán tách biệt. Preset tích hợp có
+  model ID `I2`, version `i2-criterion-v1`, và được expose từ
+  `backend/app/ml/selected_models/`.
 
 ## Pending decisions
 
