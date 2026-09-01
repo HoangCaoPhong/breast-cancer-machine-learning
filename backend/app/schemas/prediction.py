@@ -156,6 +156,8 @@ class ExperimentMetricSchema(BaseModel):
     assigned_to: str
     criterion: str
     max_depth: int | str
+    fitted_depth: int | None = None
+    leaf_count: int | None = None
     min_samples_split: int
     min_samples_leaf: int
     accuracy: float

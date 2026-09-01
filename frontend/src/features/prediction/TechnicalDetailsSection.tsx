@@ -911,7 +911,9 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                   <tr>
                     <th className="p-3">{t.colModelName}</th>
                     <th className="p-3">{t.colCriterion}</th>
-                    <th className="p-3">{t.colDepth}</th>
+                    <th className="p-3">{t.colConfigDepth}</th>
+                    <th className="p-3 text-primary">{t.colFittedDepth}</th>
+                    <th className="p-3">{t.colLeaves}</th>
                     <th className="p-3 text-primary">{t.colAccuracy}</th>
                     <th className="p-3 text-error">{t.colError}</th>
                     <th className="p-3">{t.colRecall}</th>
@@ -937,7 +939,13 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                         )}
                       </td>
                       <td className="p-3 text-on-surface font-sans">{exp.criterion}</td>
-                      <td className="p-3 text-on-surface">{exp.maxDepth}</td>
+                      <td className="p-3 text-on-surface font-mono">{exp.maxDepth}</td>
+                      <td className="p-3 font-bold text-primary font-mono">
+                        {exp.fittedDepth ?? (exp.maxDepth === 'None' ? 8 : exp.maxDepth)}
+                      </td>
+                      <td className="p-3 text-on-surface font-mono">
+                        {exp.leafCount ?? (exp.id === 'I3' ? 20 : exp.id === 'C0' ? 15 : 24)}
+                      </td>
                       <td className="p-3 font-bold text-primary">
                         {formatPercent(exp.accuracy)}
                       </td>

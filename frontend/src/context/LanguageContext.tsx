@@ -107,6 +107,8 @@ export interface Translations {
   colOwner: string;
   colCriterion: string;
   colDepth: string;
+  colConfigDepth: string;
+  colFittedDepth: string;
   colLeaves: string;
   colAccuracy: string;
   colError: string;
@@ -273,6 +275,8 @@ export const translations: Record<Language, Translations> = {
     colOwner: 'Phụ Trách',
     colCriterion: 'Tiêu Chuẩn',
     colDepth: 'Độ Sâu',
+    colConfigDepth: 'Độ Sâu Cấu Hình (max_depth)',
+    colFittedDepth: 'Độ Sâu Thực Tế',
     colLeaves: 'Số Lá',
     colAccuracy: 'Độ Chính Xác',
     colError: 'Tỷ Lệ Lỗi',
@@ -438,6 +442,8 @@ export const translations: Record<Language, Translations> = {
     colOwner: 'Lead',
     colCriterion: 'Criterion',
     colDepth: 'Depth',
+    colConfigDepth: 'Config Depth (max_depth)',
+    colFittedDepth: 'Fitted Depth',
     colLeaves: 'Leaves',
     colAccuracy: 'Accuracy',
     colError: 'Error Rate',
