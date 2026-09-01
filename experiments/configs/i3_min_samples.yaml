@@ -1,0 +1,64 @@
+# Experiment I3 – min_samples_split / min_samples_leaf
+# Owner: Huỳnh Thái Hòa (24127374)
+# Status: defined – do not change search_space after first run
+
+experiment_id: I3
+name: min_samples_split_and_leaf
+description: >
+  Adjust minimum samples required to split an internal node (min_samples_split)
+  and minimum samples required to be at a leaf node (min_samples_leaf).
+  Both parameters act as regularisation: larger values prevent the tree from
+  memorising rare training patterns, reducing variance at the cost of some bias.
+
+# Dataset (D-005)
+dataset:
+  source: sklearn.datasets.load_breast_cancer
+  note: >
+    Maps 1-to-1 with UCI Breast Cancer Wisconsin Diagnostic, dataset ID 17.
+    Retrieve the raw UCI file and validate checksum when available.
+
+# Split protocol (D-006)
+split:
+  strategy: stratified
+  test_size: 0.20
+  random_state: 42
+
+# Positive class (D-006)
+target:
+  encoding:
+    M: 1  # malignant – positive class
+    B: 0  # benign – negative class
+  positive_class: M
+
+# Cross-validation (training signal only; test set untouched during selection)
+cross_validation:
+  folds: 5
+  strategy: stratified_k_fold
+  scoring: recall        # primary metric proposed in D-006
+  random_state: 42
+
+# Fixed parameters (same as baseline B0, D-003)
+fixed_params:
+  criterion: gini
+  max_depth: null        # unconstrained – tuned in experiment I1 (Phong)
+
+# Search space – defined before any run; do not update retrospectively
+search_space:
+  min_samples_split: [2, 5, 10, 20, 50]
+  min_samples_leaf:  [1, 2,  5, 10, 20]
+
+# Selection rule
+selection:
+  primary:   cv_recall_mean    # highest wins
+  tiebreak1: cv_recall_std     # lower wins
+  tiebreak2: min_samples_split # lower wins (simpler model preferred)
+  tiebreak3: min_samples_leaf  # lower wins
+
+# Outputs
+outputs:
+  results_dir: experiments/results/i3_min_samples
+  save_all_configs: true    # CODING_RULES §6: do not discard non-best configs
+  figures:
+    - confusion_matrix
+    - cv_recall_heatmap
+    - tree_structure_best

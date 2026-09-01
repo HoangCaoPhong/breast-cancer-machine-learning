@@ -12,18 +12,6 @@ Entry point dự kiến:
 Mỗi script chạy từ repository root, nhận config/path tường minh, có seed và không
 dùng đường dẫn tuyệt đối. Không để training logic chỉ tồn tại trong notebook.
 
-## Run the canonical sklearn baseline
-
-```bash
-python scripts/run_baseline.py
-```
-
-Baseline B0 được cố định theo D-006: Gini, unlimited depth,
-`min_samples_split=2`, `min_samples_leaf=1`, stratified 80/20 split và seed 42.
-Runner ghi `experiments/results/baseline/metrics.json`, gồm train/test malignant
-F2/recall/precision/F1, specificity, balanced accuracy, accuracy/error rate,
-TN/FP/FN/TP và ROC-AUC.
-
 ## Run the custom tree
 
 Từ repository root:
@@ -41,3 +29,16 @@ python scripts/run_custom_tree.py --criterion entropy --max-depth 3 --min-sample
 Script dùng stratified 80/20 split với seed 42 theo mặc định, in train/test accuracy,
 error rate, confusion matrix, classification report và malignant false-negative count.
 Các giá trị mặc định phục vụ demo local, chưa phải protocol chính thức cho report.
+
+## Run the max-depth experiment
+
+```bash
+python scripts/run_max_depth_experiment.py \
+  --config experiments/configs/max_depth.json
+```
+
+Experiment chỉ dùng cross-validation trên training split để chọn độ sâu, sau đó so sánh
+baseline không giới hạn với model đã chọn trên held-out test set. Primary selection
+metric là malignant F2 (`beta=2`) theo D-006; accuracy vẫn được báo như secondary
+metric. Bảng CSV, summary JSON, accuracy/F2 plots và selected-tree plot được ghi vào
+`experiments/results/max_depth/`.
