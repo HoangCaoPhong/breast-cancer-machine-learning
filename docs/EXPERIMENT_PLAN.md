@@ -16,19 +16,19 @@
 | Excluded field | ID |
 | Retrieval method/checksum | TBD |
 
-## 2. Shared evaluation protocol
+## 2. Accepted baseline and evaluation protocol
 
 | Field | Value |
 | --- | --- |
-| Canonical target encoding | TBD |
-| Positive class | `M` (malignant), accepted in D-006 |
-| Split strategy/ratio | TBD; stratified split expected |
-| Canonical random seed | TBD |
-| Cross-validation | TBD |
-| Primary selection metric | Malignant-class F2 (`beta = 2`) on validation/CV |
-| Selection tie-breakers | Higher malignant recall, then lower F2 standard deviation, then simpler tree |
-| Required secondary metrics | Malignant precision/recall/F1, benign recall (specificity), balanced accuracy, accuracy, error rate, confusion matrix, FN and FP counts |
-| Supplementary metric | ROC-AUC only when the compared models expose valid, comparable scores/probabilities |
+| Canonical target representation | Preserve labels `B`/`M` |
+| Positive / negative class | `M` / `B` |
+| Split strategy/ratio | Stratified 80/20 train/test split |
+| Canonical random seed | `42` |
+| Cross-validation for tuning | Stratified 5-fold CV on training set |
+| Primary selection metric | Malignant F2 (`beta=2`) on validation/CV |
+| Selection tie-breakers | Higher malignant recall, then lower F2 standard deviation, then fewer leaves, then lower depth, then declared candidate order |
+| Required metrics | Malignant precision/recall/F1/F2, benign recall (specificity), balanced accuracy, accuracy, error rate, TN/FP/FN/TP |
+| Supplementary metric | ROC-AUC when valid positive-class probabilities are available |
 
 Tuning chỉ dùng training/CV hoặc validation. Test set chỉ dùng sau khi chọn model.
 Tất cả model dùng cùng data version, feature order, split và seed.
@@ -75,14 +75,28 @@ cho cả `B` và `M`. Khi denominator bằng 0, code phải trả `0` và ghi r�
 F2 được chọn thay vì recall đơn độc vì recall có thể đạt tối đa bằng cách dự đoán mọi
 mẫu là `M`. F2 vẫn thể hiện chi phí bỏ sót malignant cao hơn, đồng thời phạt false
 positive. Accuracy được giữ vì đề bài yêu cầu nhưng không phải tiêu chí chọn model.
+### 2.3 Canonical baseline B0
+
+```text
+criterion="gini"
+max_depth=None
+min_samples_leaf=1
+min_samples_split=2
+random_state=42
+```
+
+B0 là cây cơ bản không regularization để làm mốc. Dấu hiệu train score cao hoặc cây
+sâu phải được báo như bằng chứng overfitting tiềm năng, không được âm thầm chỉnh tham
+số baseline. Các thay đổi depth, criterion hoặc minimum samples thuộc improvement
+track tương ứng.
 
 ## 3. Model matrix
 
 | ID | Model/change | Owner | Giả thuyết chính | Status |
 | --- | --- | --- | --- | --- |
 | C0 | Decision Tree from scratch | Phong | Minh họa cách impurity/split/stopping tạo cây | Pending |
-| B0 | Sklearn baseline | Nhóm/model integrator | Mốc so sánh cố định | Pending |
-| I1 | Tune `max_depth` | Phong | Giảm overfitting bằng giới hạn độ sâu | Pending |
+| B0 | Sklearn baseline | Nhóm/model integrator | Mốc so sánh cố định theo D-006 | Implemented |
+| I1 | Tune `max_depth` on custom + sklearn trees | Phong | Giảm overfitting bằng giới hạn độ sâu | Implemented |
 | I2 | Gini vs. Entropy | Ngọc; Kiên hỗ trợ setup tích hợp | Criterion khác có thể đổi split/complexity/performance | Pending |
 | I3 | Tune `min_samples_split`/`min_samples_leaf` | Hòa | Tránh nhánh quá đặc thù và giảm variance | Pending |
 
@@ -99,9 +113,9 @@ Mỗi run dùng cho report lưu tối thiểu:
 - model parameters/search space;
 - train/validation/test metrics phù hợp;
 - accuracy và `error_rate = 1 - accuracy`;
-- confusion matrix theo thứ tự `B`, `M`; malignant F2/precision/recall/F1;
-- benign recall (specificity), balanced accuracy và raw false-negative/false-positive count;
-- ROC-AUC nếu mọi model trong phép so sánh có score/probability hợp lệ và tương đương;
+- confusion matrix theo label order `B`, `M`, malignant precision/recall/F1/F2;
+- benign recall, balanced accuracy và raw TN/FP/FN/TP counts;
+- ROC-AUC khi có positive-class probability hợp lệ;
 - tree depth, leaf count, figure/rules và feature importances khi có;
 - nhận xét overfit/underfit, failure mode và giới hạn.
 
@@ -114,15 +128,19 @@ Mỗi run dùng cho report lưu tối thiểu:
 
 ## 6. Comparison rule
 
-Chọn model theo malignant F2 và tie-breakers ở mục 2.2. Nếu accuracy tăng nhưng
+Chọn improvement theo mean malignant F2 trên training CV và tie-breakers ở mục 2.2.
+Nếu accuracy tăng nhưng
 malignant F2 hoặc recall giảm, báo trade-off; không gọi đó là cải thiện mặc định.
 Không tuyên bố hiệu quả lâm sàng từ kết quả trên dataset này.
 
-## 7. Reproduction command placeholder
-
-Owner model thay bằng entry point thật khi triển khai:
+## 7. Reproduction command
 
 ```bash
-# Placeholder only
-python scripts/run_experiment.py --config experiments/configs/<name>.yaml
+python scripts/run_max_depth_experiment.py \
+  --config experiments/configs/max_depth.json
 ```
+
+Runner chọn depth riêng cho custom và sklearn bằng cùng stratified training folds,
+sau đó chỉ đánh giá baseline và candidate đã chọn trên held-out test. Output gồm CSV,
+JSON provenance, report notes, complexity/performance charts, confusion matrices và
+hai tree figures trong `experiments/results/max_depth/`.

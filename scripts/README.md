@@ -37,8 +37,10 @@ python scripts/run_max_depth_experiment.py \
   --config experiments/configs/max_depth.json
 ```
 
-Experiment chỉ dùng cross-validation trên training split để chọn độ sâu, sau đó so sánh
-baseline không giới hạn với model đã chọn trên held-out test set. Primary selection
-metric là malignant F2 (`beta=2`) theo D-006; accuracy vẫn được báo như secondary
-metric. Bảng CSV, summary JSON, accuracy/F2 plots và selected-tree plot được ghi vào
+Experiment chạy trên cả custom tree và sklearn tree, dùng chung split/folds và chọn độ
+sâu riêng cho từng implementation chỉ bằng training CV. Sau đó runner so sánh baseline
+không giới hạn với model đã chọn trên held-out test. Primary metric là malignant F2
+(`beta=2`) theo D-006/D-007; accuracy và error rate vẫn được báo theo đề. Runner ghi
+CSV metric đầy đủ, JSON provenance, report notes, accuracy/F2/complexity charts,
+held-out metric comparison, confusion matrices và hai selected-tree figures vào
 `experiments/results/max_depth/`.

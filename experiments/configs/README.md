@@ -1,11 +1,11 @@
 # Experiment configs
 
-Owner model thêm config sau khi canonical split/seed được chốt. Metrics đã chốt theo
-D-006: malignant F2 (`beta=2`) là primary selection metric, positive class là `M`.
-Tên gợi ý:
+Baseline, split, seed và metrics đã được chốt trong D-006. Config chính thức hiện có:
 
-- `baseline.yaml`
-- `max_depth.yaml`
+- `baseline.json`
+- `max_depth.json` - cùng search space cho custom và sklearn tree theo D-007
+
+Config cho improvement experiment cần thêm:
 - `criterion.yaml`
 - `min_samples.yaml`
 
