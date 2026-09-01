@@ -66,6 +66,7 @@ export interface Translations {
   orientationVertical: string;
   orientationHorizontal: string;
   zoomReset: string;
+  zoomFit: string;
   canvasDragHelper: string;
   canvasWheelHelper: string;
   trajectoryBannerTitle: string;
@@ -234,6 +235,7 @@ export const translations: Record<Language, Translations> = {
     orientationVertical: 'Xem Dọc',
     orientationHorizontal: 'Xem Ngang',
     zoomReset: '↺ Đặt lại',
+    zoomFit: '⊡ Vừa khung',
     canvasDragHelper: 'Kéo chuột để di chuyển',
     canvasWheelHelper: 'Lăn chuột để Phóng to / Thu nhỏ',
     trajectoryBannerTitle: 'Đang hiển thị Đường đi Suy luận (Decision Trajectory) của mẫu hiện tại:',
@@ -401,6 +403,7 @@ export const translations: Record<Language, Translations> = {
     orientationVertical: 'Vertical View',
     orientationHorizontal: 'Horizontal View',
     zoomReset: '↺ Reset View',
+    zoomFit: '⊡ Fit View',
     canvasDragHelper: 'Click & Drag to Pan Canvas',
     canvasWheelHelper: 'Mouse Wheel to Zoom in/out',
     trajectoryBannerTitle: 'Visualizing Live Decision Trajectory for Current Patient Sample:',

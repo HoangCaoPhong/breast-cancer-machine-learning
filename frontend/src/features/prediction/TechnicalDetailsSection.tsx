@@ -116,7 +116,9 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
   return (
     <div
       className={`flex ${
-        isHorizontal ? 'flex-row items-center gap-4 shrink-0' : 'flex-col items-center flex-1 min-w-[240px]'
+        isHorizontal
+          ? 'flex-row items-center gap-3 shrink-0'
+          : 'flex-col items-center flex-1 min-w-[130px] sm:min-w-[155px]'
       } transition-all duration-300 ${
         isDimmed ? 'opacity-25 hover:opacity-90' : 'opacity-100'
       }`}
@@ -125,8 +127,8 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
       <div className="flex flex-col items-center shrink-0">
         {/* Active Trajectory Step Banner */}
         {isActivePath && !isLeaf && currentStep && (
-          <div className="inline-flex items-center gap-1 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 shadow-sm animate-fade-in whitespace-nowrap">
-            <span className="material-symbols-outlined text-[12px]">route</span>
+          <div className="inline-flex items-center gap-1 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded-full mb-0.5 shadow-xs animate-fade-in whitespace-nowrap">
+            <span className="material-symbols-outlined text-[11px]">route</span>
             {t.stepPrefix} {depth + 1}: {currentStep.actualValue} ≤ {currentStep.threshold} ➔{' '}
             {currentStep.isSatisfied ? t.stepTrue : t.stepFalse}
           </div>
@@ -135,11 +137,11 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
         {/* Target Final Diagnosis Leaf Banner (Color-coded: Green for Benign, Red for Malignant) */}
         {isTargetLeaf && (
           <div
-            className={`inline-flex items-center gap-1 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 shadow-md animate-pulse whitespace-nowrap ${
+            className={`inline-flex items-center gap-1 text-white text-[9px] font-bold px-2 py-0.5 rounded-full mb-0.5 shadow-md animate-pulse whitespace-nowrap ${
               isMalignant ? 'bg-error shadow-error/30' : 'bg-tertiary-container shadow-tertiary-container/30'
             }`}
           >
-            <span className="material-symbols-outlined text-[12px]">
+            <span className="material-symbols-outlined text-[11px]">
               {isMalignant ? 'warning' : 'verified'}
             </span>
             {t.leafTargetBanner} {isMalignant ? t.diagnosisMalignant : t.diagnosisBenign}
@@ -148,15 +150,15 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
 
         {/* Node Box */}
         <div
-          className={`p-3 rounded-xl border text-center transition-all shadow-sm ${
-            isHorizontal ? 'w-[240px] shrink-0' : 'w-full max-w-[260px]'
+          className={`p-2 rounded-lg border text-center transition-all shadow-2xs ${
+            isHorizontal ? 'w-[185px] shrink-0' : 'w-full max-w-[175px]'
           } ${
             isTargetLeaf
               ? isMalignant
-                ? 'border-2 border-error bg-error-container/40 ring-4 ring-error/30 shadow-xl scale-105'
-                : 'border-2 border-tertiary-container bg-tertiary-container/20 ring-4 ring-tertiary-container/30 shadow-xl scale-105'
+                ? 'border-2 border-error bg-error-container/40 ring-2 ring-error/30 shadow-md scale-105'
+                : 'border-2 border-tertiary-container bg-tertiary-container/20 ring-2 ring-tertiary-container/30 shadow-md scale-105'
               : isActivePath
-              ? 'border-2 border-primary bg-primary/10 ring-4 ring-primary/20 shadow-lg scale-[1.02]'
+              ? 'border-2 border-primary bg-primary/10 ring-2 ring-primary/20 shadow-md scale-[1.02]'
               : isRoot
               ? 'bg-white border-2 border-primary'
               : isLeaf
@@ -167,7 +169,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
           }`}
         >
           <div
-            className={`font-bold text-xs line-clamp-2 ${
+            className={`font-bold text-[11px] leading-snug line-clamp-2 ${
               isTargetLeaf
                 ? isMalignant
                   ? 'text-error font-extrabold'
@@ -179,34 +181,34 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
           >
             {node.name ||
               (isLeaf
-                ? `${language === 'vi' ? 'Nút Lá' : 'Leaf'}: ${node.predictedClass}`
+                ? `${language === 'vi' ? 'Lá' : 'Leaf'}: ${node.predictedClass}`
                 : `${node.feature} ≤ ${node.threshold}`)}
           </div>
 
           {node.criterion && (
-            <div className="text-[11px] font-mono text-on-surface-variant mt-0.5">
+            <div className="text-[10px] font-mono text-on-surface-variant mt-0.5">
               {node.criterion}
             </div>
           )}
 
           {node.samples !== undefined && (
-            <div className="text-[11px] text-on-surface-variant mt-0.5">
+            <div className="text-[10px] text-on-surface-variant mt-0.5">
               {t.totalSamples}: <strong>{node.samples}</strong>
             </div>
           )}
 
           {node.values && node.values.length === 2 && (() => {
             const total = node.values[0] + node.values[1];
-            const benignPct = total > 0 ? ((node.values[0] / total) * 100).toFixed(1) : '0';
-            const malignantPct = total > 0 ? ((node.values[1] / total) * 100).toFixed(1) : '0';
+            const benignPct = total > 0 ? ((node.values[0] / total) * 100).toFixed(0) : '0';
+            const malignantPct = total > 0 ? ((node.values[1] / total) * 100).toFixed(0) : '0';
 
             return (
-              <div className="text-[11px] text-outline mt-1 flex justify-center gap-2 font-mono flex-wrap">
+              <div className="text-[10px] text-outline mt-0.5 flex justify-center gap-1.5 font-mono flex-wrap">
                 <span className="text-tertiary-container font-medium">
-                  {language === 'vi' ? 'Lành' : 'Benign'}: {node.values[0]} ({benignPct}%)
+                  {language === 'vi' ? 'L' : 'B'}: {node.values[0]} ({benignPct}%)
                 </span>
                 <span className="text-error font-medium">
-                  {language === 'vi' ? 'Ác' : 'Malignant'}: {node.values[1]} ({malignantPct}%)
+                  {language === 'vi' ? 'A' : 'M'}: {node.values[1]} ({malignantPct}%)
                 </span>
               </div>
             );
@@ -214,27 +216,27 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
         </div>
       </div>
 
-      {/* Children Branches with Crisp & Distinct Connector Lines */}
+      {/* Children Branches with Crisp & Tight Connector Lines */}
       {!isLeaf && node.children && node.children.length > 0 && (
         <>
           {isHorizontal ? (
             /* Horizontal (Left-to-Right) Branches */
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               {/* Horizontal line connector */}
               <div
-                className={`w-6 h-0.5 shrink-0 transition-colors ${
+                className={`w-4 h-0.5 shrink-0 transition-colors ${
                   isActivePath ? 'bg-primary' : 'bg-slate-300'
                 }`}
               />
-              <div className="flex flex-col gap-6 border-l-2 border-slate-300 pl-4 py-2 relative shrink-0">
+              <div className="flex flex-col gap-3.5 border-l-2 border-slate-300 pl-3 py-1 relative shrink-0">
                 {node.children.map((child, idx) => {
                   const isChildActivePath = isActivePath && idx === activeBranchIdx;
                   const isLeft = idx === 0;
 
                   return (
-                    <div key={child.id || idx} className="flex items-center gap-3 relative shrink-0">
+                    <div key={child.id || idx} className="flex items-center gap-2 relative shrink-0">
                       <span
-                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap transition-all border flex items-center gap-1 shadow-2xs ${
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 whitespace-nowrap transition-all border flex items-center gap-0.5 shadow-2xs ${
                           isChildActivePath
                             ? 'bg-primary text-white border-primary ring-2 ring-primary/30 shadow-md'
                             : isLeft
@@ -242,7 +244,7 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
                             : 'bg-rose-50 text-rose-800 border-rose-300'
                         }`}
                       >
-                        <span className="material-symbols-outlined text-[11px]">
+                        <span className="material-symbols-outlined text-[10px]">
                           {isLeft ? 'check_circle' : 'cancel'}
                         </span>
                         {isLeft ? t.branchLeftShort : t.branchRightShort}
@@ -267,13 +269,13 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
             <div className="w-full flex flex-col items-center">
               {/* Stem line coming down from parent node */}
               <div
-                className={`w-0.5 h-5 transition-colors ${
+                className={`w-0.5 h-3 transition-colors ${
                   isActivePath ? 'bg-primary' : 'bg-slate-300'
                 }`}
               />
 
               {/* Branch Split Grid with Solid Top Connector Bar */}
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 relative pt-4">
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2.5 relative pt-2">
                 {/* Horizontal crossbar connecting the two branches */}
                 <div
                   className={`hidden md:block absolute top-0 left-1/4 right-1/4 h-0.5 transition-colors ${
@@ -289,14 +291,14 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
                     <div key={child.id || idx} className="flex flex-col items-center relative">
                       {/* Vertical line down to branch badge */}
                       <div
-                        className={`hidden md:block w-0.5 h-4 transition-colors ${
+                        className={`hidden md:block w-0.5 h-2.5 transition-colors ${
                           isChildActivePath ? 'bg-primary' : 'bg-slate-300'
                         }`}
                       />
 
                       {/* Branch Label Badge */}
                       <span
-                        className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-2 transition-all flex items-center gap-1 border shadow-2xs ${
+                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full mb-1 transition-all flex items-center gap-0.5 border shadow-2xs ${
                           isChildActivePath
                             ? 'bg-primary text-white border-primary ring-2 ring-primary/30 shadow-md scale-105'
                             : isLeft
@@ -304,10 +306,10 @@ const DynamicTreeNodeView: React.FC<DynamicTreeNodeViewProps> = ({
                             : 'bg-rose-50 text-rose-800 border-rose-300'
                         }`}
                       >
-                        <span className="material-symbols-outlined text-[12px]">
+                        <span className="material-symbols-outlined text-[10px]">
                           {isLeft ? 'check_circle' : 'cancel'}
                         </span>
-                        {isLeft ? t.branchLeftTrue : t.branchRightFalse}
+                        {isLeft ? t.branchLeftShort : t.branchRightShort}
                         {isChildActivePath && ' ✓'}
                       </span>
 
@@ -351,8 +353,8 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
   const [treeData, setTreeData] = useState<TreeNodeData | null>(null);
   const [loadingTree, setLoadingTree] = useState<boolean>(false);
 
-  // Zoom, Orientation & View Mode state
-  const [zoomLevel, setZoomLevel] = useState<number>(0.9);
+  // Zoom, Orientation & View Mode state (compact default zoom of 0.65 for vertical mode)
+  const [zoomLevel, setZoomLevel] = useState<number>(0.65);
   const [orientation, setOrientation] = useState<TreeOrientation>('vertical');
   const [viewMode, setViewMode] = useState<TreeViewMode>('full');
 
@@ -408,10 +410,10 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const zoomDelta = e.deltaY < 0 ? 0.08 : -0.08;
+      const zoomDelta = e.deltaY < 0 ? 0.06 : -0.06;
       setZoomLevel((prev) => {
         const next = Number((prev + zoomDelta).toFixed(2));
-        return Math.min(1.8, Math.max(0.35, next));
+        return Math.min(1.6, Math.max(0.2, next));
       });
     };
 
@@ -421,17 +423,42 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
     };
   }, [activeTab]);
 
+  const handleOrientationChange = (newOrientation: TreeOrientation) => {
+    setOrientation(newOrientation);
+    setPanOffset({ x: 0, y: 0 });
+    setZoomLevel(newOrientation === 'vertical' ? 0.65 : 0.8);
+  };
+
   const handleZoomIn = () => {
-    setZoomLevel((prev) => Math.min(1.6, Number((prev + 0.15).toFixed(2))));
+    setZoomLevel((prev) => Math.min(1.6, Number((prev + 0.12).toFixed(2))));
   };
 
   const handleZoomOut = () => {
-    setZoomLevel((prev) => Math.max(0.4, Number((prev - 0.15).toFixed(2))));
+    setZoomLevel((prev) => Math.max(0.2, Number((prev - 0.12).toFixed(2))));
   };
 
   const handleResetZoom = () => {
-    setZoomLevel(0.9);
+    setZoomLevel(orientation === 'vertical' ? 0.65 : 0.8);
     setPanOffset({ x: 0, y: 0 });
+  };
+
+  const handleFitView = () => {
+    if (!containerRef.current || !contentRef.current) {
+      setZoomLevel(orientation === 'vertical' ? 0.6 : 0.75);
+      setPanOffset({ x: 0, y: 0 });
+      return;
+    }
+    const cWidth = containerRef.current.clientWidth - 40;
+    const cHeight = containerRef.current.clientHeight - 40;
+    const sWidth = contentRef.current.scrollWidth;
+    const sHeight = contentRef.current.scrollHeight;
+    if (sWidth > 0 && sHeight > 0) {
+      const scaleX = cWidth / sWidth;
+      const scaleY = cHeight / sHeight;
+      const fitScale = Math.min(1.2, Math.max(0.2, Math.min(scaleX, scaleY)));
+      setZoomLevel(Number(fitScale.toFixed(2)));
+      setPanOffset({ x: 0, y: 0 });
+    }
   };
 
   // Drag-to-pan event handlers with dynamic rectangular diagram bounding
@@ -648,32 +675,26 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                 <div className="flex items-center bg-surface-container-low p-0.5 rounded-lg border border-outline-variant">
                   <button
                     type="button"
-                    onClick={() => {
-                      setOrientation('vertical');
-                      setPanOffset({ x: 0, y: 0 });
-                    }}
+                    onClick={() => handleOrientationChange('vertical')}
                     className={`px-2.5 py-1 text-xs rounded-md font-sans transition-colors flex items-center gap-1 ${
                       orientation === 'vertical'
                         ? 'bg-white text-primary font-bold shadow-sm'
                         : 'text-on-surface-variant hover:text-primary'
                     }`}
-                    title="Xem dọc"
+                    title="Xem cấu trúc cây phân nhánh từ trên xuống dưới"
                   >
                     <span className="material-symbols-outlined text-sm">align_vertical_top</span>
                     {t.orientationVertical}
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setOrientation('horizontal');
-                      setPanOffset({ x: 0, y: 0 });
-                    }}
+                    onClick={() => handleOrientationChange('horizontal')}
                     className={`px-2.5 py-1 text-xs rounded-md font-sans transition-colors flex items-center gap-1 ${
                       orientation === 'horizontal'
                         ? 'bg-white text-primary font-bold shadow-sm'
                         : 'text-on-surface-variant hover:text-primary'
                     }`}
-                    title="Xem ngang"
+                    title="Xem cấu trúc cây phân nhánh từ trái sang phải"
                   >
                     <span className="material-symbols-outlined text-sm">align_horizontal_left</span>
                     {t.orientationHorizontal}
@@ -700,6 +721,15 @@ export const TechnicalDetailsSection: React.FC<TechnicalDetailsSectionProps> = (
                     title="Phóng to sơ đồ"
                   >
                     <span className="material-symbols-outlined text-sm">zoom_in</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleFitView}
+                    className="px-2 py-1 text-[11px] text-primary hover:text-primary font-bold rounded hover:bg-white transition-colors border-l border-outline-variant font-sans flex items-center gap-1"
+                    title="Tự động thu phóng vừa vặn toàn bộ khung hình"
+                  >
+                    <span className="material-symbols-outlined text-[13px]">aspect_ratio</span>
+                    {t.zoomFit}
                   </button>
                   <button
                     type="button"
