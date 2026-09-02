@@ -5,8 +5,15 @@ import numpy as np
 
 from app.core.config import settings
 from app.ml.custom_tree import DecisionTreeClassifierScratch
-from app.ml.preprocessing import load_breast_cancer_dataset
+from app.ml.preprocessing.loader import get_train_test_split
 from app.ml.preprocessing.pipeline import CANONICAL_FEATURE_NAMES, FEATURE_NAME_VI_MAP
+from app.ml.selected_models import (
+    SELECTED_CRITERION_CONFIG,
+    SELECTED_MAX_DEPTH_CONFIG,
+    SELECTED_MIN_SAMPLES_CONFIG,
+    build_selected_max_depth_model,
+    build_selected_min_samples_model,
+)
 from app.schemas.prediction import (
     BreastCancerFeaturesSchema,
     DecisionStepSchema,
@@ -18,6 +25,7 @@ from app.schemas.prediction import (
 )
 
 CANONICAL_DATA_PATH = Path(__file__).resolve().parents[3] / "data/raw/uci_wdbc/wdbc.data"
+MAX_DEPTH_DESCRIPTION_PREFIX_VI = "Giới hạn độ sâu tối ưu theo phương pháp kiểm thử chéo"
 
 MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
     {
@@ -27,6 +35,8 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
         "assigned_to": "Baseline",
         "criterion": "Gini",
         "max_depth": "None",
+        "fitted_depth": 8,
+        "leaf_count": 24,
         "min_samples_split": 2,
         "min_samples_leaf": 1,
         "accuracy": 0.9298,
@@ -44,6 +54,8 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
         "assigned_to": "Phong",
         "criterion": "Gini",
         "max_depth": 5,
+        "fitted_depth": 5,
+        "leaf_count": 15,
         "min_samples_split": 2,
         "min_samples_leaf": 2,
         "accuracy": 0.9035,
@@ -56,53 +68,76 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
     },
     {
         "id": "I1",
-        "name": "Tuning Max Depth (depth=3)",
-        "name_vi": "Cải tiến 1: Giới hạn Độ sâu cây",
+        "name": f"Tuning Max Depth (depth={SELECTED_MAX_DEPTH_CONFIG.max_depth})",
+        "name_vi": (
+            "Cải tiến 1: Giới hạn Độ sâu cây "
+            + f"(max_depth={SELECTED_MAX_DEPTH_CONFIG.max_depth})"
+        ),
         "assigned_to": "Phong",
-        "criterion": "Gini",
-        "max_depth": 3,
-        "min_samples_split": 2,
-        "min_samples_leaf": 1,
+        "criterion": SELECTED_MAX_DEPTH_CONFIG.criterion.capitalize(),
+        "max_depth": SELECTED_MAX_DEPTH_CONFIG.max_depth,
+        "fitted_depth": 8,
+        "leaf_count": 24,
+        "min_samples_split": SELECTED_MAX_DEPTH_CONFIG.min_samples_split,
+        "min_samples_leaf": SELECTED_MAX_DEPTH_CONFIG.min_samples_leaf,
         "accuracy": 0.9181,
         "error_rate": 0.0819,
         "recall_malignant": 0.7812,
         "f1_score": 0.8772,
         "precision": 0.9250,
-        "description_vi": "Giới hạn độ sâu để đơn giản hóa cây và tránh học vẹt.",
+        "description_vi": f"{MAX_DEPTH_DESCRIPTION_PREFIX_VI} (Cross-Validation).",
         "is_best": False,
     },
     {
         "id": "I2",
-        "name": "Splitting Criterion: Entropy vs Gini",
-        "name_vi": "Cải tiến 2: Dùng Tiêu chuẩn Entropy",
+        "name": "Splitting Criterion: Gini vs Entropy",
+        "name_vi": "Cải tiến 2: Tiêu chuẩn phân hoạch (Gini vs Entropy)",
         "assigned_to": "Ngọc",
-        "criterion": "Entropy",
-        "max_depth": 4,
-        "min_samples_split": 2,
-        "min_samples_leaf": 1,
-        "accuracy": 0.9298,
-        "error_rate": 0.0702,
-        "recall_malignant": 0.8281,
+        "criterion": SELECTED_CRITERION_CONFIG.custom_result.selected_criterion.capitalize(),
+        "max_depth": (
+            "None"
+            if SELECTED_CRITERION_CONFIG.max_depth is None
+            else SELECTED_CRITERION_CONFIG.max_depth
+        ),
+        "fitted_depth": SELECTED_CRITERION_CONFIG.custom_result.fitted_depth,
+        "leaf_count": SELECTED_CRITERION_CONFIG.custom_result.leaf_count,
+        "min_samples_split": SELECTED_CRITERION_CONFIG.min_samples_split,
+        "min_samples_leaf": SELECTED_CRITERION_CONFIG.min_samples_leaf,
+        "accuracy": SELECTED_CRITERION_CONFIG.custom_result.selected_test_accuracy,
+        "error_rate": round(
+            1.0 - SELECTED_CRITERION_CONFIG.custom_result.selected_test_accuracy, 4
+        ),
+        "recall_malignant": SELECTED_CRITERION_CONFIG.custom_result.selected_test_recall,
         "f1_score": 0.8983,
         "precision": 0.9320,
-        "description_vi": "Sử dụng thước đo Độ lợi thông tin (Information Gain).",
+        "description_vi": "Đánh giá lựa chọn giữa Gini Impurity và Entropy (Information Gain).",
         "is_best": False,
     },
     {
         "id": "I3",
-        "name": "Tuning Min Samples Split & Leaf",
-        "name_vi": "Cải tiến 3: Tối ưu Cắt tỉa nhánh",
+        "name": "Adjusting minimum samples for split or leaf nodes",
+        "name_vi": "Cải tiến 3: Điều chỉnh số mẫu tối thiểu (min_samples_split=5)",
         "assigned_to": "Hòa",
-        "criterion": "Entropy",
-        "max_depth": 4,
-        "min_samples_split": 4,
-        "min_samples_leaf": 2,
-        "accuracy": 0.9386,
-        "error_rate": 0.0614,
-        "recall_malignant": 0.8571,
+        "criterion": SELECTED_MIN_SAMPLES_CONFIG.criterion.capitalize(),
+        "max_depth": (
+            "None"
+            if SELECTED_MIN_SAMPLES_CONFIG.max_depth is None
+            else SELECTED_MIN_SAMPLES_CONFIG.max_depth
+        ),
+        "fitted_depth": SELECTED_MIN_SAMPLES_CONFIG.result.fitted_depth,
+        "leaf_count": SELECTED_MIN_SAMPLES_CONFIG.result.leaf_count,
+        "min_samples_split": SELECTED_MIN_SAMPLES_CONFIG.min_samples_split,
+        "min_samples_leaf": SELECTED_MIN_SAMPLES_CONFIG.min_samples_leaf,
+        "accuracy": SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_accuracy,
+        "error_rate": round(1.0 - SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_accuracy, 4),
+        "recall_malignant": SELECTED_MIN_SAMPLES_CONFIG.result.selected_test_recall,
         "f1_score": 0.9125,
         "precision": 0.9400,
-        "description_vi": "Điều chỉnh số mẫu tối thiểu để cắt bớt các nhánh dư thừa.",
+        "description_vi": (
+            "Điều chỉnh số mẫu tối thiểu "
+            f"(min_samples_split={SELECTED_MIN_SAMPLES_CONFIG.min_samples_split}, "
+            f"min_samples_leaf={SELECTED_MIN_SAMPLES_CONFIG.min_samples_leaf})."
+        ),
         "is_best": True,
     },
 ]
@@ -110,39 +145,36 @@ MODEL_METADATA_DEFINITIONS: list[dict[str, Any]] = [
 
 class ModelManager:
     def __init__(self) -> None:
-        self.fitted_custom_trees: dict[str, DecisionTreeClassifierScratch] = {}
+        self.fitted_custom_trees: dict[str, Any] = {}
         self._initialize_models()
 
     def _initialize_models(self) -> None:
-        """Fit models on the canonical dataset if available."""
-        if not CANONICAL_DATA_PATH.exists():
-            return
-
+        """Fit models on the canonical dataset using selected_models presets."""
         try:
-            dataset = load_breast_cancer_dataset(CANONICAL_DATA_PATH)
-            X = dataset.features.to_numpy(dtype=float)
-            y = dataset.target.to_numpy()
+            split = get_train_test_split()
+            X = split.X_train
+            y = split.y_train
 
-            # Fit Custom Tree variants
+            # B0: Baseline Unpruned Tree (max_depth=None, min_samples_split=2, leaf=1, Gini)
+            self.fitted_custom_trees["B0"] = DecisionTreeClassifierScratch(
+                criterion="gini", max_depth=None, min_samples_split=2, min_samples_leaf=1
+            ).fit(X, y)
+
+            # C0: Custom Tree from scratch (max_depth=5, min_samples_split=2, leaf=2, Gini)
             self.fitted_custom_trees["C0"] = DecisionTreeClassifierScratch(
                 criterion="gini", max_depth=5, min_samples_split=2, min_samples_leaf=2
             ).fit(X, y)
 
-            self.fitted_custom_trees["I1"] = DecisionTreeClassifierScratch(
-                criterion="gini", max_depth=3, min_samples_split=2, min_samples_leaf=1
-            ).fit(X, y)
+            # I1: Selected Max Depth Model (max_depth=8, min_samples_split=2, leaf=1, Gini)
+            self.fitted_custom_trees["I1"] = build_selected_max_depth_model("custom").fit(X, y)
 
+            # I2: Selected Criterion Model (Entropy criterion vs Gini)
             self.fitted_custom_trees["I2"] = DecisionTreeClassifierScratch(
-                criterion="entropy", max_depth=4, min_samples_split=2, min_samples_leaf=1
+                criterion="entropy", max_depth=None, min_samples_split=2, min_samples_leaf=1
             ).fit(X, y)
 
-            self.fitted_custom_trees["I3"] = DecisionTreeClassifierScratch(
-                criterion="entropy", max_depth=4, min_samples_split=4, min_samples_leaf=2
-            ).fit(X, y)
-
-            self.fitted_custom_trees["B0"] = DecisionTreeClassifierScratch(
-                criterion="gini", max_depth=8, min_samples_split=2, min_samples_leaf=1
-            ).fit(X, y)
+            # I3: Selected Min Samples Model (min_samples_split=5, min_samples_leaf=1, Gini)
+            self.fitted_custom_trees["I3"] = build_selected_min_samples_model("custom").fit(X, y)
         except Exception as e:
             print(f"Warning: could not pre-fit models: {e}")
 
@@ -292,6 +324,8 @@ class ModelManager:
                 assigned_to=meta["assigned_to"],
                 criterion=meta["criterion"],
                 max_depth=meta["max_depth"],
+                fitted_depth=meta.get("fitted_depth"),
+                leaf_count=meta.get("leaf_count"),
                 min_samples_split=meta["min_samples_split"],
                 min_samples_leaf=meta["min_samples_leaf"],
                 accuracy=meta.get("accuracy", 0.9000),

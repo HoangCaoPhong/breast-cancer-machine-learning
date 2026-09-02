@@ -1,16 +1,18 @@
 {
-  "experiment_name": "sklearn_max_depth",
+  "experiment_name": "dual_tree_max_depth",
   "owner": "Hoang Cao Phong",
-  "protocol_status": "Metrics accepted in D-006; split, seed, and CV remain provisional until D-007",
-  "hypothesis": "Limiting tree depth reduces overfitting and improves held-out performance.",
+  "protocol_status": "Accepted in D-006 and D-007",
+  "hypothesis": "Limiting tree depth reduces overfitting and improves cross-validated malignant F2 while producing a simpler tree.",
   "dataset": "data/raw/uci_wdbc/wdbc.data",
   "output_dir": "experiments/results/max_depth",
   "depths": [null, 1, 2, 3, 4, 5, 6, 8, 10],
+  "implementations": ["custom", "sklearn"],
   "test_size": 0.2,
   "random_seed": 42,
   "cv_folds": 5,
   "criterion": "gini",
   "min_samples_split": 2,
   "min_samples_leaf": 1,
-  "positive_class": "M"
+  "positive_class": "M",
+  "negative_class": "B"
 }

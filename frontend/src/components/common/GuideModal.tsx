@@ -22,7 +22,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 Hướng Dẫn Sử Dụng & Nguồn Dữ Liệu
               </h3>
               <p className="text-xs text-slate-400 font-sans">
-                Đồ án Machine Learning Lab 02 · Nhóm 4 HCMUS
+                Đồ án Machine Learning · Nhóm 4 HCMUS
               </p>
             </div>
           </div>
@@ -61,7 +61,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
               <ShieldAlert className="w-4 h-4" /> Lưu Ý Quan Trọng
             </h4>
             <p>
-              Dự án này là bài tập môn học Cơ sở Trí tuệ Nhân tạo nhằm minh họa cơ chế hoạt động của thuật toán Cây Quyết Định (Decision Tree). Kết quả từ mô hình tuyệt đối không có giá trị thay thế bác sĩ hay các quy trình xét nghiệm y khoa lâm sàng.
+              Dự án này phục vụ nghiên cứu học thuật nhằm minh họa cơ chế hoạt động của thuật toán Cây Quyết Định (Decision Tree). Kết quả từ mô hình tuyệt đối không có giá trị thay thế bác sĩ hay các quy trình xét nghiệm y khoa lâm sàng.
             </p>
           </div>
         </div>
