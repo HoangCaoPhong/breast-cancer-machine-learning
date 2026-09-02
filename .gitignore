@@ -66,8 +66,6 @@ data/raw/**
 !data/raw/uci_wdbc/
 !data/raw/uci_wdbc/wdbc.data
 !data/raw/uci_wdbc/wdbc.names
-data/processed/**
-!data/processed/.gitkeep
 data/external/
 
 # Generated models and experiment output

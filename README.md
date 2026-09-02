@@ -2,6 +2,10 @@
 
 ## English
 
+##  Website Links:
+- **Main Website:** [bc-ml.zapto.org](http://bc-ml.zapto.org/)
+- **Demo Website video:** [https://www.youtube.com/watch?v=LPOv2afp0iU](https://www.youtube.com/watch?v=_LXLkKrm_0c)
+
 ### Project and team
 
 Breast Cancer Machine Learning Demo is a project for the
