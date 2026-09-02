@@ -23,9 +23,66 @@ from sklearn.model_selection import cross_val_score
 # Data Loading
 # ──────────────────────────────────────────────
 
-def load_data(filepath="data/breast_cancer.csv"):
-    """Load the Breast Cancer Wisconsin (Diagnostic) dataset."""
-    df = pd.read_csv(filepath)
+_UCI_COLUMN_NAMES = (
+    "id",
+    "diagnosis",
+    "radius_mean",
+    "texture_mean",
+    "perimeter_mean",
+    "area_mean",
+    "smoothness_mean",
+    "compactness_mean",
+    "concavity_mean",
+    "concave_points_mean",
+    "symmetry_mean",
+    "fractal_dimension_mean",
+    "radius_se",
+    "texture_se",
+    "perimeter_se",
+    "area_se",
+    "smoothness_se",
+    "compactness_se",
+    "concavity_se",
+    "concave_points_se",
+    "symmetry_se",
+    "fractal_dimension_se",
+    "radius_worst",
+    "texture_worst",
+    "perimeter_worst",
+    "area_worst",
+    "smoothness_worst",
+    "compactness_worst",
+    "concavity_worst",
+    "concave_points_worst",
+    "symmetry_worst",
+    "fractal_dimension_worst",
+)
+
+
+def load_data(filepath="../data/raw/uci_wdbc/wdbc.data"):
+    """Load the Breast Cancer Wisconsin (Diagnostic) dataset from raw UCI file.
+
+    The UCI wdbc.data file has no header row.  Column names are assigned
+    according to the canonical UCI variable list (id + diagnosis + 30 features).
+
+    Parameters
+    ----------
+    filepath : str or path-like
+        Path to the UCI ``wdbc.data`` file.  Defaults to
+        ``../data/raw/uci_wdbc/wdbc.data`` relative to the notebooks directory.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with 32 columns: ``id``, ``diagnosis`` (M/B), and 30
+        numeric feature columns.
+    """
+    df = pd.read_csv(
+        filepath,
+        header=None,
+        names=_UCI_COLUMN_NAMES,
+        dtype={"id": "string", "diagnosis": "string"},
+    )
     return df
 
 
