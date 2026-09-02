@@ -60,7 +60,9 @@ def small_binary_dataset() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarr
 def test_load_dataset_shape() -> None:
     X, y, feature_names = load_dataset()
     assert X.shape[0] == 569, "Dataset must have 569 samples"
-    assert X.shape[1] == len(feature_names), "Feature matrix columns must match feature_names length"
+    assert X.shape[1] == len(feature_names), (
+        "Feature matrix columns must match feature_names length"
+    )
     assert X.shape[1] >= 30, "Must have at least 30 original UCI features"
     assert y.shape == (569,), "Target must have 569 labels"
 
