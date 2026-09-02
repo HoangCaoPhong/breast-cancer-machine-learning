@@ -84,6 +84,7 @@ const MainApp: React.FC = () => {
               selectedModelId={selectedModelId}
               onModelChange={handleModelChange}
               onSubmit={() => runPrediction(features, selectedModelId)}
+              onReset={handleResetFeatures}
               isLoading={isLoading}
             />
           </div>
@@ -97,6 +98,7 @@ const MainApp: React.FC = () => {
         {/* Technical Details Section: Full Tree, Experiment Matrix, Dataset Info (12 cols) */}
         <TechnicalDetailsSection
           result={result}
+          currentModelId={selectedModelId}
           activeTab={activeDetailTab}
           onTabChange={setActiveDetailTab}
         />

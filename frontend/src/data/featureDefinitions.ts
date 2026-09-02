@@ -785,7 +785,7 @@ export const EXPERIMENT_COMPARISON_DATA: ModelExperiment[] = [
   },
   {
     id: 'I3',
-    name: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu cho phân nhánh hoặc nút lá (min_samples)',
+    name: 'Cải tiến 3: Điều chỉnh số mẫu tối thiểu (min_samples_split=5)',
     assignedTo: 'Adjusting min_samples (Hòa)',
     criterion: 'Gini',
     maxDepth: 'None',

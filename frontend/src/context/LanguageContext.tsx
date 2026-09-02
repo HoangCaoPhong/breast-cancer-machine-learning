@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type Language = 'vi' | 'en';
@@ -66,6 +67,7 @@ export interface Translations {
   orientationVertical: string;
   orientationHorizontal: string;
   zoomReset: string;
+  zoomFit: string;
   canvasDragHelper: string;
   canvasWheelHelper: string;
   trajectoryBannerTitle: string;
@@ -154,10 +156,12 @@ export interface Translations {
   aboutUsSubtitle: string;
   aboutUsObjectives: string;
   aboutUsTeamTableTitle: string;
+  colNo: string;
   colFullName: string;
-  colGmail: string;
+  colStudentId: string;
   colRole: string;
   colContribution: string;
+  colShare: string;
   aboutUsImprovementsTitle: string;
   apiDocsTitle: string;
   apiDocsSubtitle: string;
@@ -182,7 +186,7 @@ export const translations: Record<Language, Translations> = {
     // Disclaimer
     disclaimerTag: 'Lưu ý Học thuật',
     disclaimerText:
-      'Ứng dụng này phục vụ mục đích nghiên cứu và giáo dục trong khuôn khổ môn học Machine Learning (Học Máy), không cấu thành lời khuyên y tế lâm sàng hay thay thế chẩn đoán của bác sĩ.',
+      'Ứng dụng này phục vụ mục đích nghiên cứu và giáo dục trong khuôn khổ kiến thức nghiên cứu Machine Learning (Học máy), không cấu thành lời khuyên y tế lâm sàng hay thay thế chẩn đoán của bác sĩ.',
 
     // Form
     formTitle: 'Dữ Liệu Khối U Sinh Thiết (30 Chỉ Số)',
@@ -234,6 +238,7 @@ export const translations: Record<Language, Translations> = {
     orientationVertical: 'Xem Dọc',
     orientationHorizontal: 'Xem Ngang',
     zoomReset: '↺ Đặt lại',
+    zoomFit: '⊡ Vừa khung',
     canvasDragHelper: 'Kéo chuột để di chuyển',
     canvasWheelHelper: 'Lăn chuột để Phóng to / Thu nhỏ',
     trajectoryBannerTitle: 'Đang hiển thị Đường đi Suy luận (Decision Trajectory) của mẫu hiện tại:',
@@ -294,16 +299,16 @@ export const translations: Record<Language, Translations> = {
 
     // Improvements Tab
     improvementsTitle: 'Phân Tích Chuyên Sâu 3 Phương Pháp Cải Tiến Mô Hình',
-    improvementsSubtitle: 'Chi tiết nguyên lý toán học, cấu hình tham số và lý do nâng cao năng lực tổng quát hóa',
-    imp1Title: 'Phương pháp 1: Khống chế Chiều sâu cây (max_depth = 3)',
-    imp1Desc: 'Giới hạn độ sâu tối đa của cây ở mức max_depth = 3 thay vì phát triển vô hạn.',
-    imp1Why: '💡 Tại sao cải tiến này giúp giảm lỗi: Ngăn chặn hiện tượng quá khớp (Overfitting), giảm phương sai (Variance). Cây dừng sớm ở các quy tắc tổng quát thay vì học vẹt các điểm nhiễu ngoại lai.',
+    improvementsSubtitle: 'Chi tiết nguyên lý toán học, cấu hình tham số thực nghiệm và lý do nâng cao năng lực tổng quát hóa',
+    imp1Title: 'Phương pháp 1: Khống chế Chiều sâu cây (max_depth = 8)',
+    imp1Desc: 'Giới hạn độ sâu tối đa của cây ở mức max_depth = 8 (tối ưu qua Grid Search & 5-Fold Cross-Validation).',
+    imp1Why: '💡 Tại sao cải tiến này giúp giảm lỗi: Ngăn chặn cây phát triển quá sâu vào các tầng nhiễu ngoại lai (Overfitting), giảm phương sai (Variance) đồng thời bảo toàn độ nhạy phát hiện ca ác tính.',
     imp2Title: 'Phương pháp 2: Tiêu chuẩn phân hoạch (Gini vs Entropy)',
-    imp2Desc: 'Chuyển đổi hàm đo độ tạp chất từ Gini Impurity sang Information Gain (Entropy).',
-    imp2Why: '💡 Tại sao cải tiến này giúp tăng hiệu năng: Thước đo Entropy có hàm logarit nên nhạy cảm hơn với sự mất cân bằng phân phối xác suất tại các nhánh ranh giới, giúp lựa chọn các ngưỡng cắt tối ưu hơn.',
-    imp3Title: 'Phương pháp 3: Điều chỉnh số mẫu tối thiểu (Adjusting min_samples_split / leaf) ⭐ [TỐT NHẤT]',
-    imp3Desc: 'Thiết lập điều kiện cắt tỉa sớm với min_samples_split = 4 và min_samples_leaf = 2 kết hợp max_depth = 4.',
-    imp3Why: '💡 Tại sao cải tiến này đạt kết quả tốt nhất: Loại bỏ hoàn toàn các nút lá đơn lẻ (1 mẫu), nâng cao độ bền vững khi gặp dữ liệu mới và đạt F1-Score (91.25%) cùng Recall ác tính (85.71%) cao nhất.',
+    imp2Desc: 'Thực nghiệm so sánh giữa 2 tiêu chuẩn phân tách: Gini Impurity vs Information Gain (Entropy). Kết quả 5-Fold CV xác nhận Gini tối ưu hơn với F2-score cao nhất (0.9027).',
+    imp2Why: '💡 Kết luận thực nghiệm: Trên bộ dữ liệu 30 đặc trưng liên tục, tiêu chuẩn Gini cho đường biên phân tách ổn định hơn, tính toán tối ưu và đạt độ chính xác 92.98% cùng F1-Score 89.83%.',
+    imp3Title: 'Phương pháp 3: Điều chỉnh số mẫu tối thiểu (min_samples_split = 5, leaf = 1) ⭐ [TỐT NHẤT]',
+    imp3Desc: 'Thiết lập điều kiện dừng phân nhánh sớm khi số mẫu tại nút nhỏ hơn min_samples_split = 5 và nút lá tối thiểu min_samples_leaf = 1.',
+    imp3Why: '💡 Tại sao cải tiến này đạt kết quả tốt nhất: Cắt tỉa tự động 4 nút lá đơn lẻ (giảm từ 24 lá xuống 20 lá), loại bỏ các ngoại lai và giúp mô hình đạt độ chính xác cao nhất (93.86%) và F1-Score (91.25%).',
 
     // Dataset Tab
     datasetTitle: 'Bộ Dữ Liệu UCI Breast Cancer Wisconsin (Diagnostic)',
@@ -318,21 +323,23 @@ export const translations: Record<Language, Translations> = {
     datasetCitationTitle: 'Trích dẫn khoa học:',
 
     // Modals
-    aboutUsTitle: 'Về Nhóm Nghiên Cứu & Đề Tài Lab 2',
+    aboutUsTitle: 'Về Nhóm Nghiên Cứu & Đề Tài',
     aboutUsSubtitle: 'Phân loại Chẩn đoán Ung thư Vú bằng Thuật toán Cây Quyết định (Decision Tree Learning)',
     aboutUsObjectives: 'Mục Tiêu Đề Tài:',
     aboutUsTeamTableTitle: 'Danh Sách Thành Viên & Bảng Phân Công Nhiệm Vụ:',
+    colNo: 'STT',
     colFullName: 'Họ và Tên',
-    colGmail: 'Gmail',
-    colRole: 'Nhiệm Vụ Đảm Nhận Chính',
-    colContribution: 'Đóng Góp',
+    colStudentId: 'MSSV',
+    colRole: 'Vai Trò Đảm Nhiệm',
+    colContribution: 'Nhiệm vụ đảm nhận chính',
+    colShare: 'Tỷ Lệ',
     aboutUsImprovementsTitle: 'Tóm Tắt 3 Hướng Cải Tiến Mô Hình:',
     apiDocsTitle: 'Tài Liệu RESTful API Backend (FastAPI)',
     apiDocsSubtitle: 'Tra cứu trực tiếp tài liệu OpenAPI Swagger UI và ReDoc của máy chủ',
     btnClose: 'Đóng',
 
     // Footer
-    footerDisclaimer: 'Cảnh báo: Ứng dụng phục vụ nghiên cứu và giáo dục học thuật môn học Machine Learning, không thay thế chẩn đoán y tế chuyên khoa.',
+    footerDisclaimer: 'Cảnh báo: Ứng dụng phục vụ nghiên cứu và giáo dục học thuật Machine Learning, không thay thế chẩn đoán y tế chuyên khoa.',
     footerRights: 'Breast Cancer Decision Tree Platform · All rights reserved.',
   },
 
@@ -401,6 +408,7 @@ export const translations: Record<Language, Translations> = {
     orientationVertical: 'Vertical View',
     orientationHorizontal: 'Horizontal View',
     zoomReset: '↺ Reset View',
+    zoomFit: '⊡ Fit View',
     canvasDragHelper: 'Click & Drag to Pan Canvas',
     canvasWheelHelper: 'Mouse Wheel to Zoom in/out',
     trajectoryBannerTitle: 'Visualizing Live Decision Trajectory for Current Patient Sample:',
@@ -462,15 +470,15 @@ export const translations: Record<Language, Translations> = {
     // Improvements Tab
     improvementsTitle: 'In-Depth Analysis of 3 Improvement Methodologies',
     improvementsSubtitle: 'Mathematical principles, hyperparameter search rationale, and generalization enhancement mechanisms',
-    imp1Title: 'Method 1: Constraining Maximum Tree Depth (max_depth = 3)',
-    imp1Desc: 'Enforces strict early stopping by restricting tree depth to max_depth = 3 instead of unconstrained expansion.',
-    imp1Why: '💡 Why this reduces error: Effectively prevents overfitting and reduces model variance by eliminating deep leaf splits tailored to idiosyncratic training noise.',
+    imp1Title: 'Method 1: Constraining Maximum Tree Depth (max_depth = 8)',
+    imp1Desc: 'Enforces optimal early stopping by restricting tree depth to max_depth = 8 (selected via Grid Search & 5-Fold Cross-Validation).',
+    imp1Why: '💡 Why this reduces error: Effectively prevents overfitting and reduces model variance by eliminating deep leaf splits tailored to idiosyncratic training noise while preserving sensitivity to malignant cases.',
     imp2Title: 'Method 2: Splitting Criterion Comparison (Gini vs Entropy)',
-    imp2Desc: 'Transitions the split purity metric from Gini Impurity to Information Gain (Entropy).',
-    imp2Why: '💡 Why this improves performance: Entropy logarithmic scaling provides heightened sensitivity to probability skew at boundary regions, yielding crisper decision thresholds across continuous features.',
-    imp3Title: 'Method 3: Adjusting minimum samples for split or leaf nodes ⭐ [BEST OVERALL]',
-    imp3Desc: 'Configures pre-pruning sample constraints (min_samples_split = 4, min_samples_leaf = 2) combined with max_depth = 4.',
-    imp3Why: '💡 Why this achieves superior results: Prohibits single-sample isolate leaves, enhancing statistical robustness on unseen distributions and attaining peak F1-Score (91.25%) and Malignant Recall (85.71%).',
+    imp2Desc: 'Empirical comparison between Gini Impurity and Information Gain (Entropy). 5-Fold CV selected Gini with the highest validation F2-Score (0.9027).',
+    imp2Why: '💡 Empirical Conclusion: On the 30 continuous features of Wisconsin, Gini provides more stable decision boundaries, optimal computation speed, achieving 92.98% Accuracy and 89.83% F1-Score.',
+    imp3Title: 'Method 3: Adjusting minimum samples for split or leaf nodes (min_split = 5, leaf = 1) ⭐ [BEST OVERALL]',
+    imp3Desc: 'Configures pre-pruning sample constraints (min_samples_split = 5, min_samples_leaf = 1) to trigger early branch stopping.',
+    imp3Why: '💡 Why this achieves superior results: Automatically prunes 4 isolated single-sample leaves (reducing from 24 to 20 leaves), boosting robustness on unseen distributions to achieve peak Accuracy (93.86%) and F1-Score (91.25%).',
 
     // Dataset Tab
     datasetTitle: 'UCI Breast Cancer Wisconsin (Diagnostic) Dataset Provenance',
@@ -485,14 +493,16 @@ export const translations: Record<Language, Translations> = {
     datasetCitationTitle: 'Academic Citation:',
 
     // Modals
-    aboutUsTitle: 'About Research Team & Lab 2 Project',
+    aboutUsTitle: 'About Research Team & Project',
     aboutUsSubtitle: 'Breast Cancer Diagnostic Classification using Decision Tree Learning Paradigms',
     aboutUsObjectives: 'Core Academic Objectives:',
-    aboutUsTeamTableTitle: 'Team Member Roster & Assigned Responsibilities:',
+    aboutUsTeamTableTitle: 'Team Member Roster & Verified Contributions:',
+    colNo: 'No.',
     colFullName: 'Full Name',
-    colGmail: 'Gmail Contact',
-    colRole: 'Assigned Responsibility',
-    colContribution: 'Contribution',
+    colStudentId: 'Student ID',
+    colRole: 'Role',
+    colContribution: 'Verified Contribution',
+    colShare: 'Share',
     aboutUsImprovementsTitle: 'Summary of 3 Model Improvement Methodologies:',
     apiDocsTitle: 'Backend RESTful API Reference (FastAPI)',
     apiDocsSubtitle: 'Live OpenAPI Swagger UI and ReDoc interface documentation for backend endpoints',

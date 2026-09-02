@@ -11,8 +11,12 @@ import {
 import {
   MODEL_OPTIONS,
   EXPERIMENT_COMPARISON_DATA,
-  FULL_DECISION_TREE_STRUCTURE,
+  FEATURE_METADATA_LIST,
 } from '../data/featureDefinitions';
+import {
+  MODEL_TREE_STRUCTURES,
+  DEFAULT_TREE_STRUCTURE,
+} from '../data/modelTreeStructures';
 
 const API_BASE_URL =
   (import.meta as unknown as { env: { VITE_API_URL?: string } }).env?.VITE_API_URL ||
@@ -237,9 +241,9 @@ export class PredictionService {
         return await response.json();
       }
     } catch {
-      // Fallback
+      // Fallback to model-specific pre-computed tree structure
     }
-    return FULL_DECISION_TREE_STRUCTURE;
+    return MODEL_TREE_STRUCTURES[modelId] || MODEL_TREE_STRUCTURES['I3'] || DEFAULT_TREE_STRUCTURE;
   }
 
   /**
@@ -251,104 +255,43 @@ export class PredictionService {
   ): PredictionResponse {
     const modelInfo =
       MODEL_OPTIONS.find((m) => m.id === modelId) || MODEL_OPTIONS[0];
+    const tree = MODEL_TREE_STRUCTURES[modelId] || DEFAULT_TREE_STRUCTURE;
     const decisionPath: DecisionStep[] = [];
 
     const getVal = (v: number | '' | undefined): number =>
       typeof v === 'number' ? v : 0;
 
-    // Primary Root Split: Worst Perimeter
-    const rootThreshold = modelId === 'I1' || modelId === 'depth_tune' ? 106.5 : 105.95;
-    const perimeterWorst = getVal(features.perimeter_worst);
-    const concavePointsWorst = getVal(features.concave_points_worst);
-    const textureWorst = getVal(features.texture_worst);
-    const areaSe = getVal(features.area_se);
+    let currNode: TreeNodeData | undefined = tree;
 
-    const step1Satisfied = perimeterWorst <= rootThreshold;
-    decisionPath.push({
-      feature: 'perimeter_worst',
-      featureNameVi: 'Chu vi xấu nhất (perimeter_worst)',
-      threshold: rootThreshold,
-      operator: '<=',
-      actualValue: perimeterWorst,
-      isSatisfied: step1Satisfied,
-    });
+    while (currNode && !currNode.isLeaf && currNode.children && currNode.children.length > 0) {
+      const featKey = currNode.feature as keyof BreastCancerFeatures | undefined;
+      const thresh: number = typeof currNode.threshold === 'number' ? currNode.threshold : 0;
+      const actualVal: number = featKey ? getVal(features[featKey]) : 0;
+      const isSat: boolean = actualVal <= thresh;
 
-    let isMalignant = false;
-    let confidence = 0.95;
+      const featMeta = FEATURE_METADATA_LIST.find((f) => f.key === currNode?.feature);
+      const featLabelVi = featMeta
+        ? `${featMeta.vietnameseLabel} (${featMeta.key})`
+        : (currNode.feature || '');
 
-    if (step1Satisfied) {
-      // Left Branch (Low perimeter)
-      const step2Satisfied = concavePointsWorst <= 0.1357;
       decisionPath.push({
-        feature: 'concave_points_worst',
-        featureNameVi: 'Điểm lõm xấu nhất (concave_points_worst)',
-        threshold: 0.1357,
+        feature: currNode.feature || '',
+        featureNameVi: featLabelVi,
+        threshold: thresh,
         operator: '<=',
-        actualValue: concavePointsWorst,
-        isSatisfied: step2Satisfied,
+        actualValue: Number(actualVal.toFixed(4)),
+        isSatisfied: isSat,
       });
 
-      if (step2Satisfied) {
-        // High confidence Benign
-        const step3Satisfied = textureWorst <= 33.27;
-        decisionPath.push({
-          feature: 'texture_worst',
-          featureNameVi: 'Độ nhám xấu nhất (texture_worst)',
-          threshold: 33.27,
-          operator: '<=',
-          actualValue: textureWorst,
-          isSatisfied: step3Satisfied,
-        });
-
-        isMalignant = !step3Satisfied;
-        confidence = step3Satisfied ? 0.988 : 0.765;
-      } else {
-        // Borderline branch
-        const step3Satisfied = areaSe <= 38.6;
-        decisionPath.push({
-          feature: 'area_se',
-          featureNameVi: 'Sai số diện tích (area_se)',
-          threshold: 38.6,
-          operator: '<=',
-          actualValue: areaSe,
-          isSatisfied: step3Satisfied,
-        });
-        isMalignant = !step3Satisfied;
-        confidence = step3Satisfied ? 0.825 : 0.920;
-      }
-    } else {
-      // Right Branch (High perimeter)
-      const step2Satisfied = concavePointsWorst <= 0.1472;
-      decisionPath.push({
-        feature: 'concave_points_worst',
-        featureNameVi: 'Điểm lõm xấu nhất (concave_points_worst)',
-        threshold: 0.1472,
-        operator: '<=',
-        actualValue: concavePointsWorst,
-        isSatisfied: step2Satisfied,
-      });
-
-      if (step2Satisfied) {
-        const step3Satisfied = textureWorst <= 25.67;
-        decisionPath.push({
-          feature: 'texture_worst',
-          featureNameVi: 'Độ nhám xấu nhất (texture_worst)',
-          threshold: 25.67,
-          operator: '<=',
-          actualValue: textureWorst,
-          isSatisfied: step3Satisfied,
-        });
-
-        isMalignant = !step3Satisfied;
-        confidence = step3Satisfied ? 0.695 : 0.945;
-      } else {
-        isMalignant = true;
-        confidence = 0.994;
-      }
+      currNode = isSat ? currNode.children[0] : currNode.children[1];
     }
 
-    const malignantProb = isMalignant ? confidence : 1 - confidence;
-    const benignProb = 1 - malignantProb;
+    const values = currNode?.values || [285, 170];
+    const totalLeafSamples = (values[0] + values[1]) || 1;
+    const benignProb = values[0] / totalLeafSamples;
+    const malignantProb = values[1] / totalLeafSamples;
+    const isMalignant = currNode?.predictedClass === 'Malignant' || malignantProb > benignProb;
+    const confidence = isMalignant ? (malignantProb > 0.5 ? malignantProb : 0.95) : (benignProb > 0.5 ? benignProb : 0.95);
 
     const topFeatures: FeatureImportance[] = [
       {

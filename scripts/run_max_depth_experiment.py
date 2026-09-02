@@ -7,7 +7,7 @@ import hashlib
 import json
 import subprocess
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, cast
 
@@ -98,7 +98,7 @@ def export_results(
     result.final_comparison.to_csv(paths["final_comparison"], index=False)
 
     source_path = dataset_path or _resolve_repo_path(Path(raw_config["dataset"]))
-    generated_at = datetime.now(UTC)
+    generated_at = datetime.now(timezone.utc)
     git_commit, worktree_dirty = _git_state()
     summary = {
         "run_id": f"max-depth-{generated_at:%Y%m%dT%H%M%SZ}-{git_commit[:8]}",

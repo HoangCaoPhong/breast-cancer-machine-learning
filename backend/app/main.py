@@ -57,7 +57,12 @@ if FRONTEND_DIST.exists() and (FRONTEND_DIST / "assets").exists():
     @app.get("/{full_path:path}", include_in_schema=False)
     async def serve_spa(full_path: str):
         # Ignore API and docs routes
-        if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("redoc") or full_path == "health":
+        if (
+            full_path.startswith("api/")
+            or full_path.startswith("docs")
+            or full_path.startswith("redoc")
+            or full_path == "health"
+        ):
             return None
         file_path = FRONTEND_DIST / full_path
         if file_path.exists() and file_path.is_file():
@@ -71,4 +76,3 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
-

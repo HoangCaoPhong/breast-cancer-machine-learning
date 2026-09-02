@@ -111,15 +111,23 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
 
             <div className="h-5 w-px bg-outline-variant mx-0.5 hidden sm:block" />
 
-            <button
-              type="button"
-              onClick={onResetFeatures}
-              className="px-3 py-1.5 bg-surface-container-low hover:bg-surface-container-high text-primary border border-outline-variant rounded-lg text-xs font-sans font-semibold transition-colors shadow-sm flex items-center gap-1.5"
-              title={t.navReset}
-            >
-              <span className="material-symbols-outlined text-sm">restart_alt</span>
-              <span className="hidden xs:inline">{t.navReset}</span>
-            </button>
+            <div className="relative group inline-flex items-center">
+              <button
+                type="button"
+                onClick={onResetFeatures}
+                className="px-3 py-1.5 bg-surface-container-low hover:bg-surface-container-high text-primary border border-outline-variant rounded-lg text-xs font-sans font-semibold transition-colors shadow-sm flex items-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-sm">restart_alt</span>
+                <span className="hidden xs:inline">{t.navReset}</span>
+              </button>
+              {/* Instant Hover Tooltip (0ms delay) */}
+              <div className="pointer-events-none absolute top-full right-0 mt-2 hidden group-hover:flex flex-col items-end z-50 animate-fade-in whitespace-nowrap">
+                <div className="w-2 h-2 bg-slate-900/95 rotate-45 mr-4 -mb-1 border-l border-t border-slate-700" />
+                <div className="bg-slate-900/95 backdrop-blur-sm text-white text-[11px] font-sans font-medium px-2.5 py-1 rounded-md shadow-lg border border-slate-700">
+                  {language === 'vi' ? 'Đặt lại toàn bộ dữ liệu & xóa vệt suy luận' : 'Reset all inputs & clear tree result'}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
